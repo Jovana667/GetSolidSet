@@ -66,6 +66,12 @@ const addFoodToMeal = (food: any) => {
     fats: filteredFoods.filter((f) => f.category === "fats"),
   };
 
+    const handleLogout = () => {
+    localStorage.removeItem("token");
+    setIsLoggedIn(false);
+    navigate("/");
+  };
+
   useEffect(() => {
     const fetchMealPlan = async () => {
       try {
@@ -122,6 +128,13 @@ const addFoodToMeal = (food: any) => {
             >
               Back to Meals
             </Link>
+            <Link to='/' className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+
+                onClick={handleLogout}
+                className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+              >
+                Log Out
+              </Link>
           </div>
         </header>
 
