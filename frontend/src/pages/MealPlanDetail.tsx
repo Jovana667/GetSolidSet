@@ -3,22 +3,21 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 import { getFoods, createMeal } from "../services/api";
 
-
 function MealPlanDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [mealPlan, setMealPlan] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [error, setError] = useState("");
-    const [foods, setFoods] = useState<any[]>([]);
-    const [expandedCategories, setExpandedCategories] = useState<string[]>([]);
+  const [foods, setFoods] = useState<any[]>([]);
+  const [expandedCategories, setExpandedCategories] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [visibleCounts, setVisibleCounts] = useState({
-  protein: 15,
-  carbs: 15,
-  fats: 15,
-});
-
+    protein: 15,
+    carbs: 15,
+    fats: 15,
+  });
 
   const calculateGrandTotal = (metric) => {
     return (
@@ -29,7 +28,7 @@ function MealPlanDetail() {
     );
   };
 
-    const loadMore = (category: string) => {
+  const loadMore = (category: string) => {
     setVisibleCounts((prev) => ({
       ...prev,
       [category]: prev[category as keyof typeof prev] + 15,
@@ -44,27 +43,56 @@ function MealPlanDetail() {
   };
 
   const toggleCategory = (category: string) => {
-  if (expandedCategories.includes(category)) {
-    setExpandedCategories(expandedCategories.filter((c) => c !== category));
-  } else {
-    setExpandedCategories([...expandedCategories, category]);
-  }
-};
+    if (expandedCategories.includes(category)) {
+      setExpandedCategories(expandedCategories.filter((c) => c !== category));
+    } else {
+      setExpandedCategories([...expandedCategories, category]);
+    }
+  };
 
-const addFoodToMeal = (food: any) => {
-  // Define what happens when you add food
-  console.log("Adding food:", food);
-};
+  const addFoodToMeal = (food: any) => {
+    // Define what happens when you add food
+    console.log("Adding food:", food);
+  };
 
   const filteredFoods = foods.filter((f) =>
-  f.name.toLowerCase().includes(searchTerm.toLowerCase())
-);
+    f.name.toLowerCase().includes(searchTerm.toLowerCase()),
+  );
 
-    const groupedFoods = {
+  const groupedFoods = {
     protein: filteredFoods.filter((f) => f.category === "protein"),
     carbs: filteredFoods.filter((f) => f.category === "carbs"),
     fats: filteredFoods.filter((f) => f.category === "fats"),
   };
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    setIsLoggedIn(false);
+    navigate("/");
+  };
+
+  useEffect(() => {
+    // Check if user is logged in
+    const token = localStorage.getItem("token");
+    setIsLoggedIn(!!token);
+  }, []);
+
+  useEffect(() => {
+    const fetchFoods = async () => {
+      try {
+        const data = await getFoods();
+        console.log("Foods fetched successfully:", data);
+        setFoods(data.foods || []); // Access data.foods array
+      } catch (error) {
+        console.error("Failed to fetch foods:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    console.log(groupedFoods.protein);
+
+    fetchFoods();
+  }, []);
 
   useEffect(() => {
     const fetchMealPlan = async () => {
@@ -108,7 +136,7 @@ const addFoodToMeal = (food: any) => {
   if (!mealPlan) return <div className="p-8">Meal plan not found</div>;
 
   return (
-                <div className="min-h-screen bg-gray-50 p-8">
+    <div className="min-h-screen bg-gray-50 p-8">
       <div className="max-w-7xl mx-auto">
         <header className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Macrology</h1>
@@ -122,20 +150,28 @@ const addFoodToMeal = (food: any) => {
             >
               Back to Meals
             </Link>
+            <Link
+              to="/"
+              className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+              onClick={handleLogout}
+              className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+            >
+              Log Out
+            </Link>
           </div>
         </header>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">                  
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left side - Meal Planner (2/3 width) */}
           <div className="lg:col-span-2 order-2 lg:order-1 bg-white rounded-lg shadow p-6">
-                      <div>
-            <h1 className="text-3xl font-bold text-gray-900">
-              {mealPlan.name}
-            </h1>
-            <p className="text-gray-600">
-              Created: {new Date(mealPlan.created_at).toLocaleDateString()}
-            </p>
-          </div>
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">
+                {mealPlan.name}
+              </h1>
+              <p className="text-gray-600">
+                Created: {new Date(mealPlan.created_at).toLocaleDateString()}
+              </p>
+            </div>
             {/* Breakfast */}
             <div className="bg-white rounded-lg shadow p-6">
               <h2 className="text-xl font-semibold mb-4">Breakfast: </h2>
@@ -229,25 +265,25 @@ const addFoodToMeal = (food: any) => {
             </div>
 
             <div style={{ display: "flex", justifyContent: "space-between" }}>
-              <button className="mt-6 bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700">
+              <button className="mt-6 bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700" onClick={() => setIsEditing(true)}>
                 Edit Meal
               </button>
               {/* Grand Total */}
               <div className="mt-6 pt-6 ">
                 <h3 className="font-semibold text-lg">
                   Calories: {calculateGrandTotal("calories").toFixed(1)} cal,
-                  Protein: {calculateGrandTotal("protein").toFixed(1)}g, 
-                  Carbs:{" "} {calculateGrandTotal("carbs").toFixed(1)}g, 
-                  Fats:{" "} {calculateGrandTotal("fat").toFixed(1)}g
+                  Protein: {calculateGrandTotal("protein").toFixed(1)}g, Carbs:{" "}
+                  {calculateGrandTotal("carbs").toFixed(1)}g, Fats:{" "}
+                  {calculateGrandTotal("fat").toFixed(1)}g
                 </h3>
               </div>
             </div>
-</div> 
+          </div>
 
-   {/* Right side - 1/3 width */}
-        <div className="order-1 lg:order-2 bg-white rounded-lg shadow p-6">
+          {/* Right side - 1/3 width */}
+          <div className="order-1 lg:order-2 bg-white rounded-lg shadow p-6">
             <h2 className="text-xl font-semibold mb-4">Foods</h2>
-             {/* Protein Category */}
+            {/* Protein Category */}
             <div className="mb-4">
               <button
                 onClick={() => toggleCategory("protein")}
@@ -414,12 +450,10 @@ const addFoodToMeal = (food: any) => {
                 </div>
               )}
             </div>
-
           </div>
         </div>
       </div>
-      </div>
-    
+    </div>
   );
 }
 
