@@ -13,6 +13,8 @@ function MealPlanDetail() {
   const [foods, setFoods] = useState<any[]>([]);
   const [expandedCategories, setExpandedCategories] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [isEditing, setIsEditing] = useState(false);
+  const [formData, setFormData] = useState({ name: "" });
   const [visibleCounts, setVisibleCounts] = useState({
     protein: 15,
     carbs: 15,
@@ -71,6 +73,21 @@ function MealPlanDetail() {
     navigate("/");
   };
 
+  const handleSubmit = async () => {
+    setLoading(true);
+
+    try {
+      await axios.put(`http://localhost:3003/api/meals/plans/${id}`, {
+        name: formData.name,
+      });
+      console.log("Meal updated successfully");
+      setIsEditing(false);
+    } catch (error) {
+      console.error("Something went wrong:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
   useEffect(() => {
     // Check if user is logged in
     const token = localStorage.getItem("token");
@@ -165,9 +182,17 @@ function MealPlanDetail() {
           {/* Left side - Meal Planner (2/3 width) */}
           <div className="lg:col-span-2 order-2 lg:order-1 bg-white rounded-lg shadow p-6">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">
-                {mealPlan.name}
-              </h1>
+              {isEditing ? (
+                <input
+                  type="text"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ name: e.target.value })}
+                />
+              ) : (
+                <h1 className="text-3xl font-bold text-gray-900">
+                  {mealPlan.name}
+                </h1>
+              )}
               <p className="text-gray-600">
                 Created: {new Date(mealPlan.created_at).toLocaleDateString()}
               </p>
@@ -265,9 +290,32 @@ function MealPlanDetail() {
             </div>
 
             <div style={{ display: "flex", justifyContent: "space-between" }}>
-              <button className="mt-6 bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700" onClick={() => setIsEditing(true)}>
-                Edit Meal
-              </button>
+              {isEditing ? (
+                // EDIT MODE - show Save button
+                <button className="mt-6 bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700" onClick={handleSubmit}>
+                  Save Meal{" "}
+                </button>
+              ) : (
+                // VIEW MODE - show Edit button
+                <button
+                  className="mt-6 bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700"
+                  onClick={() => {
+                    setIsEditing(true);
+                    setFormData({ name: mealPlan.name });
+                  }}
+                >
+                  Edit Meal
+                </button>
+              )}
+
+              {isEditing && (
+                <button
+                  className="mt-6 bg-gray-600 text-white px-6 py-2 rounded hover:bg-gray-700"
+                  onClick={() => setIsEditing(false)}
+                >
+                  Cancel
+                </button>
+              )}
               {/* Grand Total */}
               <div className="mt-6 pt-6 ">
                 <h3 className="font-semibold text-lg">
