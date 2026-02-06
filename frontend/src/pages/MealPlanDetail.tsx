@@ -77,9 +77,14 @@ function MealPlanDetail() {
     setLoading(true);
 
     try {
-      await axios.put(`http://localhost:3003/api/meals/plans/${id}`, {
-        name: formData.name,
-      });
+      await axios.put(`http://localhost:3003/api/meals/plans/${id}`, 
+        {name: formData.name},
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`, 
+          },
+          }
+      );
       console.log("Meal updated successfully");
       setIsEditing(false);
     } catch (error) {
