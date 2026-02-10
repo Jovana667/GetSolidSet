@@ -1,5 +1,10 @@
 import { Router } from "express";
-import { createMeal, getMeals, getMealById, getMealPlanById, updateMealPlan } from "../controllers/mealController";
+import {
+  createMeal,
+  getMeals,
+  getMealById,
+  getMealPlanById,
+} from "../controllers/mealController";
 import { verifyToken } from "../middleware/auth";
 
 const router = Router();
@@ -16,7 +21,5 @@ router.get("/plans/:id", verifyToken, getMealPlanById);
 router.post("/", verifyToken, createMeal);
 
 // Update and delete routes can be added here as needed, following the same pattern of using verifyToken middleware
-router.put("/plans/:id", verifyToken, updateMealPlan);
-
 
 export default router;

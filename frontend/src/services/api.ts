@@ -75,9 +75,21 @@ export const getMeals = async () => {
 };
 
 export const createMeal = async (mealData: any) => {
-  const response = await mealApi.post("/meals", mealData);
+  const token = localStorage.getItem("token");
+  console.log("Token:", token);  // Add this line
+  
+  const response = await mealApi.post(
+    "/meals", 
+    mealData,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
   return response.data;
 };
+
 
 export const getMealById = async (mealId: number) => {
   const response = await mealApi.get(`/meals/${mealId}`);
