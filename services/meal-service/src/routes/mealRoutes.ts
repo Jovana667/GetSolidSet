@@ -4,6 +4,7 @@ import {
   getMeals,
   getMealById,
   getMealPlanById,
+  updateMealPlan,
 } from "../controllers/mealController";
 import { verifyToken } from "../middleware/auth";
 
@@ -19,6 +20,9 @@ router.get("/plans/:id", verifyToken, getMealPlanById);
 
 // Create a new meal (protected route - requires authentication)
 router.post("/", verifyToken, createMeal);
+
+// Update meal plan (protected route - requires authentication)
+router.put("/plans/:id", verifyToken, updateMealPlan);
 
 // Update and delete routes can be added here as needed, following the same pattern of using verifyToken middleware
 

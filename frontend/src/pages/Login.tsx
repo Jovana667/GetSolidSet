@@ -13,7 +13,7 @@ console.log("Attempting login with:", email);
 
 try {
   const response = await login(email, password);
-  console.log("Login response:", response);
+  console.log("Login .,se:", response);
   alert(JSON.stringify(response));  // ADD THIS LINE ONLY
   localStorage.setItem("token", response.token);
   console.log("Token stored, redirecting...");
