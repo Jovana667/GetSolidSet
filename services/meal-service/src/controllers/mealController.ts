@@ -369,7 +369,7 @@ export const getMealById = async (req: Request, res: Response) => {
   }
 };
 
-  export const getMealPlanById = async (req: Request, res: Response) => {
+export const getMealPlanById = async (req: Request, res: Response) => {
   try {
     const userId = req.user?.id;
     const mealPlanId = parseInt(req.params.id);
@@ -389,7 +389,10 @@ export const getMealById = async (req: Request, res: Response) => {
       WHERE id = $1 AND user_id = $2
     `;
 
-    const mealPlanResult = await pool.query(mealPlanQuery, [mealPlanId, userId]);
+    const mealPlanResult = await pool.query(mealPlanQuery, [
+      mealPlanId,
+      userId,
+    ]);
 
     if (mealPlanResult.rows.length === 0) {
       return res.status(404).json({ error: "Meal plan not found" });
@@ -436,12 +439,13 @@ export const getMealById = async (req: Request, res: Response) => {
     };
 
     mealsResult.rows.forEach((row: any) => {
-      if (row.food_id) {  // Only add if there's actually a food
+      if (row.food_id) {
+        // Only add if there's actually a food
         const food = {
           id: row.food_id,
           name: row.name,
           category: row.category,
-          serving: row.quantity_g / 100,  // Convert back to serving units
+          serving: row.quantity_g / 100, // Convert back to serving units
           protein_per_100g: parseFloat(row.protein_per_100g),
           fat_per_100g: parseFloat(row.fat_per_100g),
           carbs_per_100g: parseFloat(row.carbs_per_100g),
@@ -458,5 +462,57 @@ export const getMealById = async (req: Request, res: Response) => {
   } catch (error) {
     console.error("Get meal plan error:", error);
     res.status(500).json({ error: "Failed to retrieve meal plan" });
+  }
+};
+
+export const updateMealPlan = async (req: Request, res: Response) => {
+  const client = await pool.connect();
+
+  try {
+    const { id } = req.params;
+    const { name } = req.body;
+    const userId = req.user?.id;
+
+    // Validate input
+    if (!name || !name.trim()) {
+      return res.status(400).json({ error: "Meal name is required" });
+    }
+
+    if (!id || isNaN(Number(id))) {
+      return res.status(400).json({ error: "Valid meal plan ID is required" });
+    }
+
+    // Check if meal plan exists and belongs to user
+    const checkQuery = `
+      SELECT id, user_id 
+      FROM meal_plans 
+      WHERE id = $1 AND user_id = $2
+    `;
+    const checkResult = await client.query(checkQuery, [id, userId]);
+
+    if (checkResult.rows.length === 0) {
+      return res.status(404).json({
+        error: "Meal plan not found or you don't have permission to edit it",
+      });
+    }
+
+    // Update meal plan name
+    const updateQuery = `
+      UPDATE meal_plans 
+      SET name = $1, updated_at = NOW()
+      WHERE id = $2 AND user_id = $3
+      RETURNING id, user_id, name, is_template, meal_date, created_at, updated_at
+    `;
+    const updateResult = await client.query(updateQuery, [name, id, userId]);
+
+    res.status(200).json({
+      message: "Meal plan updated successfully",
+      meal_plan: updateResult.rows[0],
+    });
+  } catch (error) {
+    console.error("Update meal plan error:", error);
+    res.status(500).json({ error: "Failed to update meal plan" });
+  } finally {
+    client.release();
   }
 };

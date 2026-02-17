@@ -74,21 +74,47 @@ function MealPlanDetail() {
   };
 
   const handleSubmit = async () => {
+    if (!formData.name.trim()) {
+      alert("Please enter a meal name");
+      return;
+    }
+
     setLoading(true);
 
     try {
-      await axios.put(`http://localhost:3003/api/meals/plans/${id}`, 
-        {name: formData.name},
+      const response = await axios.put(
+        `http://localhost:3003/api/meals/plans/${id}`,
+        { name: formData.name },
         {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`, 
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
-          }
+        },
       );
+
       console.log("Meal updated successfully");
+      alert("Meal plan updated successfully!");
+
+      // Update the meal plan data in state to reflect the changes
+      setMealPlan((prev) => ({
+        ...prev,
+        name: formData.name,
+      }));
+
       setIsEditing(false);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Something went wrong:", error);
+
+      // Handle different types of errors
+      if (error.response?.status === 401) {
+        alert("You're not authorized to edit this meal plan. Please log in.");
+      } else if (error.response?.status === 404) {
+        alert("Meal plan not found.");
+      } else if (error.response?.data?.error) {
+        alert(`Error: ${error.response.data.error}`);
+      } else {
+        alert("Failed to update meal plan. Please try again.");
+      }
     } finally {
       setLoading(false);
     }
@@ -297,8 +323,12 @@ function MealPlanDetail() {
             <div style={{ display: "flex", justifyContent: "space-between" }}>
               {isEditing ? (
                 // EDIT MODE - show Save button
-                <button className="mt-6 bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700" onClick={handleSubmit}>
-                  Save Meal{" "}
+                <button
+                  className="mt-6 bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                  onClick={handleSubmit}
+                  disabled={loading}
+                >
+                  {loading ? "Saving..." : "Save Meal"}
                 </button>
               ) : (
                 // VIEW MODE - show Edit button
@@ -316,7 +346,10 @@ function MealPlanDetail() {
               {isEditing && (
                 <button
                   className="mt-6 bg-gray-600 text-white px-6 py-2 rounded hover:bg-gray-700"
-                  onClick={() => setIsEditing(false)}
+                  onClick={() => {
+                    setIsEditing(false);
+                    setFormData({ name: mealPlan.name }); // Reset to original name
+                  }}
                 >
                   Cancel
                 </button>
