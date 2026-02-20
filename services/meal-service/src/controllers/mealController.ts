@@ -516,3 +516,43 @@ export const updateMealPlan = async (req: Request, res: Response) => {
     client.release();
   }
 };
+
+export const deleteMealPlan = async (req: Request, res: Response) => {
+  const client = await pool.connect();
+  try {
+    const { id } = req.params;
+    const { name } = req.body;
+    const userId = req.user?.id;
+
+
+
+    // Check if meal plan exists and belongs to user
+    const checkQuery = `
+      SELECT id, user_id 
+      FROM meal_plans 
+      WHERE id = $1 AND user_id = $2
+    `;
+    const checkResult = await client.query(checkQuery, [id, userId]);
+
+    if (checkResult.rows.length === 0) {
+      return res.status(404).json({
+        error: "Meal plan not found or you don't have permission to edit it",
+      });
+    }
+
+    // delete meal plan 
+    const deleteQuery = `
+      DELETE FROM meal_plans 
+      WHERE id = $1 AND user_id = $2
+      RETURNING id, user_id, name, is_template, meal_date, created_at, updated_at
+    `;
+    const deleteResult = await client.query(deleteQuery, [id, userId]);
+
+    res.status(200).json({ message: "Meal plan deleted successfully", meal_plan: deleteResult.rows[0] });
+  } catch (error) {
+    console.error("Delete meal plan error:", error);
+    res.status(500).json({ error: "Failed to delete meal plan" });
+  } finally {
+    client.release();
+  }
+};
