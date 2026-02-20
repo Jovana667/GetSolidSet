@@ -5,10 +5,34 @@ import { getMeals } from "../services/api";
 import { Meal } from "../types";
 
 function Meals() {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
   const [meals, setMeals] = useState<Meal[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+
+  const deleteMeal = async (mealId) => {
+    try {
+      const response = await fetch(
+        `http://localhost:3003/api/meals/plans/${mealId}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        },
+      );
+
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+
+      // Update the state to remove the deleted item from the UI
+      setMeals(meals.filter((meal) => meal.id !== mealId));
+    } catch (err) {
+      setError(err.message);
+      console.error("Error deleting meal:", err);
+    }
+  };
 
   useEffect(() => {
     const fetchMeals = async () => {
@@ -65,15 +89,22 @@ function Meals() {
                 <p className="text-gray-600 mb-4">
                   Created: {new Date(meal.created_at).toLocaleDateString()}
                 </p>
-                <button onClick={() => navigate(`/meal-plan/${meal.id}`)}>
-                  {" "}
-                  <Link
-                    to="/MealPlanDetails"
-                    className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 w-full"
+                <div className="flex gap-2">
+                  <button onClick={() => navigate(`/meal-plan/${meal.id}`)}>
+                    <Link
+                      to="/MealPlanDetails"
+                      className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                    >
+                      View Details
+                    </Link>
+                  </button>
+                  <button
+                    onClick={() => deleteMeal(meal.id)}
+                    className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
                   >
-                    View Details
-                  </Link>
-                </button>
+                    Delete
+                  </button>
+                </div>
               </div>
             ))}
           </div>
