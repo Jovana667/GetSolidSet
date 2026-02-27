@@ -123,10 +123,11 @@ function Home() {
   };
 
   const handleSaveMeal = async () => {
-    // Step 1: Check if user is logged in
+    // Check authentication first
     const token = localStorage.getItem("token");
     if (!token) {
       alert("Please log in to save your meal.");
+      window.location.href = "/login";
       return;
     }
     // Step 2: Transform mealFoods to backend format
@@ -160,7 +161,7 @@ function Home() {
       alert("Please enter a meal plan name");
       return;
     }
-      console.log('Sending meal data:', JSON.stringify(mealData, null, 2));
+    console.log("Sending meal data:", JSON.stringify(mealData, null, 2));
 
     // Step 4: Send to backend
     try {
@@ -173,10 +174,15 @@ function Home() {
         dinner: [],
         snack: [],
       });
-        setMealName(""); 
+      setMealName("");
     } catch (error) {
-      alert("Failed to save meal");
       console.error("Error saving meal:", error);
+      if (error.message?.includes("No authentication token")) {
+        alert("Please log in to save meals. Redirecting to login page...");
+        window.location.href = "/login";
+      } else {
+        alert("Failed to save meal. Please try again.");
+      }
     }
   };
 
@@ -536,9 +542,10 @@ function Home() {
               </div>
             </div>
             <div style={{ display: "flex", justifyContent: "space-between" }}>
-              <button 
-              onClick={handleSaveMeal}
-              className="mt-6 bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700">
+              <button
+                onClick={handleSaveMeal}
+                className="mt-6 bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700"
+              >
                 Save Meal
               </button>
               {/* Grand Total */}

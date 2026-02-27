@@ -9,21 +9,26 @@ function Login() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-console.log("Attempting login with:", email);
+    console.log("Attempting login with:", email);
 
-try {
-  const response = await login(email, password);
-  console.log("Login .,se:", response);
-  alert(JSON.stringify(response));  // ADD THIS LINE ONLY
-  localStorage.setItem("token", response.token);
-  console.log("Token stored, redirecting...");
-  window.location.href = "/";
-} catch (error) {
-  console.error("Login failed:", error);
-  alert("Login failed! Check console for details.");
-}
+    try {
+      const response = await login(email, password);
+      console.log("Login response:", response);
+
+      if (response.token) {
+        localStorage.setItem("token", response.token);
+        localStorage.setItem("user", JSON.stringify(response.user));
+        console.log("Token stored successfully");
+        window.location.href = "/";
+      } else {
+        alert("Login failed: No token received");
+      }
+    } catch (error) {
+      console.error("Login failed:", error);
+      alert("Login failed. Please check your credentials.");
+    }
   };
-  
+
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
       <div className="max-w-md w-full bg-white rounded-lg shadow-md p-8">
