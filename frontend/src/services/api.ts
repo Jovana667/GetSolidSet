@@ -76,20 +76,27 @@ export const getMeals = async () => {
 
 export const createMeal = async (mealData: any) => {
   const token = localStorage.getItem("token");
-  console.log("Token:", token);  // Add this line
-  
-  const response = await mealApi.post(
-    "/meals", 
-    mealData,
-    {
+
+  if (!token) {
+    throw new Error("No authentication token found. Please log in again.");
+  }
+
+  try {
+    const response = await mealApi.post("/meals", mealData, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
+    });
+    return response.data;
+  } catch (error: any) {
+    if (error.response?.status === 401) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      throw new Error("Session expired. Please log in again.");
     }
-  );
-  return response.data;
+    throw error;
+  }
 };
-
 
 export const getMealById = async (mealId: number) => {
   const response = await mealApi.get(`/meals/${mealId}`);

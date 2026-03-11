@@ -212,9 +212,10 @@ function MealPlanDetail() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left side - Meal Planner (2/3 width) */}
           <div className="lg:col-span-2 order-2 lg:order-1 bg-white rounded-lg shadow p-6">
-            <div>
+            <div className="flex justify-between items-center">
               {isEditing ? (
                 <input
+                  className="text-3xl font-bold text-gray-900"  // ← Add this!
                   type="text"
                   value={formData.name}
                   onChange={(e) => setFormData({ name: e.target.value })}
@@ -224,10 +225,35 @@ function MealPlanDetail() {
                   {mealPlan.name}
                 </h1>
               )}
-              <p className="text-gray-600">
-                Created: {new Date(mealPlan.created_at).toLocaleDateString()}
-              </p>
+              
+<div className="flex space-x-2"> 
+                            {isEditing && (
+                <button
+                  className="mt-6 bg-gray-600 text-white px-6 py-2 rounded hover:bg-gray-700"
+                  onClick={() => {
+                    setIsEditing(false);
+                    setFormData({ name: mealPlan.name }); // Reset to original name
+                  }}
+                >
+                  Cancel
+                </button>
+              )}
+
+              {/* delete button */}
+                <button
+                  className="mt-6 bg-red-600 text-white px-6 py-2 rounded hover:bg-red-700"
+                  onClick={() => {
+                    // Add delete functionality here
+                  }}
+                >
+                  Delete 
+                </button>
+              </div>
             </div>
+            <p className="text-gray-600">
+              Created: {new Date(mealPlan.created_at).toLocaleDateString()}
+            </p>
+
             {/* Breakfast */}
             <div className="bg-white rounded-lg shadow p-6">
               <h2 className="text-xl font-semibold mb-4">Breakfast: </h2>
@@ -343,17 +369,7 @@ function MealPlanDetail() {
                 </button>
               )}
 
-              {isEditing && (
-                <button
-                  className="mt-6 bg-gray-600 text-white px-6 py-2 rounded hover:bg-gray-700"
-                  onClick={() => {
-                    setIsEditing(false);
-                    setFormData({ name: mealPlan.name }); // Reset to original name
-                  }}
-                >
-                  Cancel
-                </button>
-              )}
+
               {/* Grand Total */}
               <div className="mt-6 pt-6 ">
                 <h3 className="font-semibold text-lg">
