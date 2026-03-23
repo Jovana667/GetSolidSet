@@ -119,6 +119,23 @@ function MealPlanDetail() {
       setLoading(false);
     }
   };
+
+  const deleteItem = async () => {
+let userConfirmed = confirm ("Are you sure you want to delete?");
+if (!userConfirmed) return;
+setLoading(true);
+
+  try {
+  await axios.delete(`http://localhost:3003/api/meals/plans/${id}`, { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } })
+ console.log(`Item ${id} deleted successfully`);
+navigate("/meals", { replace: true });
+  } catch (error) {
+   console.error('Delete failed:', error.message);
+  } finally {
+     setLoading(false);
+  };
+}
+
   useEffect(() => {
     // Check if user is logged in
     const token = localStorage.getItem("token");
@@ -243,8 +260,9 @@ function MealPlanDetail() {
                 <button
                   className="mt-6 bg-red-600 text-white px-6 py-2 rounded hover:bg-red-700"
                   onClick={() => {
-                    // Add delete functionality here
-                  }}
+          
+          deleteItem();
+        }}
                 >
                   Delete 
                 </button>
