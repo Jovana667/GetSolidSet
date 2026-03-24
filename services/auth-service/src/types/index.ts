@@ -22,3 +22,17 @@ export interface JWTPayload {
   id: number;
   email: string;
 }
+
+export interface RequestReset {
+  email: string;
+}
+
+export interface VerifyReset {
+  email: string;
+  otp: string;
+}
+
+export interface CompleteReset {
+  email: string;
+  newPassword: string;
+}
