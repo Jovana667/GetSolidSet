@@ -5,7 +5,7 @@ import { RequestReset, VerifyReset, CompleteReset } from "../types"
 import { validateEmail } from "../utils/validation";
 
 export const requestReset = async (req: Request, res: Response) => {
-    
+     
 };
 
 export const verifyReset = async (req: Request, res: Response) => {
