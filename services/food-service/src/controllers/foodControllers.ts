@@ -1,5 +1,67 @@
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
+import jwt from "jsonwebtoken";
+import { JWTPayload } from "../types";
 import pool from "../utils/db";
+
+// Extend Express Request type to include user
+declare global {
+  namespace Express {
+    interface Request {
+      user?: JWTPayload;
+    }
+  }
+}
+
+export const verifyToken = (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    // STEP 1: Extract token from Authorization header
+    const authHeader = req.headers.authorization;
+
+    // Check if Authorization header exists
+    if (!authHeader) {
+      return res.status(401).json({ error: "No token provided" });
+    }
+
+    // Check if it starts with "Bearer "
+    if (!authHeader.startsWith("Bearer ")) {
+      return res
+        .status(401)
+        .json({ error: "Invalid token format. Use: Bearer <token>" });
+    }
+
+    // Extract just the token part (remove "Bearer " prefix)
+    const token = authHeader.substring(7);
+
+    // STEP 2: Verify the token
+    const decoded = jwt.verify(
+      token,
+      process.env.JWT_SECRET || "your-secret-key-change-this",
+    ) as JWTPayload;
+
+    // STEP 3: Attach user info to request object
+    req.user = decoded;
+
+    // STEP 4: Call next() to continue to the actual route handler
+    next();
+  } catch (error) {
+    console.error("Auth middleware error:", error);
+
+    // Handle specific JWT errors
+    if (error instanceof jwt.JsonWebTokenError) {
+      return res.status(401).json({ error: "Invalid token" });
+    }
+    if (error instanceof jwt.TokenExpiredError) {
+      return res.status(401).json({ error: "Token expired" });
+    }
+
+    // Catch-all for other errors
+    return res.status(401).json({ error: "Authentication failed" });
+  }
+};
 
 export const getFoods = async (req: Request, res: Response) => {
   try {
@@ -21,6 +83,13 @@ export const getFoods = async (req: Request, res: Response) => {
     const conditions: string[] = [];
     const params: any[] = [];
     let paramIndex = 1;
+
+    // Always filter by visibility:
+    // - Global foods (created_by IS NULL) are visible to everyone
+    // - Custom foods (created_by = userId) are only visible to their owner
+    const userId = req.user!.id;
+    conditions.push(`(created_by IS NULL OR created_by = $${paramIndex++})`);
+    params.push(userId);
 
     // Add category filter if provided
     if (category) {
@@ -111,6 +180,8 @@ export const getFoodById = async (req: Request, res: Response) => {
     }
 
     // STEP 3: Query the database for the food with this ID
+    // Also enforce visibility: only return the food if it's global or owned by this user
+    const userId = req.user!.id;
     const query = `
       SELECT 
         id,
@@ -124,9 +195,10 @@ export const getFoodById = async (req: Request, res: Response) => {
         updated_at
       FROM foods
       WHERE id = $1
+        AND (created_by IS NULL OR created_by = $2)
     `;
 
-    const result = await pool.query(query, [id]);
+    const result = await pool.query(query, [id, userId]);
 
     // STEP 4: Check if the food exists
     // If query returns 0 rows, the food doesn't exist in the database
@@ -161,6 +233,8 @@ export const searchFoods = async (req: Request, res: Response) => {
     // ILIKE is case-insensitive
     // %query% matches anywhere in the name
     // LIMIT 10 for fast autocomplete (no pagination needed)
+    // Only return global foods or this user's own custom foods
+    const userId = req.user!.id;
     const result = await pool.query(
       `SELECT 
         id,
@@ -171,10 +245,11 @@ export const searchFoods = async (req: Request, res: Response) => {
         carbs_per_100g,
         calories_per_100g
       FROM foods 
-      WHERE name ILIKE $1 
+      WHERE name ILIKE $1
+        AND (created_by IS NULL OR created_by = $2)
       ORDER BY name ASC 
       LIMIT 10`,
-      [`%${query}%`]
+      [`%${query}%`, userId],
     );
 
     // STEP 4: Return just the array (no pagination wrapper)

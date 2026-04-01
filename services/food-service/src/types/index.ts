@@ -1,3 +1,8 @@
+export interface JWTPayload {
+  id: number;
+  email: string;
+}
+
 export interface Food {
   id: number;
   name: string;
