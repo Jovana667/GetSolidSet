@@ -1,9 +1,10 @@
+// Express, JWT, custom types, and the database connection pool
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import { JWTPayload } from "../types";
 import pool from "../utils/db";
 
-// Extend Express Request type to include user
+// Adds the authenticated user to the Express Request type
 declare global {
   namespace Express {
     interface Request {
@@ -12,45 +13,37 @@ declare global {
   }
 }
 
+// Controller function: verifies the JWT token on incoming requests before allowing access to protected routes
 export const verifyToken = (
   req: Request,
   res: Response,
   next: NextFunction,
 ) => {
   try {
-    // STEP 1: Extract token from Authorization header
     const authHeader = req.headers.authorization;
 
-    // Check if Authorization header exists
     if (!authHeader) {
       return res.status(401).json({ error: "No token provided" });
     }
 
-    // Check if it starts with "Bearer "
     if (!authHeader.startsWith("Bearer ")) {
       return res
         .status(401)
         .json({ error: "Invalid token format. Use: Bearer <token>" });
     }
 
-    // Extract just the token part (remove "Bearer " prefix)
     const token = authHeader.substring(7);
 
-    // STEP 2: Verify the token
     const decoded = jwt.verify(
       token,
       process.env.JWT_SECRET || "your-secret-key-change-this",
     ) as JWTPayload;
 
-    // STEP 3: Attach user info to request object
     req.user = decoded;
-
-    // STEP 4: Call next() to continue to the actual route handler
     next();
   } catch (error) {
     console.error("Auth middleware error:", error);
 
-    // Handle specific JWT errors
     if (error instanceof jwt.JsonWebTokenError) {
       return res.status(401).json({ error: "Invalid token" });
     }
@@ -58,60 +51,41 @@ export const verifyToken = (
       return res.status(401).json({ error: "Token expired" });
     }
 
-    // Catch-all for other errors
     return res.status(401).json({ error: "Authentication failed" });
   }
 };
 
+// Controller function: retrieves a paginated, filterable list of foods visible to the authenticated user
 export const getFoods = async (req: Request, res: Response) => {
   try {
-    // STEP 1: Extract query parameters from the URL
-    // Example: /api/foods?category=Protein&search=chicken&page=2&pageSize=20
     const category = req.query.category as string | undefined;
     const search = req.query.search as string | undefined;
-    const page = parseInt(req.query.page as string) || 1; // Default: page 1
-    const pageSize = parseInt(req.query.pageSize as string) || 100; // Default: 100 items (fetch all)
+    const page = parseInt(req.query.page as string) || 1;
+    const pageSize = parseInt(req.query.pageSize as string) || 100;
 
-    // STEP 2: Calculate pagination values
-    // If page=1, pageSize=20 → skip 0 items (first 20)
-    // If page=2, pageSize=20 → skip 20 items (items 21-40)
-    // If page=3, pageSize=20 → skip 40 items (items 41-60)
     const offset = (page - 1) * pageSize;
 
-    // STEP 3: Build the WHERE conditions dynamically
-    // We need to add filters only if they're provided
     const conditions: string[] = [];
     const params: any[] = [];
     let paramIndex = 1;
 
-    // Always filter by visibility:
-    // - Global foods (created_by IS NULL) are visible to everyone
-    // - Custom foods (created_by = userId) are only visible to their owner
     const userId = req.user!.id;
     conditions.push(`(created_by IS NULL OR created_by = $${paramIndex++})`);
     params.push(userId);
 
-    // Add category filter if provided
     if (category) {
       conditions.push(`category = $${paramIndex++}`);
       params.push(category);
     }
 
-    // Add search filter if provided
-    // ILIKE is case-insensitive LIKE in PostgreSQL
-    // %search% means "contains this text anywhere"
     if (search) {
       conditions.push(`name ILIKE $${paramIndex++}`);
       params.push(`%${search}%`);
     }
 
-    // Build the WHERE clause
-    // If conditions = ['category = $1', 'name ILIKE $2']
-    // Result: "WHERE category = $1 AND name ILIKE $2"
     const whereClause =
       conditions.length > 0 ? "WHERE " + conditions.join(" AND ") : "";
 
-    // STEP 4: Query to get the foods (with pagination and filters)
     const foodsQuery = `
       SELECT 
         id,
@@ -129,32 +103,26 @@ export const getFoods = async (req: Request, res: Response) => {
       LIMIT $${paramIndex++} OFFSET $${paramIndex++}
     `;
 
-    // Add pagination parameters to the params array
     params.push(pageSize, offset);
 
-    // Execute the query
     const foodsResult = await pool.query(foodsQuery, params);
 
-    // STEP 5: Query to get the total count (without pagination)
-    // We need this so the frontend knows how many pages there are
     const countQuery = `
       SELECT COUNT(*) as total
       FROM foods
       ${whereClause}
     `;
 
-    // Use the same params but WITHOUT the pageSize and offset
     const countParams = params.slice(0, params.length - 2);
     const countResult = await pool.query(countQuery, countParams);
     const total = parseInt(countResult.rows[0].total);
 
-    // STEP 6: Send the response
     res.status(200).json({
-      foods: foodsResult.rows, // Array of food objects
-      total: total, // Total number of foods matching filters
-      page: page, // Current page number
-      pageSize: pageSize, // Number of items per page
-      totalPages: Math.ceil(total / pageSize), // Total number of pages
+      foods: foodsResult.rows,
+      total: total,
+      page: page,
+      pageSize: pageSize,
+      totalPages: Math.ceil(total / pageSize),
     });
   } catch (error) {
     console.error("Get foods error:", error);
@@ -162,25 +130,18 @@ export const getFoods = async (req: Request, res: Response) => {
   }
 };
 
+// Controller function: retrieves a single food by its ID, scoped to the authenticated user
 export const getFoodById = async (req: Request, res: Response) => {
   try {
-    // STEP 1: Extract the ID from the URL path
-    // Example: /api/foods/5 → req.params.id = "5" (as a string!)
     const idParam = req.params.id;
-
-    // STEP 2: Validate that the ID is a valid number
-    // parseInt converts string to number: "5" → 5, "abc" → NaN
     const id = parseInt(idParam);
 
-    // Check if conversion failed (user sent /api/foods/abc)
     if (isNaN(id)) {
       return res.status(400).json({
         error: "Invalid food ID format. ID must be a number.",
       });
     }
 
-    // STEP 3: Query the database for the food with this ID
-    // Also enforce visibility: only return the food if it's global or owned by this user
     const userId = req.user!.id;
     const query = `
       SELECT 
@@ -200,16 +161,12 @@ export const getFoodById = async (req: Request, res: Response) => {
 
     const result = await pool.query(query, [id, userId]);
 
-    // STEP 4: Check if the food exists
-    // If query returns 0 rows, the food doesn't exist in the database
     if (result.rows.length === 0) {
       return res.status(404).json({
         error: `Food with ID ${id} not found`,
       });
     }
 
-    // STEP 5: Return the food object
-    // No need to wrap it in an object, just send the food directly
     res.status(200).json(result.rows[0]);
   } catch (error) {
     console.error("Get food by ID error:", error);
@@ -217,23 +174,15 @@ export const getFoodById = async (req: Request, res: Response) => {
   }
 };
 
+// Controller function: searches foods by name using a query string, returns up to 10 matches for autocomplete
 export const searchFoods = async (req: Request, res: Response) => {
   try {
-    // STEP 1: Get the search query parameter
-    // Example: /api/foods/search?q=chicken
     const query = (req.query.q as string) || "";
 
-    // STEP 2: Handle empty query
-    // Return empty array if no search term provided
     if (!query.trim()) {
       return res.json([]);
     }
 
-    // STEP 3: Search database for matching foods
-    // ILIKE is case-insensitive
-    // %query% matches anywhere in the name
-    // LIMIT 10 for fast autocomplete (no pagination needed)
-    // Only return global foods or this user's own custom foods
     const userId = req.user!.id;
     const result = await pool.query(
       `SELECT 
@@ -252,11 +201,34 @@ export const searchFoods = async (req: Request, res: Response) => {
       [`%${query}%`, userId],
     );
 
-    // STEP 4: Return just the array (no pagination wrapper)
-    // Frontend expects simple array for autocomplete dropdown
     res.json(result.rows);
   } catch (error) {
     console.error("Search foods error:", error);
     res.status(500).json({ error: "Failed to search foods" });
+  }
+};
+
+// Controller function: inserts a new custom food into the database, owned by the authenticated user
+export const createCustomFood = async (req: Request, res: Response) => {
+  try {
+    const userId = req.user!.id;
+    const query = `INSERT INTO foods (name, category, protein_per_100g, fat_per_100g, carbs_per_100g, calories_per_100g, is_custom, created_by ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *
+`;
+
+    const result = await pool.query(query, [
+      req.body.name,
+      req.body.category,
+      req.body.protein_per_100g,
+      req.body.fat_per_100g,
+      req.body.carbs_per_100g,
+      req.body.calories_per_100g,
+      true,
+      userId,
+    ]);
+
+    res.status(201).json(result.rows[0]);
+  } catch (error) {
+    console.error("Create foods error :", error);
+    res.status(500).json({ error: "Failed to create food" });
   }
 };

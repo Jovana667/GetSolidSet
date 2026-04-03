@@ -1,24 +1,21 @@
+// Router and controller function imports needed to define and handle each route
 import { Router } from "express";
 import {
   getFoods,
   getFoodById,
   searchFoods,
+  createCustomFood,
   verifyToken,
 } from "../controllers/foodControllers";
 
+// Router instance that groups all food-related routes together
 const router = Router();
 
-// All food routes require a valid JWT — verifyToken runs first on every request
-// Get all foods (with pagination and filters)
+// Route definitions: each line maps an HTTP method + URL path to its controller function, protected by verifyToken
 router.get("/", verifyToken, getFoods);
-
-// Autocomplete search - MUST come before /:id route
-// This handles /api/foods/search?q=chicken
 router.get("/search", verifyToken, searchFoods);
-
-// Get single food by ID
-// IMPORTANT: This must come AFTER any specific routes like /search
-// because Express matches routes in order and would treat "search" as an ID
+router.post("/custom", verifyToken, createCustomFood);
 router.get("/:id", verifyToken, getFoodById);
 
+// Exports the router so it can be mounted in the main server
 export default router;
