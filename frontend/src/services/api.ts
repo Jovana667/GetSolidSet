@@ -121,3 +121,15 @@ export const searchFoods = async (query: string) => {
   });
   return response.data;
 };
+
+export const createCustomFood = async (foodData: {
+  name: string;
+  category: string;
+  protein_per_100g: number;
+  fat_per_100g: number;
+  carbs_per_100g: number;
+  calories_per_100g: number;
+}) => {
+  const response = await foodApi.post("/api/foods/custom", foodData);
+  return response.data;
+};
