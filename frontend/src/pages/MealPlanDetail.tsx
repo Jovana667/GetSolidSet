@@ -121,20 +121,22 @@ function MealPlanDetail() {
   };
 
   const deleteItem = async () => {
-let userConfirmed = confirm ("Are you sure you want to delete?");
-if (!userConfirmed) return;
-setLoading(true);
+    let userConfirmed = confirm("Are you sure you want to delete?");
+    if (!userConfirmed) return;
+    setLoading(true);
 
-  try {
-  await axios.delete(`http://localhost:3003/api/meals/plans/${id}`, { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } })
- console.log(`Item ${id} deleted successfully`);
-navigate("/meals", { replace: true });
-  } catch (error) {
-   console.error('Delete failed:', error.message);
-  } finally {
-     setLoading(false);
+    try {
+      await axios.delete(`http://localhost:3003/api/meals/plans/${id}`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
+      console.log(`Item ${id} deleted successfully`);
+      navigate("/meals", { replace: true });
+    } catch (error) {
+      console.error("Delete failed:", error.message);
+    } finally {
+      setLoading(false);
+    }
   };
-}
 
   useEffect(() => {
     // Check if user is logged in
@@ -232,7 +234,7 @@ navigate("/meals", { replace: true });
             <div className="flex justify-between items-center">
               {isEditing ? (
                 <input
-                  className="text-3xl font-bold text-gray-900"  // ← Add this!
+                  className="text-3xl font-bold text-gray-900" // ← Add this!
                   type="text"
                   value={formData.name}
                   onChange={(e) => setFormData({ name: e.target.value })}
@@ -242,29 +244,28 @@ navigate("/meals", { replace: true });
                   {mealPlan.name}
                 </h1>
               )}
-              
-<div className="flex space-x-2"> 
-                            {isEditing && (
-                <button
-                  className="mt-6 bg-gray-600 text-white px-6 py-2 rounded hover:bg-gray-700"
-                  onClick={() => {
-                    setIsEditing(false);
-                    setFormData({ name: mealPlan.name }); // Reset to original name
-                  }}
-                >
-                  Cancel
-                </button>
-              )}
 
-              {/* delete button */}
+              <div className="flex space-x-2">
+                {isEditing && (
+                  <button
+                    className="mt-6 bg-gray-600 text-white px-6 py-2 rounded hover:bg-gray-700"
+                    onClick={() => {
+                      setIsEditing(false);
+                      setFormData({ name: mealPlan.name }); // Reset to original name
+                    }}
+                  >
+                    Cancel
+                  </button>
+                )}
+
+                {/* delete button */}
                 <button
                   className="mt-6 bg-red-600 text-white px-6 py-2 rounded hover:bg-red-700"
                   onClick={() => {
-          
-          deleteItem();
-        }}
+                    deleteItem();
+                  }}
                 >
-                  Delete 
+                  Delete
                 </button>
               </div>
             </div>
@@ -387,7 +388,6 @@ navigate("/meals", { replace: true });
                 </button>
               )}
 
-
               {/* Grand Total */}
               <div className="mt-6 pt-6 ">
                 <h3 className="font-semibold text-lg">
@@ -402,7 +402,12 @@ navigate("/meals", { replace: true });
 
           {/* Right side - 1/3 width */}
           <div className="order-1 lg:order-2 bg-white rounded-lg shadow p-6">
-            <h2 className="text-xl font-semibold mb-4">Foods</h2>
+            <div className="flex justify-between items-center mb-8">
+              <h2 className="text-xl font-semibold">Foods</h2>
+              <button className="text-sm text-gray-500 hover:text-gray-700">
+                + Add Custom Food
+              </button>
+            </div>
             {/* Protein Category */}
             <div className="mb-4">
               <button
