@@ -9,6 +9,7 @@ import Meals from "./pages/Meals";
 import MealPlanDetail from "./pages/MealPlanDetail";
 import { AuthUtils } from "./utils/auth";
 
+
 function App() {
   useEffect(() => {
     // Initialize auth checking on app startup

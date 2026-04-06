@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 import { getFoods, createMeal } from "../services/api";
+import CustomFoodForm from "../components/CustomFoodForm";
 
 function MealPlanDetail() {
   const { id } = useParams();
@@ -14,6 +15,7 @@ function MealPlanDetail() {
   const [expandedCategories, setExpandedCategories] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [isEditing, setIsEditing] = useState(false);
+  const [isAddingCustomFood, setIsAddingCustomFood] = useState(false);
   const [formData, setFormData] = useState({ name: "" });
   const [visibleCounts, setVisibleCounts] = useState({
     protein: 15,
@@ -144,20 +146,19 @@ function MealPlanDetail() {
     setIsLoggedIn(!!token);
   }, []);
 
-  useEffect(() => {
-    const fetchFoods = async () => {
-      try {
-        const data = await getFoods();
-        console.log("Foods fetched successfully:", data);
-        setFoods(data.foods || []); // Access data.foods array
-      } catch (error) {
-        console.error("Failed to fetch foods:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    console.log(groupedFoods.protein);
+  const fetchFoods = async () => {
+    try {
+      const data = await getFoods();
+      console.log("Foods fetched successfully:", data);
+      setFoods(data.foods || []);
+    } catch (error) {
+      console.error("Failed to fetch foods:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchFoods();
   }, []);
 
@@ -404,10 +405,19 @@ function MealPlanDetail() {
           <div className="order-1 lg:order-2 bg-white rounded-lg shadow p-6">
             <div className="flex justify-between items-center mb-8">
               <h2 className="text-xl font-semibold">Foods</h2>
-              <button className="text-sm text-gray-500 hover:text-gray-700">
-                + Add Custom Food
+              <button
+                className="text-sm text-gray-500 hover:text-gray-700"
+                onClick={() => setIsAddingCustomFood(!isAddingCustomFood)}
+              >
+                {isAddingCustomFood ? "Cancel" : "+ Add Custom Food"}
               </button>
             </div>
+            {isAddingCustomFood && (
+              <CustomFoodForm
+                onSuccess={() => setIsAddingCustomFood(false)}
+                onFoodAdded={fetchFoods}
+              />
+            )}
             {/* Protein Category */}
             <div className="mb-4">
               <button
