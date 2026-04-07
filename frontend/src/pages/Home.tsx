@@ -1,6 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { getFoods, createMeal } from "../services/api";
+import CustomFoodForm from "../components/CustomFoodForm";
 
 function Home() {
   const navigate = useNavigate();
@@ -10,6 +11,7 @@ function Home() {
   const [expandedCategories, setExpandedCategories] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [mealName, setMealName] = useState("");
+  const [isAddingCustomFood, setIsAddingCustomFood] = useState(false);
   const [visibleCounts, setVisibleCounts] = useState({
     protein: 15,
     carbs: 15,
@@ -198,8 +200,7 @@ function Home() {
     setIsLoggedIn(!!token);
   }, []);
 
-  useEffect(() => {
-    const fetchFoods = async () => {
+      const fetchFoods = async () => {
       try {
         const data = await getFoods();
         console.log("Foods fetched successfully:", data);
@@ -211,10 +212,11 @@ function Home() {
       }
     };
 
-    console.log(groupedFoods.protein);
 
-    fetchFoods();
-  }, []);
+useEffect(() => {
+  fetchFoods();
+}, []);
+
   return (
     <div className="min-h-screen bg-gray-50 p-8">
       <div className="max-w-7xl mx-auto">
@@ -562,7 +564,21 @@ function Home() {
 
           {/* Right side - Food Sidebar (1/3 width) */}
           <div className="order-1 lg:order-2 bg-white rounded-lg shadow p-6">
-            <h2 className="text-xl font-semibold mb-4">Foods</h2>
+            <div className="flex justify-between items-center mb-8">
+              <h2 className="text-xl font-semibold">Foods</h2>
+              <button
+                className="text-sm text-gray-500 hover:text-gray-700"
+                onClick={() => setIsAddingCustomFood(!isAddingCustomFood)}
+              >
+                {isAddingCustomFood ? "Cancel" : "+ Add Custom Food"}
+              </button>
+            </div>
+            {isAddingCustomFood && (
+              <CustomFoodForm
+                onSuccess={() => setIsAddingCustomFood(false)}
+                onFoodAdded={fetchFoods}
+              />
+            )}
 
             {/* Search Input with Clear Button */}
             <div className="relative mb-4">
