@@ -13,6 +13,8 @@ export interface Food {
   calories: number;
   serving_size: number;
   created_at: Date;
+  is_custom: boolean;
+  created_by: number | null;
 }
 
 export interface FoodQuery {
