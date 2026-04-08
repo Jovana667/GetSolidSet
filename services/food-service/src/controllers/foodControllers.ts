@@ -228,10 +228,76 @@ export const createCustomFood = async (req: Request, res: Response) => {
 
     res.status(201).json(result.rows[0]);
   } catch (error: any) {
-    if (error.code === "23505") { // Unique violation
+    if (error.code === "23505") {
+      // Unique violation
       return res.status(409).json({ error: "Item already exists" });
     }
     console.error("Create foods error :", error);
     res.status(500).json({ error: "Failed to create food" });
+  }
+};
+
+export const updateCustomFood = async (req: Request, res: Response) => {
+  try {
+    const userId = req.user!.id;
+    const id = parseInt(req.params.id);
+    const query = `UPDATE foods
+SET name = $1, category = $2, protein_per_100g = $3, fat_per_100g = $4, carbs_per_100g = $5, calories_per_100g = $6
+WHERE id = $7
+  AND created_by = $8
+RETURNING *
+`;
+
+    const result = await pool.query(query, [
+      req.body.name,
+      req.body.category,
+      req.body.protein_per_100g,
+      req.body.fat_per_100g,
+      req.body.carbs_per_100g,
+      req.body.calories_per_100g,
+      id,
+      userId,
+    ]);
+
+    if (result.rows.length === 0) {
+      return res
+        .status(404)
+        .json({ error: "Food not found or not authorised" });
+    }
+
+    res.status(200).json(result.rows[0]);
+  } catch (error: any) {
+    console.error("Update foods error :", error);
+    res.status(500).json({ error: "Failed to update food" });
+  }
+};
+
+
+export const deleteCustomFood = async (req: Request, res: Response) => {
+  try {
+    const userId = req.user!.id;
+    const id = parseInt(req.params.id);
+    const query = `DELETE FROM foods
+WHERE id = $1
+  AND created_by = $2
+  AND is_custom = true
+RETURNING *
+`;
+
+    const result = await pool.query(query, [
+      id,
+      userId,
+    ]);
+
+    if (result.rows.length === 0) {
+      return res
+        .status(404)
+        .json({ error: "Food couldn't be deleted" });
+    }
+
+    res.status(200).json(result.rows[0]);
+  } catch (error: any) {
+    console.error("Delete foods error :", error);
+    res.status(500).json({ error: "Failed to delete food" });
   }
 };
