@@ -133,3 +133,20 @@ export const createCustomFood = async (foodData: {
   const response = await foodApi.post("/api/foods/custom", foodData);
   return response.data;
 };
+
+export const updateCustomFood = async (id: number, foodData: {
+  name: string;
+  category: string;
+  protein_per_100g: number;
+  fat_per_100g: number;
+  carbs_per_100g: number;
+  calories_per_100g: number;
+}) => {
+  const response = await foodApi.put(`/api/foods/custom/${id}`, foodData);
+  return response.data;
+};
+
+export const deleteCustomFood = async (id: number) => {
+  const response = await foodApi.delete(`/api/foods/custom/${id}`);
+  return response.data;
+};
