@@ -6,6 +6,8 @@ import {
   searchFoods,
   createCustomFood,
   verifyToken,
+  updateCustomFood,
+  deleteCustomFood,
 } from "../controllers/foodControllers";
 
 // Router instance that groups all food-related routes together
@@ -15,6 +17,8 @@ const router = Router();
 router.get("/", verifyToken, getFoods);
 router.get("/search", verifyToken, searchFoods);
 router.post("/custom", verifyToken, createCustomFood);
+router.put("/custom/:id", verifyToken, updateCustomFood);
+router.delete("/custom/:id", verifyToken, deleteCustomFood);
 router.get("/:id", verifyToken, getFoodById);
 
 // Exports the router so it can be mounted in the main server
