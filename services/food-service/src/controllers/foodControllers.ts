@@ -96,10 +96,12 @@ export const getFoods = async (req: Request, res: Response) => {
         carbs_per_100g,
         calories_per_100g,
         created_at,
-        updated_at
+        updated_at,
+        is_custom,
+        created_by
       FROM foods
       ${whereClause}
-      ORDER BY name ASC
+      ORDER BY is_custom DESC, name ASC
       LIMIT $${paramIndex++} OFFSET $${paramIndex++}
     `;
 
@@ -153,7 +155,9 @@ export const getFoodById = async (req: Request, res: Response) => {
         carbs_per_100g,
         calories_per_100g,
         created_at,
-        updated_at
+        updated_at,
+        is_custom,
+        created_by
       FROM foods
       WHERE id = $1
         AND (created_by IS NULL OR created_by = $2)
@@ -192,11 +196,13 @@ export const searchFoods = async (req: Request, res: Response) => {
         protein_per_100g,
         fat_per_100g,
         carbs_per_100g,
-        calories_per_100g
+        calories_per_100g,
+        is_custom,
+        created_by
       FROM foods 
       WHERE name ILIKE $1
         AND (created_by IS NULL OR created_by = $2)
-      ORDER BY name ASC 
+      ORDER BY is_custom DESC, name ASC
       LIMIT 10`,
       [`%${query}%`, userId],
     );
@@ -272,7 +278,6 @@ RETURNING *
   }
 };
 
-
 export const deleteCustomFood = async (req: Request, res: Response) => {
   try {
     const userId = req.user!.id;
@@ -284,15 +289,10 @@ WHERE id = $1
 RETURNING *
 `;
 
-    const result = await pool.query(query, [
-      id,
-      userId,
-    ]);
+    const result = await pool.query(query, [id, userId]);
 
     if (result.rows.length === 0) {
-      return res
-        .status(404)
-        .json({ error: "Food couldn't be deleted" });
+      return res.status(404).json({ error: "Food couldn't be deleted" });
     }
 
     res.status(200).json(result.rows[0]);
