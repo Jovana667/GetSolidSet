@@ -16,6 +16,9 @@ function MealPlanDetail() {
   const [searchTerm, setSearchTerm] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [isAddingCustomFood, setIsAddingCustomFood] = useState(false);
+  const [selectedFoodIds, setSelectedFoodIds] = useState<number[]>([]);
+  const [selectedFood, setSelectedFood] = useState<any | null>(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [formData, setFormData] = useState({ name: "" });
   const [visibleCounts, setVisibleCounts] = useState({
     protein: 15,
@@ -140,6 +143,16 @@ function MealPlanDetail() {
     }
   };
 
+  const toggleFoodSelection = (foodId: number) => {
+    if (selectedFoodIds.includes(foodId)) {
+      // already selected — remove it
+      setSelectedFoodIds(selectedFoodIds.filter((id) => id !== foodId));
+    } else {
+      // not selected — add it
+      setSelectedFoodIds([...selectedFoodIds, foodId]);
+    }
+  };
+
   useEffect(() => {
     // Check if user is logged in
     const token = localStorage.getItem("token");
@@ -222,7 +235,6 @@ function MealPlanDetail() {
               to="/"
               className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
               onClick={handleLogout}
-              className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
             >
               Log Out
             </Link>
@@ -436,14 +448,26 @@ function MealPlanDetail() {
                     .map((food) => (
                       <div
                         key={food.id}
-                        onClick={() => addFoodToMeal(food)}
-                        className="p-2 hover:bg-blue-50 cursor-pointer rounded text-sm"
+                        className="group flex items-center p-2 hover:bg-blue-50 cursor-pointer rounded text-sm"
                       >
-                        <div className="font-medium">{food.name}</div>
-                        <div className="text-xs text-gray-600">
-                          {food.protein_per_100g}g P | {food.carbs_per_100g}g C
-                          | {food.fat_per_100g}g F | {food.calories_per_100g}{" "}
-                          cal
+                        {/* Checkbox — only for custom foods, hidden until hover */}
+                        {food.is_custom && (
+                          <input
+                            type="checkbox"
+                            className="opacity-0 group-hover:opacity-100 mr-2"
+                            checked={selectedFoodIds.includes(food.id)}
+                            onChange={() => toggleFoodSelection(food.id)}
+                            onClick={(e) => e.stopPropagation()}
+                          />
+                        )}
+                        {/* Food info */}
+                        <div onClick={() => addFoodToMeal(food)}>
+                          <div className="font-medium">{food.name}</div>
+                          <div className="text-xs text-gray-600">
+                            {food.protein_per_100g}g P | {food.carbs_per_100g}g
+                            C | {food.fat_per_100g}g F |{" "}
+                            {food.calories_per_100g} cal
+                          </div>
                         </div>
                       </div>
                     ))}
@@ -465,14 +489,6 @@ function MealPlanDetail() {
                         onClick={() => showLess("protein")}
                         className="w-full text-blue-600 hover:text-blue-800 text-sm py-2"
                       >
-                        Show Less
-                      </button>
-                    )}
-
-                  {/* If all items shown AND more than 15 → Show Less */}
-                  {groupedFoods.protein.length <= visibleCounts.protein &&
-                    groupedFoods.protein.length > 15 && (
-                      <button onClick={() => showLess("protein")}>
                         Show Less
                       </button>
                     )}
@@ -498,11 +514,20 @@ function MealPlanDetail() {
                     .map((food) => (
                       <div
                         key={food.id}
-                        onClick={() => addFoodToMeal(food)}
-                        className="p-2 hover:bg-blue-50 cursor-pointer rounded text-sm"
+                        className="group flex items-center p-2 hover:bg-blue-50 cursor-pointer rounded text-sm"
                       >
-                        <div className="font-medium">{food.name}</div>
-                        <div className="text-xs text-gray-600">
+                        {food.is_custom && (
+                          <input
+                            type="checkbox"
+                            className="opacity-0 group-hover:opacity-100 mr-2"
+                            checked={selectedFoodIds.includes(food.id)}
+                            onChange={() => toggleFoodSelection(food.id)}
+                            onClick={(e) => e.stopPropagation()}
+                          />
+                        )}
+                        <div onClick={() => addFoodToMeal(food)}>
+                          <div className="font-medium">{food.name}</div>
+                          <div className="text-xs text-gray-600"></div>
                           {food.protein_per_100g}g P | {food.carbs_per_100g}g C
                           | {food.fat_per_100g}g F | {food.calories_per_100g}{" "}
                           cal
@@ -551,9 +576,17 @@ function MealPlanDetail() {
                     .map((food) => (
                       <div
                         key={food.id}
-                        onClick={() => addFoodToMeal(food)}
-                        className="p-2 hover:bg-blue-50 cursor-pointer rounded text-sm"
+                        className="group flex items-center p-2 hover:bg-blue-50 cursor-pointer rounded text-sm"
                       >
+                        {food.is_custom && (
+                          <input
+                            type="checkbox"
+                            className="opacity-0 group-hover:opacity-100 mr-2"
+                            checked={selectedFoodIds.includes(food.id)}
+                            onChange={() => toggleFoodSelection(food.id)}
+                            onClick={(e) => e.stopPropagation()}
+                          />
+                        )}
                         <div className="font-medium">{food.name}</div>
                         <div className="text-xs text-gray-600">
                           {food.protein_per_100g}g P | {food.carbs_per_100g}g C
