@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import axios from "axios";
-import { getFoods, createMeal } from "../services/api";
+import { getFoods, createMeal, deleteCustomFood } from "../services/api";
 import CustomFoodForm from "../components/CustomFoodForm";
 import { Trash2 } from "lucide-react";
 
