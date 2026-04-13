@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 import { getFoods, createMeal } from "../services/api";
 import CustomFoodForm from "../components/CustomFoodForm";
+import { Trash2 } from "lucide-react";
 
 function MealPlanDetail() {
   const { id } = useParams();
@@ -142,6 +143,18 @@ function MealPlanDetail() {
       setLoading(false);
     }
   };
+
+  const handleDeleteFoods = async () => {
+  try {
+    setIsDeleteModalOpen(false);
+    await Promise.all(selectedFoodIds.map(id => deleteCustomFood(id)));
+    setSelectedFoodIds([]);
+    await fetchFoods();
+  } catch (error) {
+    console.error("Delete failed:", error);
+    alert("Failed to delete food")
+  }
+};
 
   const toggleFoodSelection = (foodId: number) => {
     if (selectedFoodIds.includes(foodId)) {
@@ -417,12 +430,19 @@ function MealPlanDetail() {
           <div className="order-1 lg:order-2 bg-white rounded-lg shadow p-6">
             <div className="flex justify-between items-center mb-8">
               <h2 className="text-xl font-semibold">Foods</h2>
+                <div className="flex items-center gap-2">
+              {selectedFoodIds.length > 0 && (
+                <button onClick={() => setIsDeleteModalOpen(true)}>
+                  <Trash2 size={16} />
+                </button>
+              )}
               <button
                 className="text-sm text-gray-500 hover:text-gray-700"
                 onClick={() => setIsAddingCustomFood(!isAddingCustomFood)}
               >
                 {isAddingCustomFood ? "Cancel" : "+ Add Custom Food"}
               </button>
+              </div>
             </div>
             {isAddingCustomFood && (
               <CustomFoodForm
@@ -454,7 +474,7 @@ function MealPlanDetail() {
                         {food.is_custom && (
                           <input
                             type="checkbox"
-                            className="opacity-0 group-hover:opacity-100 mr-2"
+                            className="opacity-0 group-hover:opacity-100 checked:opacity-100 mr-2"
                             checked={selectedFoodIds.includes(food.id)}
                             onChange={() => toggleFoodSelection(food.id)}
                             onClick={(e) => e.stopPropagation()}
@@ -621,6 +641,30 @@ function MealPlanDetail() {
           </div>
         </div>
       </div>
+      {isDeleteModalOpen && (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="bg-white rounded-lg p-6 max-w-sm w-full mx-4">
+      <h3 className="text-lg font-semibold mb-2">Delete Custom Food</h3>
+      <p className="text-gray-600 mb-6">
+        Are you sure you want to delete {selectedFoodIds.length} item{selectedFoodIds.length > 1 ? "s" : ""}? This cannot be undone.
+      </p>
+      <div className="flex justify-end gap-3">
+        <button
+          className="px-4 py-2 text-gray-600 hover:text-gray-800"
+          onClick={() => setIsDeleteModalOpen(false)}
+        >
+          Cancel
+        </button>
+        <button
+          className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+          onClick={handleDeleteFoods}
+        >
+          Delete
+        </button>
+      </div>
+    </div>
+  </div>
+)}
     </div>
   );
 }
