@@ -1,7 +1,8 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { getFoods, createMeal } from "../services/api";
+import { getFoods, createMeal, deleteCustomFood } from "../services/api";
 import CustomFoodForm from "../components/CustomFoodForm";
+import { Trash2 } from "lucide-react";
 
 function Home() {
   const navigate = useNavigate();
@@ -12,6 +13,10 @@ function Home() {
   const [searchTerm, setSearchTerm] = useState("");
   const [mealName, setMealName] = useState("");
   const [isAddingCustomFood, setIsAddingCustomFood] = useState(false);
+  const [selectedFoodIds, setSelectedFoodIds] = useState<number[]>([]);
+  const [selectedFood, setSelectedFood] = useState<any | null>(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [formData, setFormData] = useState({ name: "" });
   const [visibleCounts, setVisibleCounts] = useState({
     protein: 15,
     carbs: 15,
@@ -194,28 +199,49 @@ function Home() {
     navigate("/");
   };
 
+  const handleDeleteFoods = async () => {
+    try {
+      setIsDeleteModalOpen(false);
+      await Promise.all(selectedFoodIds.map((id) => deleteCustomFood(id)));
+      setSelectedFoodIds([]);
+      await fetchFoods();
+    } catch (error) {
+      console.error("Delete failed:", error);
+      alert("Failed to delete food");
+    }
+  };
+
+  const toggleFoodSelection = (foodId: number) => {
+    if (selectedFoodIds.includes(foodId)) {
+      // already selected — remove it
+      setSelectedFoodIds(selectedFoodIds.filter((id) => id !== foodId));
+    } else {
+      // not selected — add it
+      setSelectedFoodIds([...selectedFoodIds, foodId]);
+    }
+  };
+
   useEffect(() => {
     // Check if user is logged in
     const token = localStorage.getItem("token");
     setIsLoggedIn(!!token);
   }, []);
 
-      const fetchFoods = async () => {
-      try {
-        const data = await getFoods();
-        console.log("Foods fetched successfully:", data);
-        setFoods(data.foods || []); // Access data.foods array
-      } catch (error) {
-        console.error("Failed to fetch foods:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchFoods = async () => {
+    try {
+      const data = await getFoods();
+      console.log("Foods fetched successfully:", data);
+      setFoods(data.foods || []); // Access data.foods array
+    } catch (error) {
+      console.error("Failed to fetch foods:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-
-useEffect(() => {
-  fetchFoods();
-}, []);
+  useEffect(() => {
+    fetchFoods();
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-50 p-8">
@@ -566,12 +592,19 @@ useEffect(() => {
           <div className="order-1 lg:order-2 bg-white rounded-lg shadow p-6">
             <div className="flex justify-between items-center mb-8">
               <h2 className="text-xl font-semibold">Foods</h2>
-              <button
-                className="text-sm text-gray-500 hover:text-gray-700"
-                onClick={() => setIsAddingCustomFood(!isAddingCustomFood)}
-              >
-                {isAddingCustomFood ? "Cancel" : "+ Add Custom Food"}
-              </button>
+              <div className="flex items-center gap-2">
+                {selectedFoodIds.length > 0 && (
+                  <button onClick={() => setIsDeleteModalOpen(true)}>
+                    <Trash2 size={16} />
+                  </button>
+                )}
+                <button
+                  className="text-sm text-gray-500 hover:text-gray-700"
+                  onClick={() => setIsAddingCustomFood(!isAddingCustomFood)}
+                >
+                  {isAddingCustomFood ? "Cancel" : "+ Add Custom Food"}
+                </button>
+              </div>
             </div>
             {isAddingCustomFood && (
               <CustomFoodForm
@@ -631,14 +664,24 @@ useEffect(() => {
                     .map((food) => (
                       <div
                         key={food.id}
-                        onClick={() => addFoodToMeal(food)}
-                        className="p-2 hover:bg-blue-50 cursor-pointer rounded text-sm"
+                        className="group flex items-center p-2 hover:bg-blue-50 cursor-pointer rounded text-sm"
                       >
-                        <div className="font-medium">{food.name}</div>
-                        <div className="text-xs text-gray-600">
-                          {food.protein_per_100g}g P | {food.carbs_per_100g}g C
-                          | {food.fat_per_100g}g F | {food.calories_per_100g}{" "}
-                          cal
+                        {food.is_custom && (
+                          <input
+                            type="checkbox"
+                            className="opacity-0 group-hover:opacity-100 checked:opacity-100 mr-2"
+                            checked={selectedFoodIds.includes(food.id)}
+                            onChange={() => toggleFoodSelection(food.id)}
+                            onClick={(e) => e.stopPropagation()}
+                          />
+                        )}
+                        <div onClick={() => addFoodToMeal(food)}>
+                          <div className="font-medium">{food.name}</div>
+                          <div className="text-xs text-gray-600">
+                            {food.protein_per_100g}g P | {food.carbs_per_100g}g
+                            C | {food.fat_per_100g}g F |{" "}
+                            {food.calories_per_100g} cal
+                          </div>
                         </div>
                       </div>
                     ))}
@@ -693,14 +736,24 @@ useEffect(() => {
                     .map((food) => (
                       <div
                         key={food.id}
-                        onClick={() => addFoodToMeal(food)}
-                        className="p-2 hover:bg-blue-50 cursor-pointer rounded text-sm"
+                        className="group flex items-center p-2 hover:bg-blue-50 cursor-pointer rounded text-sm"
                       >
-                        <div className="font-medium">{food.name}</div>
-                        <div className="text-xs text-gray-600">
-                          {food.protein_per_100g}g P | {food.carbs_per_100g}g C
-                          | {food.fat_per_100g}g F | {food.calories_per_100g}{" "}
-                          cal
+                        {food.is_custom && (
+                          <input
+                            type="checkbox"
+                            className="opacity-0 group-hover:opacity-100 checked:opacity-100 mr-2"
+                            checked={selectedFoodIds.includes(food.id)}
+                            onChange={() => toggleFoodSelection(food.id)}
+                            onClick={(e) => e.stopPropagation()}
+                          />
+                        )}
+                        <div onClick={() => addFoodToMeal(food)}>
+                          <div className="font-medium">{food.name}</div>
+                          <div className="text-xs text-gray-600">
+                            {food.protein_per_100g}g P | {food.carbs_per_100g}g
+                            C | {food.fat_per_100g}g F |{" "}
+                            {food.calories_per_100g} cal
+                          </div>
                         </div>
                       </div>
                     ))}
@@ -746,14 +799,24 @@ useEffect(() => {
                     .map((food) => (
                       <div
                         key={food.id}
-                        onClick={() => addFoodToMeal(food)}
-                        className="p-2 hover:bg-blue-50 cursor-pointer rounded text-sm"
+                        className="group flex items-center p-2 hover:bg-blue-50 cursor-pointer rounded text-sm"
                       >
-                        <div className="font-medium">{food.name}</div>
-                        <div className="text-xs text-gray-600">
-                          {food.protein_per_100g}g P | {food.carbs_per_100g}g C
-                          | {food.fat_per_100g}g F | {food.calories_per_100g}{" "}
-                          cal
+                        {food.is_custom && (
+                          <input
+                            type="checkbox"
+                            className="opacity-0 group-hover:opacity-100 checked:opacity-100 mr-2"
+                            checked={selectedFoodIds.includes(food.id)}
+                            onChange={() => toggleFoodSelection(food.id)}
+                            onClick={(e) => e.stopPropagation()}
+                          />
+                        )}
+                        <div onClick={() => addFoodToMeal(food)}>
+                          <div className="font-medium">{food.name}</div>
+                          <div className="text-xs text-gray-600">
+                            {food.protein_per_100g}g P | {food.carbs_per_100g}g
+                            C | {food.fat_per_100g}g F |{" "}
+                            {food.calories_per_100g} cal
+                          </div>
                         </div>
                       </div>
                     ))}
@@ -783,6 +846,31 @@ useEffect(() => {
           </div>
         </div>
       </div>
+      {isDeleteModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-sm w-full mx-4">
+            <h3 className="text-lg font-semibold mb-2">Delete Custom Food</h3>
+            <p className="text-gray-600 mb-6">
+              Are you sure you want to delete {selectedFoodIds.length} item
+              {selectedFoodIds.length > 1 ? "s" : ""}? This cannot be undone.
+            </p>
+            <div className="flex justify-end gap-3">
+              <button
+                className="px-4 py-2 text-gray-600 hover:text-gray-800"
+                onClick={() => setIsDeleteModalOpen(false)}
+              >
+                Cancel
+              </button>
+              <button
+                className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+                onClick={handleDeleteFoods}
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
