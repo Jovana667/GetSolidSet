@@ -520,14 +520,88 @@ export const updateMealPlan = async (req: Request, res: Response) => {
   }
 };
 
+export const addFoodToMeal = async (req: Request, res: Response) => {
+  try {
+    const mealId = parseInt(req.params.mealId);
+    const { food_id, servings } = req.body;
+
+    const query = `
+      INSERT INTO meal_foods (meal_id, food_id, servings)
+      VALUES ($1, $2, $3)
+      RETURNING *
+    `;
+
+    const result = await pool.query(query, [mealId, food_id, servings]);
+
+    res.status(201).json(result.rows[0]);
+  } catch (error) {
+    console.error("Add food to meal error:", error);
+    res.status(500).json({ error: "Failed to add food to meal" });
+  }
+};
+
+export const updateFoodServing = async (req: Request, res: Response) => {
+  try {
+    const mealId = parseInt(req.params.mealId);
+    const mealFoodId = parseInt(req.params.mealFoodId);
+    const { servings } = req.body;
+
+    const query = `
+UPDATE meal_foods
+SET servings = $1
+WHERE id = $2
+  AND meal_id = $3
+RETURNING *
+    `;
+
+    const result = await pool.query(query, [servings, mealFoodId, mealId]);
+
+    if (result.rows.length === 0) {
+      return res
+        .status(404)
+        .json({ error: "Food item not found in this meal" });
+    }
+
+    res.status(200).json(result.rows[0]);
+  } catch (error) {
+    console.error("Update food serving error:", error);
+    res.status(500).json({ error: "Failed to update food serving" });
+  }
+};
+
+export const removeFoodFromMeal = async (req: Request, res: Response) => {
+  try {
+    const mealId = parseInt(req.params.mealId);
+    const mealFoodId = parseInt(req.params.mealFoodId);
+
+    const query = `
+DELETE FROM meal_foods  
+WHERE id = $1
+  AND meal_id = $2
+RETURNING *
+    `;
+
+    const result = await pool.query(query, [mealFoodId, mealId]);
+
+    if (result.rows.length === 0) {
+      return res
+        .status(404)
+        .json({ error: "Food item not found in this meal" });
+    }
+
+    res.status(200).json({ message: "Food item removed from meal" });
+  } catch (error) {
+    console.error("Remove food from meal error:", error);
+    res.status(500).json({ error: "Failed to remove food from meal" });
+  }
+};
+
 export const deleteMealPlan = async (req: Request, res: Response) => {
   const client = await pool.connect();
   try {
     const { id } = req.params;
     const { name } = req.body;
     const userId = req.user?.id;
-
-
 
     // Check if meal plan exists and belongs to user
     const checkQuery = `
@@ -543,7 +617,7 @@ export const deleteMealPlan = async (req: Request, res: Response) => {
       });
     }
 
-    // delete meal plan 
+    // delete meal plan
     const deleteQuery = `
       DELETE FROM meal_plans 
       WHERE id = $1 AND user_id = $2
@@ -551,7 +625,10 @@ export const deleteMealPlan = async (req: Request, res: Response) => {
     `;
     const deleteResult = await client.query(deleteQuery, [id, userId]);
 
-    res.status(200).json({ message: "Meal plan deleted successfully", meal_plan: deleteResult.rows[0] });
+    res.status(200).json({
+      message: "Meal plan deleted successfully",
+      meal_plan: deleteResult.rows[0],
+    });
   } catch (error) {
     console.error("Delete meal plan error:", error);
     res.status(500).json({ error: "Failed to delete meal plan" });
