@@ -20,6 +20,7 @@ function MealPlanDetail() {
   const [selectedFoodIds, setSelectedFoodIds] = useState<number[]>([]);
   const [selectedFood, setSelectedFood] = useState<any | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [activeMealSlot, setActiveMealSlot] = useState<string | null>(null);
   const [formData, setFormData] = useState({ name: "" });
   const [visibleCounts, setVisibleCounts] = useState({
     protein: 15,
@@ -145,16 +146,16 @@ function MealPlanDetail() {
   };
 
   const handleDeleteFoods = async () => {
-  try {
-    setIsDeleteModalOpen(false);
-    await Promise.all(selectedFoodIds.map(id => deleteCustomFood(id)));
-    setSelectedFoodIds([]);
-    await fetchFoods();
-  } catch (error) {
-    console.error("Delete failed:", error);
-    alert("Failed to delete food")
-  }
-};
+    try {
+      setIsDeleteModalOpen(false);
+      await Promise.all(selectedFoodIds.map((id) => deleteCustomFood(id)));
+      setSelectedFoodIds([]);
+      await fetchFoods();
+    } catch (error) {
+      console.error("Delete failed:", error);
+      alert("Failed to delete food");
+    }
+  };
 
   const toggleFoodSelection = (foodId: number) => {
     if (selectedFoodIds.includes(foodId)) {
@@ -219,7 +220,7 @@ function MealPlanDetail() {
   }, [id, navigate]);
 
   const calculateMealTotal = (mealType: string, metric: string) => {
-    const meals = mealPlan?.meals?.[mealType] || [];
+    const meals = mealPlan?.meals?.[mealType]?.foods || [];
     return meals.reduce((total: number, food: any) => {
       return total + food[`${metric}_per_100g`] * food.serving;
     }, 0);
@@ -300,10 +301,17 @@ function MealPlanDetail() {
             </p>
 
             {/* Breakfast */}
-            <div className="bg-white rounded-lg shadow p-6">
+            <div
+              className={`bg-white rounded-lg shadow p-6 cursor-pointer ${
+                  isEditing && activeMealSlot === "breakfast"
+                  ? "border-2 border-dashed border-blue-400"
+                  : ""
+              }`}
+              onClick={() => setActiveMealSlot("breakfast")}
+            >
               <h2 className="text-xl font-semibold mb-4">Breakfast: </h2>
-              <div className="space-y-2">
-                {mealPlan.meals.breakfast.map((food: any, index: number) => (
+              {mealPlan.meals.breakfast.foods.map(
+                (food: any, index: number) => (
                   <div key={index} className="p-3 bg-gray-50 rounded">
                     <div className="font-medium">{food.name}</div>
                     <div className="text-sm text-gray-600">
@@ -315,18 +323,25 @@ function MealPlanDetail() {
                       | Fats: {(food.fat_per_100g * food.serving).toFixed(1)}g
                     </div>
                   </div>
-                ))}
-                {mealPlan.meals.breakfast.length === 0 && (
-                  <p className="text-gray-400">No foods</p>
-                )}
-              </div>
+                ),
+              )}
+              {mealPlan.meals.breakfast.foods.length === 0 && (
+                <p className="text-gray-400">No foods</p>
+              )}
             </div>
 
             {/* Lunch */}
-            <div className="bg-white rounded-lg shadow p-6">
+            <div
+              className={`bg-white rounded-lg shadow p-6 cursor-pointer ${
+                isEditing && activeMealSlot === "lunch"
+                  ? "border-2 border-dashed border-blue-400"
+                  : ""
+              }`}
+              onClick={() => setActiveMealSlot("lunch")}
+            >
               <h2 className="text-xl font-semibold mb-4">Lunch: </h2>
               <div className="space-y-2">
-                {mealPlan.meals.lunch.map((food: any, index: number) => (
+                {mealPlan.meals.lunch.foods.map((food: any, index: number) => (
                   <div key={index} className="p-3 bg-gray-50 rounded">
                     <div className="font-medium">{food.name}</div>
                     <div className="text-sm text-gray-600">
@@ -339,17 +354,24 @@ function MealPlanDetail() {
                     </div>
                   </div>
                 ))}
-                {mealPlan.meals.lunch.length === 0 && (
+                {mealPlan.meals.lunch.foods.length === 0 && (
                   <p className="text-gray-400">No foods</p>
                 )}
               </div>
             </div>
 
             {/* Dinner */}
-            <div className="bg-white rounded-lg shadow p-6">
+            <div
+              className={`bg-white rounded-lg shadow p-6 cursor-pointer ${
+                isEditing && activeMealSlot === "dinner"
+                  ? "border-2 border-dashed border-blue-400"
+                  : ""
+              }`}
+              onClick={() => setActiveMealSlot("dinner")}
+            >
               <h2 className="text-xl font-semibold mb-4">Dinner: </h2>
-              <div className="space-y-2">
-                {mealPlan.meals.dinner.map((food: any, index: number) => (
+              {mealPlan.meals.dinner.foods.map(
+                (food: any, index: number) => (
                   <div key={index} className="p-3 bg-gray-50 rounded">
                     <div className="font-medium">{food.name}</div>
                     <div className="text-sm text-gray-600">
@@ -362,17 +384,23 @@ function MealPlanDetail() {
                     </div>
                   </div>
                 ))}
-                {mealPlan.meals.dinner.length === 0 && (
+                {mealPlan.meals.dinner.foods.length === 0 && (
                   <p className="text-gray-400">No foods</p>
                 )}
               </div>
-            </div>
+        
 
             {/* Snack */}
-            <div className="bg-white rounded-lg shadow p-6">
+            <div className={`bg-white rounded-lg shadow p-6 cursor-pointer ${
+                isEditing && activeMealSlot === "snack"
+                  ? "border-2 border-dashed border-blue-400"
+                  : ""
+              }`}
+              onClick={() => setActiveMealSlot("snack")}
+            >
               <h2 className="text-xl font-semibold mb-4">Snack: </h2>
               <div className="space-y-2">
-                {mealPlan.meals.snack.map((food: any, index: number) => (
+                {mealPlan.meals.snack.foods.map((food: any, index: number) => (
                   <div key={index} className="p-3 bg-gray-50 rounded">
                     <div className="font-medium">{food.name}</div>
                     <div className="text-sm text-gray-600">
@@ -385,7 +413,7 @@ function MealPlanDetail() {
                     </div>
                   </div>
                 ))}
-                {mealPlan.meals.snack.length === 0 && (
+                {mealPlan.meals.snack.foods.length === 0 && (
                   <p className="text-gray-400">No foods</p>
                 )}
               </div>
@@ -430,18 +458,18 @@ function MealPlanDetail() {
           <div className="order-1 lg:order-2 bg-white rounded-lg shadow p-6">
             <div className="flex justify-between items-center mb-8">
               <h2 className="text-xl font-semibold">Foods</h2>
-                <div className="flex items-center gap-2">
-              {selectedFoodIds.length > 0 && (
-                <button onClick={() => setIsDeleteModalOpen(true)}>
-                  <Trash2 size={16} />
+              <div className="flex items-center gap-2">
+                {selectedFoodIds.length > 0 && (
+                  <button onClick={() => setIsDeleteModalOpen(true)}>
+                    <Trash2 size={16} />
+                  </button>
+                )}
+                <button
+                  className="text-sm text-gray-500 hover:text-gray-700"
+                  onClick={() => setIsAddingCustomFood(!isAddingCustomFood)}
+                >
+                  {isAddingCustomFood ? "Cancel" : "+ Add Custom Food"}
                 </button>
-              )}
-              <button
-                className="text-sm text-gray-500 hover:text-gray-700"
-                onClick={() => setIsAddingCustomFood(!isAddingCustomFood)}
-              >
-                {isAddingCustomFood ? "Cancel" : "+ Add Custom Food"}
-              </button>
               </div>
             </div>
             {isAddingCustomFood && (
@@ -642,29 +670,30 @@ function MealPlanDetail() {
         </div>
       </div>
       {isDeleteModalOpen && (
-  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-    <div className="bg-white rounded-lg p-6 max-w-sm w-full mx-4">
-      <h3 className="text-lg font-semibold mb-2">Delete Custom Food</h3>
-      <p className="text-gray-600 mb-6">
-        Are you sure you want to delete {selectedFoodIds.length} item{selectedFoodIds.length > 1 ? "s" : ""}? This cannot be undone.
-      </p>
-      <div className="flex justify-end gap-3">
-        <button
-          className="px-4 py-2 text-gray-600 hover:text-gray-800"
-          onClick={() => setIsDeleteModalOpen(false)}
-        >
-          Cancel
-        </button>
-        <button
-          className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-          onClick={handleDeleteFoods}
-        >
-          Delete
-        </button>
-      </div>
-    </div>
-  </div>
-)}
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-sm w-full mx-4">
+            <h3 className="text-lg font-semibold mb-2">Delete Custom Food</h3>
+            <p className="text-gray-600 mb-6">
+              Are you sure you want to delete {selectedFoodIds.length} item
+              {selectedFoodIds.length > 1 ? "s" : ""}? This cannot be undone.
+            </p>
+            <div className="flex justify-end gap-3">
+              <button
+                className="px-4 py-2 text-gray-600 hover:text-gray-800"
+                onClick={() => setIsDeleteModalOpen(false)}
+              >
+                Cancel
+              </button>
+              <button
+                className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+                onClick={handleDeleteFoods}
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

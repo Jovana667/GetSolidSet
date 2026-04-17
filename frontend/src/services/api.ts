@@ -150,3 +150,21 @@ export const deleteCustomFood = async (id: number) => {
   const response = await foodApi.delete(`/api/foods/custom/${id}`);
   return response.data;
 };
+
+  export const addFoodToMeal = async (mealId: number, foodData: {
+    food_id: number;
+    servings: number;
+  }) => {
+    const response = await mealApi.post(`/meals/${mealId}/foods`, foodData);
+    return response.data;
+  };
+
+export const updateFoodServing = async (mealId: number, mealFoodId: number, servings: number) => {
+  const response = await mealApi.put(`/meals/${mealId}/foods/${mealFoodId}`, { servings });
+  return response.data;
+};  
+
+export const removeFoodFromMeal = async (mealId: number, mealFoodId: number) => {
+  const response = await mealApi.delete(`/meals/${mealId}/foods/${mealFoodId}`);
+  return response.data;
+};
