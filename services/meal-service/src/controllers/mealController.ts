@@ -435,13 +435,15 @@ export const getMealPlanById = async (req: Request, res: Response) => {
 
     // Group foods by meal type
     const groupedMeals = {
-      breakfast: [],
-      lunch: [],
-      dinner: [],
-      snack: [],
+      breakfast: { meal_id: null, foods: [] },
+      lunch: { meal_id: null, foods: [] },
+      dinner: { meal_id: null, foods: [] },
+      snack: { meal_id: null, foods: [] },
     };
 
     mealsResult.rows.forEach((row: any) => {
+      groupedMeals[row.meal_type].meal_id = row.meal_id;
+
       if (row.food_id) {
         // Only add if there's actually a food
         const food = {
@@ -454,7 +456,7 @@ export const getMealPlanById = async (req: Request, res: Response) => {
           carbs_per_100g: parseFloat(row.carbs_per_100g),
           calories_per_100g: parseFloat(row.calories_per_100g),
         };
-        groupedMeals[row.meal_type].push(food);
+        groupedMeals[row.meal_type].foods.push(food);
       }
     });
 
