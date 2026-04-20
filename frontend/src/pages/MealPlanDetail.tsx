@@ -4,6 +4,7 @@ import axios from "axios";
 import { getFoods, createMeal, deleteCustomFood } from "../services/api";
 import CustomFoodForm from "../components/CustomFoodForm";
 import { Trash2 } from "lucide-react";
+import { addFoodToMeal as addFoodToMealApi } from "../services/api";
 
 function MealPlanDetail() {
   const { id } = useParams();
@@ -21,6 +22,8 @@ function MealPlanDetail() {
   const [selectedFood, setSelectedFood] = useState<any | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [activeMealSlot, setActiveMealSlot] = useState<string | null>(null);
+  const [isDeleteFoodModalOpen, setIsDeleteFoodModalOpen] = useState(false);
+  const [foodToDelete, setFoodToDelete] = useState<any | null>(null);
   const [formData, setFormData] = useState({ name: "" });
   const [visibleCounts, setVisibleCounts] = useState({
     protein: 15,
@@ -59,9 +62,18 @@ function MealPlanDetail() {
     }
   };
 
-  const addFoodToMeal = (food: any) => {
-    // Define what happens when you add food
-    console.log("Adding food:", food);
+  const addFoodToMeal = async (food: any) => {
+    if (!activeMealSlot) {
+      alert("Please select a meal slot first");
+      return;
+    }
+    try {
+      const mealId = mealPlan.meals[activeMealSlot].meal_id;
+      await addFoodToMealApi(mealId, { food_id: food.id, servings: 1 });
+      fetchMealPlan();
+    } catch (error) {
+      console.error("Failed to add food to meal:", error);
+    }
   };
 
   const filteredFoods = foods.filter((f) =>
@@ -140,6 +152,7 @@ function MealPlanDetail() {
       navigate("/meals", { replace: true });
     } catch (error) {
       console.error("Delete failed:", error.message);
+      alert("Failed to delete meal plan");
     } finally {
       setLoading(false);
     }
@@ -156,6 +169,22 @@ function MealPlanDetail() {
       alert("Failed to delete food");
     }
   };
+
+  const handleDeleteFoodFromMeal = async () => {
+  try {
+    const mealId = mealPlan.meals[activeMealSlot].meal_id;
+    const mealFoodId = foodToDelete.meal_food_id;
+    
+    await removeFoodFromMeal(mealId, mealFoodId);
+    
+    setIsDeleteFoodModalOpen(false);
+    setFoodToDelete(null);
+    fetchMealPlan();
+  } catch (error) {
+    console.error("Delete failed:", error);
+    alert("Failed to remove food from meal");
+  }
+};
 
   const toggleFoodSelection = (foodId: number) => {
     if (selectedFoodIds.includes(foodId)) {
@@ -189,33 +218,33 @@ function MealPlanDetail() {
     fetchFoods();
   }, []);
 
-  useEffect(() => {
-    const fetchMealPlan = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        if (!token) {
-          navigate("/login");
-          return;
-        }
-
-        const response = await axios.get(
-          `http://localhost:3003/api/meals/plans/${id}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          },
-        );
-
-        setMealPlan(response.data);
-      } catch (err) {
-        console.error("Error fetching meal plan:", err);
-        setError("Failed to load meal plan");
-      } finally {
-        setLoading(false);
+  const fetchMealPlan = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        navigate("/login");
+        return;
       }
-    };
 
+      const response = await axios.get(
+        `http://localhost:3003/api/meals/plans/${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      setMealPlan(response.data);
+    } catch (err) {
+      console.error("Error fetching meal plan:", err);
+      setError("Failed to load meal plan");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchMealPlan();
   }, [id, navigate]);
 
@@ -303,7 +332,7 @@ function MealPlanDetail() {
             {/* Breakfast */}
             <div
               className={`bg-white rounded-lg shadow p-6 cursor-pointer ${
-                  isEditing && activeMealSlot === "breakfast"
+                isEditing && activeMealSlot === "breakfast"
                   ? "border-2 border-dashed border-blue-400"
                   : ""
               }`}
@@ -312,16 +341,33 @@ function MealPlanDetail() {
               <h2 className="text-xl font-semibold mb-4">Breakfast: </h2>
               {mealPlan.meals.breakfast.foods.map(
                 (food: any, index: number) => (
-                  <div key={index} className="p-3 bg-gray-50 rounded">
-                    <div className="font-medium">{food.name}</div>
-                    <div className="text-sm text-gray-600">
-                      Serving: {food.serving} x 100g | Calories:{" "}
-                      {(food.calories_per_100g * food.serving).toFixed(1)} |
-                      Protein:{" "}
-                      {(food.protein_per_100g * food.serving).toFixed(1)}g |
-                      Carbs: {(food.carbs_per_100g * food.serving).toFixed(1)}g
-                      | Fats: {(food.fat_per_100g * food.serving).toFixed(1)}g
+                  <div
+                    key={index}
+                    className="flex items-center justify-between p-3 bg-gray-50 rounded"
+                  >
+                    <div>
+                      <div className="font-medium">{food.name}</div>
+                      <div className="text-sm text-gray-600">
+                        Serving: {food.serving} x 100g | Calories:{" "}
+                        {(food.calories_per_100g * food.serving).toFixed(1)} |
+                        Protein:{" "}
+                        {(food.protein_per_100g * food.serving).toFixed(1)}g |
+                        Carbs: {(food.carbs_per_100g * food.serving).toFixed(1)}
+                        g | Fats:{" "}
+                        {(food.fat_per_100g * food.serving).toFixed(1)}g
+                      </div>
                     </div>
+                    {isEditing && activeMealSlot === "breakfast" && (
+                      <button
+                        className="text-red-400 hover:text-red-600 ml-2"
+                        onClick={() => {
+                          setFoodToDelete(food);
+                          setIsDeleteFoodModalOpen(true);
+                        }}
+                      >
+                        ✕
+                      </button>
+                    )}
                   </div>
                 ),
               )}
@@ -342,16 +388,33 @@ function MealPlanDetail() {
               <h2 className="text-xl font-semibold mb-4">Lunch: </h2>
               <div className="space-y-2">
                 {mealPlan.meals.lunch.foods.map((food: any, index: number) => (
-                  <div key={index} className="p-3 bg-gray-50 rounded">
-                    <div className="font-medium">{food.name}</div>
-                    <div className="text-sm text-gray-600">
-                      Serving: {food.serving} x 100g | Calories:{" "}
-                      {(food.calories_per_100g * food.serving).toFixed(1)} |
-                      Protein:{" "}
-                      {(food.protein_per_100g * food.serving).toFixed(1)}g |
-                      Carbs: {(food.carbs_per_100g * food.serving).toFixed(1)}g
-                      | Fats: {(food.fat_per_100g * food.serving).toFixed(1)}g
+                  <div
+                    key={index}
+                    className="flex items-center justify-between p-3 bg-gray-50 rounded"
+                  >
+                    <div>
+                      <div className="font-medium">{food.name}</div>
+                      <div className="text-sm text-gray-600">
+                        Serving: {food.serving} x 100g | Calories:{" "}
+                        {(food.calories_per_100g * food.serving).toFixed(1)} |
+                        Protein:{" "}
+                        {(food.protein_per_100g * food.serving).toFixed(1)}g |
+                        Carbs: {(food.carbs_per_100g * food.serving).toFixed(1)}
+                        g | Fats:{" "}
+                        {(food.fat_per_100g * food.serving).toFixed(1)}g
+                      </div>
                     </div>
+                    {isEditing && activeMealSlot === "lunch" && (
+                      <button
+                        className="text-red-400 hover:text-red-600 ml-2"
+                        onClick={() => {
+                          setFoodToDelete(food);
+                          setIsDeleteFoodModalOpen(true);
+                        }}
+                      >
+                        ✕
+                      </button>
+                    )}
                   </div>
                 ))}
                 {mealPlan.meals.lunch.foods.length === 0 && (
@@ -370,28 +433,39 @@ function MealPlanDetail() {
               onClick={() => setActiveMealSlot("dinner")}
             >
               <h2 className="text-xl font-semibold mb-4">Dinner: </h2>
-              {mealPlan.meals.dinner.foods.map(
-                (food: any, index: number) => (
-                  <div key={index} className="p-3 bg-gray-50 rounded">
-                    <div className="font-medium">{food.name}</div>
-                    <div className="text-sm text-gray-600">
-                      Serving: {food.serving} x 100g | Calories:{" "}
-                      {(food.calories_per_100g * food.serving).toFixed(1)} |
-                      Protein:{" "}
-                      {(food.protein_per_100g * food.serving).toFixed(1)}g |
-                      Carbs: {(food.carbs_per_100g * food.serving).toFixed(1)}g
-                      | Fats: {(food.fat_per_100g * food.serving).toFixed(1)}g
-                    </div>
-                  </div>
-                ))}
-                {mealPlan.meals.dinner.foods.length === 0 && (
-                  <p className="text-gray-400">No foods</p>
-                )}
-              </div>
-        
+{mealPlan.meals.dinner.foods.map((food: any, index: number) => (
+  <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded">
+    <div>
+      <div className="font-medium">{food.name}</div>
+      <div className="text-sm text-gray-600">
+        Serving: {food.serving} x 100g | Calories:{" "}
+        {(food.calories_per_100g * food.serving).toFixed(1)} |
+        Protein: {(food.protein_per_100g * food.serving).toFixed(1)}g |
+        Carbs: {(food.carbs_per_100g * food.serving).toFixed(1)}g |
+        Fats: {(food.fat_per_100g * food.serving).toFixed(1)}g
+      </div>
+    </div>
+    {isEditing && activeMealSlot === "dinner" && (
+      <button
+        className="text-red-400 hover:text-red-600 ml-2"
+        onClick={() => {
+          setFoodToDelete(food);
+          setIsDeleteFoodModalOpen(true);
+        }}
+      >
+        ✕
+      </button>
+    )}
+  </div>
+))}
+              {mealPlan.meals.dinner.foods.length === 0 && (
+                <p className="text-gray-400">No foods</p>
+              )}
+            </div>
 
             {/* Snack */}
-            <div className={`bg-white rounded-lg shadow p-6 cursor-pointer ${
+            <div
+              className={`bg-white rounded-lg shadow p-6 cursor-pointer ${
                 isEditing && activeMealSlot === "snack"
                   ? "border-2 border-dashed border-blue-400"
                   : ""
@@ -400,19 +474,31 @@ function MealPlanDetail() {
             >
               <h2 className="text-xl font-semibold mb-4">Snack: </h2>
               <div className="space-y-2">
-                {mealPlan.meals.snack.foods.map((food: any, index: number) => (
-                  <div key={index} className="p-3 bg-gray-50 rounded">
-                    <div className="font-medium">{food.name}</div>
-                    <div className="text-sm text-gray-600">
-                      Serving: {food.serving} x 100g | Calories:{" "}
-                      {(food.calories_per_100g * food.serving).toFixed(1)} |
-                      Protein:{" "}
-                      {(food.protein_per_100g * food.serving).toFixed(1)}g |
-                      Carbs: {(food.carbs_per_100g * food.serving).toFixed(1)}g
-                      | Fats: {(food.fat_per_100g * food.serving).toFixed(1)}g
-                    </div>
-                  </div>
-                ))}
+{mealPlan.meals.dinner.foods.map((food: any, index: number) => (
+  <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded">
+    <div>
+      <div className="font-medium">{food.name}</div>
+      <div className="text-sm text-gray-600">
+        Serving: {food.serving} x 100g | Calories:{" "}
+        {(food.calories_per_100g * food.serving).toFixed(1)} |
+        Protein: {(food.protein_per_100g * food.serving).toFixed(1)}g |
+        Carbs: {(food.carbs_per_100g * food.serving).toFixed(1)}g |
+        Fats: {(food.fat_per_100g * food.serving).toFixed(1)}g
+      </div>
+    </div>
+    {isEditing && activeMealSlot === "snack" && (
+      <button
+        className="text-red-400 hover:text-red-600 ml-2"
+        onClick={() => {
+          setFoodToDelete(food);
+          setIsDeleteFoodModalOpen(true);
+        }}
+      >
+        ✕
+      </button>
+    )}
+  </div>
+))}
                 {mealPlan.meals.snack.foods.length === 0 && (
                   <p className="text-gray-400">No foods</p>
                 )}
@@ -694,6 +780,30 @@ function MealPlanDetail() {
           </div>
         </div>
       )}
+      {isDeleteFoodModalOpen && (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="bg-white rounded-lg p-6 max-w-sm w-full mx-4">
+      <h3 className="text-lg font-semibold mb-2">Remove Food</h3>
+      <p className="text-gray-600 mb-6">
+        Are you sure you want to remove {foodToDelete?.name} from this meal?
+      </p>
+      <div className="flex justify-end gap-3">
+        <button
+          className="px-4 py-2 text-gray-600 hover:text-gray-800"
+          onClick={() => setIsDeleteFoodModalOpen(false)}
+        >
+          Cancel
+        </button>
+        <button
+          className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+          onClick={handleDeleteFoodFromMeal}
+        >
+          Remove
+        </button>
+      </div>
+    </div>
+  </div>
+)}
     </div>
   );
 }
