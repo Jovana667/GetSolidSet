@@ -450,6 +450,7 @@ export const getMealPlanById = async (req: Request, res: Response) => {
           id: row.food_id,
           name: row.name,
           category: row.category,
+          meal_food_id: row.meal_food_id,
           serving: row.quantity_g / 100, // Convert back to serving units
           protein_per_100g: parseFloat(row.protein_per_100g),
           fat_per_100g: parseFloat(row.fat_per_100g),
@@ -528,12 +529,17 @@ export const addFoodToMeal = async (req: Request, res: Response) => {
     const { food_id, servings } = req.body;
 
     const query = `
-      INSERT INTO meal_foods (meal_id, food_id, servings)
-      VALUES ($1, $2, $3)
+INSERT INTO meal_foods (meal_id, food_id, servings, quantity_g)
+VALUES ($1, $2, $3, $4)
       RETURNING *
     `;
 
-    const result = await pool.query(query, [mealId, food_id, servings]);
+    const result = await pool.query(query, [
+      mealId,
+      food_id,
+      servings,
+      servings * 100,
+    ]);
 
     res.status(201).json(result.rows[0]);
   } catch (error) {
@@ -550,7 +556,7 @@ export const updateFoodServing = async (req: Request, res: Response) => {
 
     const query = `
 UPDATE meal_foods
-SET servings = $1
+SET servings = $1, quantity_g = $1 * 100
 WHERE id = $2
   AND meal_id = $3
 RETURNING *
