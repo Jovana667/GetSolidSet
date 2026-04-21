@@ -552,11 +552,11 @@ export const updateFoodServing = async (req: Request, res: Response) => {
   try {
     const mealId = parseInt(req.params.mealId);
     const mealFoodId = parseInt(req.params.mealFoodId);
-    const { servings } = req.body;
+    const servings = parseFloat(req.body.servings);
 
     const query = `
 UPDATE meal_foods
-SET servings = $1, quantity_g = $1 * 100
+SET servings = $1::numeric, quantity_g = ($1::numeric * 100)::integer
 WHERE id = $2
   AND meal_id = $3
 RETURNING *
