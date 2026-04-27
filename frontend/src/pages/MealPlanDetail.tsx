@@ -4,6 +4,7 @@ import axios from "axios";
 import { removeFoodFromMeal, updateFoodServing } from "../services/api";
 import FoodPanel from "../components/FoodPanel";
 import { addFoodToMeal as addFoodToMealApi } from "../services/api";
+import MealSlot from "../components/MealSlot";
 
 function MealPlanDetail() {
   const { id } = useParams();
@@ -264,309 +265,68 @@ function MealPlanDetail() {
             </p>
 
             {/* Breakfast */}
-            <div
-              className={`bg-white rounded-lg shadow p-6 cursor-pointer ${
-                isEditing && activeMealSlot === "breakfast"
-                  ? "border-2 border-dashed border-blue-400"
-                  : ""
-              }`}
-              onClick={() => setActiveMealSlot("breakfast")}
-            >
-              <h2 className="text-xl font-semibold mb-4">Breakfast: </h2>
-              {mealPlan.meals.breakfast.foods.map(
-                (food: any, index: number) => (
-                  <div
-                    key={index}
-                    className="flex items-center justify-between p-3 bg-gray-50 rounded"
-                  >
-                    <div
-                      onClick={(e) => {
-                        e.stopPropagation(); // prevent triggering setActiveMealSlot
-                        if (isEditing && activeMealSlot === "breakfast") {
-                          setSelectedMealFoodId(food.meal_food_id);
-                          setServingInput(food.serving);
-                        }
-                      }}
-                    >
-                      <div className="font-medium">{food.name}</div>
-                      <div className="text-sm text-gray-600">
-                        Serving: {food.serving} x 100g | Calories:{" "}
-                        {(food.calories_per_100g * food.serving).toFixed(1)} |
-                        Protein:{" "}
-                        {(food.protein_per_100g * food.serving).toFixed(1)}g |
-                        Carbs: {(food.carbs_per_100g * food.serving).toFixed(1)}
-                        g | Fats:{" "}
-                        {(food.fat_per_100g * food.serving).toFixed(1)}g
-                      </div>
-                    </div>
-                    {selectedMealFoodId === food.meal_food_id && (
-                      <div className="flex items-center gap-2 mt-2">
-                        <input
-                          type="number"
-                          className="w-20 border border-gray-300 rounded px-2 py-1 text-sm"
-                          value={servingInput}
-                          onChange={(e) =>
-                            setServingInput(parseFloat(e.target.value))
-                          }
-                          onClick={(e) => e.stopPropagation()}
-                        />
-                        <button
-                          className="text-sm text-blue-500 hover:text-blue-700"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleUpdateServing();
-                          }}
-                        >
-                          Save
-                        </button>
-                      </div>
-                    )}
-                    {isEditing && activeMealSlot === "breakfast" && (
-                      <button
-                        className="text-red-400 hover:text-red-600 ml-2"
-                        onClick={() => {
-                          setFoodToDelete(food);
-                          setIsDeleteFoodModalOpen(true);
-                        }}
-                      >
-                        ✕
-                      </button>
-                    )}
-                  </div>
-                ),
-              )}
-              {mealPlan.meals.breakfast.foods.length === 0 && (
-                <p className="text-gray-400">No foods</p>
-              )}
-            </div>
+            <MealSlot
+              mealType="breakfast"
+              foods={mealPlan.meals.breakfast.foods}
+              isEditing={isEditing}
+              activeMealSlot={activeMealSlot}
+              setActiveMealSlot={setActiveMealSlot}
+              selectedMealFoodId={selectedMealFoodId}
+              setSelectedMealFoodId={setSelectedMealFoodId}
+              servingInput={servingInput}
+              setServingInput={setServingInput}
+              handleUpdateServing={handleUpdateServing}
+              setFoodToDelete={setFoodToDelete}
+              setIsDeleteFoodModalOpen={setIsDeleteFoodModalOpen}
+            />
 
             {/* Lunch */}
-            <div
-              className={`bg-white rounded-lg shadow p-6 cursor-pointer ${
-                isEditing && activeMealSlot === "lunch"
-                  ? "border-2 border-dashed border-blue-400"
-                  : ""
-              }`}
-              onClick={() => setActiveMealSlot("lunch")}
-            >
-              <h2 className="text-xl font-semibold mb-4">Lunch: </h2>
-              <div className="space-y-2">
-                {mealPlan.meals.lunch.foods.map((food: any, index: number) => (
-                  <div
-                    key={index}
-                    className="flex items-center justify-between p-3 bg-gray-50 rounded"
-                  >
-                    <div
-                      onClick={(e) => {
-                        e.stopPropagation(); // prevent triggering setActiveMealSlot
-                        if (isEditing && activeMealSlot === "lunch") {
-                          setSelectedMealFoodId(food.meal_food_id);
-                          setServingInput(food.serving);
-                        }
-                      }}
-                    >
-                      <div className="font-medium">{food.name}</div>
-                      <div className="text-sm text-gray-600">
-                        Serving: {food.serving} x 100g | Calories:{" "}
-                        {(food.calories_per_100g * food.serving).toFixed(1)} |
-                        Protein:{" "}
-                        {(food.protein_per_100g * food.serving).toFixed(1)}g |
-                        Carbs: {(food.carbs_per_100g * food.serving).toFixed(1)}
-                        g | Fats:{" "}
-                        {(food.fat_per_100g * food.serving).toFixed(1)}g
-                      </div>
-                    </div>
-                    {selectedMealFoodId === food.meal_food_id && (
-                      <div className="flex items-center gap-2 mt-2">
-                        <input
-                          type="number"
-                          className="w-20 border border-gray-300 rounded px-2 py-1 text-sm"
-                          value={servingInput}
-                          onChange={(e) =>
-                            setServingInput(parseFloat(e.target.value))
-                          }
-                          onClick={(e) => e.stopPropagation()}
-                        />
-                        <button
-                          className="text-sm text-blue-500 hover:text-blue-700"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleUpdateServing();
-                          }}
-                        >
-                          Save
-                        </button>
-                      </div>
-                    )}
-                    {isEditing && activeMealSlot === "lunch" && (
-                      <button
-                        className="text-red-400 hover:text-red-600 ml-2"
-                        onClick={() => {
-                          setFoodToDelete(food);
-                          setIsDeleteFoodModalOpen(true);
-                        }}
-                      >
-                        ✕
-                      </button>
-                    )}
-                  </div>
-                ))}
-                {mealPlan.meals.lunch.foods.length === 0 && (
-                  <p className="text-gray-400">No foods</p>
-                )}
-              </div>
-            </div>
+            <MealSlot
+              mealType="lunch"
+              foods={mealPlan.meals.lunch.foods}
+              isEditing={isEditing}
+              activeMealSlot={activeMealSlot}
+              setActiveMealSlot={setActiveMealSlot}
+              selectedMealFoodId={selectedMealFoodId}
+              setSelectedMealFoodId={setSelectedMealFoodId}
+              servingInput={servingInput}
+              setServingInput={setServingInput}
+              handleUpdateServing={handleUpdateServing}
+              setFoodToDelete={setFoodToDelete}
+              setIsDeleteFoodModalOpen={setIsDeleteFoodModalOpen}
+            />
 
             {/* Dinner */}
-            <div
-              className={`bg-white rounded-lg shadow p-6 cursor-pointer ${
-                isEditing && activeMealSlot === "dinner"
-                  ? "border-2 border-dashed border-blue-400"
-                  : ""
-              }`}
-              onClick={() => setActiveMealSlot("dinner")}
-            >
-              <h2 className="text-xl font-semibold mb-4">Dinner: </h2>
-              {mealPlan.meals.dinner.foods.map((food: any, index: number) => (
-                <div
-                  key={index}
-                  className="flex items-center justify-between p-3 bg-gray-50 rounded"
-                >
-                  <div
-                    onClick={(e) => {
-                      e.stopPropagation(); // prevent triggering setActiveMealSlot
-                      if (isEditing && activeMealSlot === "dinner") {
-                        setSelectedMealFoodId(food.meal_food_id);
-                        setServingInput(food.serving);
-                      }
-                    }}
-                  >
-                    <div className="font-medium">{food.name}</div>
-                    <div className="text-sm text-gray-600">
-                      Serving: {food.serving} x 100g | Calories:{" "}
-                      {(food.calories_per_100g * food.serving).toFixed(1)} |
-                      Protein:{" "}
-                      {(food.protein_per_100g * food.serving).toFixed(1)}g |
-                      Carbs: {(food.carbs_per_100g * food.serving).toFixed(1)}g
-                      | Fats: {(food.fat_per_100g * food.serving).toFixed(1)}g
-                    </div>
-                  </div>
-                  {selectedMealFoodId === food.meal_food_id && (
-                    <div className="flex items-center gap-2 mt-2">
-                      <input
-                        type="number"
-                        className="w-20 border border-gray-300 rounded px-2 py-1 text-sm"
-                        value={servingInput}
-                        onChange={(e) =>
-                          setServingInput(parseFloat(e.target.value))
-                        }
-                        onClick={(e) => e.stopPropagation()}
-                      />
-                      <button
-                        className="text-sm text-blue-500 hover:text-blue-700"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleUpdateServing();
-                        }}
-                      >
-                        Save
-                      </button>
-                    </div>
-                  )}
-                  {isEditing && activeMealSlot === "dinner" && (
-                    <button
-                      className="text-red-400 hover:text-red-600 ml-2"
-                      onClick={() => {
-                        setFoodToDelete(food);
-                        setIsDeleteFoodModalOpen(true);
-                      }}
-                    >
-                      ✕
-                    </button>
-                  )}
-                </div>
-              ))}
-              {mealPlan.meals.dinner.foods.length === 0 && (
-                <p className="text-gray-400">No foods</p>
-              )}
-            </div>
+            <MealSlot
+              mealType="dinner"
+              foods={mealPlan.meals.dinner.foods}
+              isEditing={isEditing}
+              activeMealSlot={activeMealSlot}
+              setActiveMealSlot={setActiveMealSlot}
+              selectedMealFoodId={selectedMealFoodId}
+              setSelectedMealFoodId={setSelectedMealFoodId}
+              servingInput={servingInput}
+              setServingInput={setServingInput}
+              handleUpdateServing={handleUpdateServing}
+              setFoodToDelete={setFoodToDelete}
+              setIsDeleteFoodModalOpen={setIsDeleteFoodModalOpen}
+            />
 
             {/* Snack */}
-            <div
-              className={`bg-white rounded-lg shadow p-6 cursor-pointer ${
-                isEditing && activeMealSlot === "snack"
-                  ? "border-2 border-dashed border-blue-400"
-                  : ""
-              }`}
-              onClick={() => setActiveMealSlot("snack")}
-            >
-              <h2 className="text-xl font-semibold mb-4">Snack: </h2>
-              <div className="space-y-2">
-                {mealPlan.meals.snack.foods.map((food: any, index: number) => (
-                  <div
-                    key={index}
-                    className="flex items-center justify-between p-3 bg-gray-50 rounded"
-                  >
-                    <div
-                      onClick={(e) => {
-                        e.stopPropagation(); // prevent triggering setActiveMealSlot
-                        if (isEditing && activeMealSlot === "snack") {
-                          setSelectedMealFoodId(food.meal_food_id);
-                          setServingInput(food.serving);
-                        }
-                      }}
-                    >
-                      <div className="font-medium">{food.name}</div>
-                      <div className="text-sm text-gray-600">
-                        Serving: {food.serving} x 100g | Calories:{" "}
-                        {(food.calories_per_100g * food.serving).toFixed(1)} |
-                        Protein:{" "}
-                        {(food.protein_per_100g * food.serving).toFixed(1)}g |
-                        Carbs: {(food.carbs_per_100g * food.serving).toFixed(1)}
-                        g | Fats:{" "}
-                        {(food.fat_per_100g * food.serving).toFixed(1)}g
-                      </div>
-                    </div>
-                    {selectedMealFoodId === food.meal_food_id && (
-                      <div className="flex items-center gap-2 mt-2">
-                        <input
-                          type="number"
-                          className="w-20 border border-gray-300 rounded px-2 py-1 text-sm"
-                          value={servingInput}
-                          onChange={(e) =>
-                            setServingInput(parseFloat(e.target.value))
-                          }
-                          onClick={(e) => e.stopPropagation()}
-                        />
-                        <button
-                          className="text-sm text-blue-500 hover:text-blue-700"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleUpdateServing();
-                          }}
-                        >
-                          Save
-                        </button>
-                      </div>
-                    )}
-                    {isEditing && activeMealSlot === "snack" && (
-                      <button
-                        className="text-red-400 hover:text-red-600 ml-2"
-                        onClick={() => {
-                          setFoodToDelete(food);
-                          setIsDeleteFoodModalOpen(true);
-                        }}
-                      >
-                        ✕
-                      </button>
-                    )}
-                  </div>
-                ))}
-                {mealPlan.meals.snack.foods.length === 0 && (
-                  <p className="text-gray-400">No foods</p>
-                )}
-              </div>
-            </div>
+            <MealSlot
+              mealType="snack"
+              foods={mealPlan.meals.snack.foods}
+              isEditing={isEditing}
+              activeMealSlot={activeMealSlot}
+              setActiveMealSlot={setActiveMealSlot}
+              selectedMealFoodId={selectedMealFoodId}
+              setSelectedMealFoodId={setSelectedMealFoodId}
+              servingInput={servingInput}
+              setServingInput={setServingInput}
+              handleUpdateServing={handleUpdateServing}
+              setFoodToDelete={setFoodToDelete}
+              setIsDeleteFoodModalOpen={setIsDeleteFoodModalOpen}
+            />
 
             <div style={{ display: "flex", justifyContent: "space-between" }}>
               {isEditing ? (
