@@ -2,6 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { createMeal } from "../services/api";
 import FoodPanel from "../components/FoodPanel";
+import Footer from "../components/Footer";
 
 function Home() {
   const navigate = useNavigate();
@@ -506,6 +507,7 @@ function Home() {
           <FoodPanel onFoodClick={addFoodToMeal} />
         </div>
       </div>
+      <Footer />
     </div>
   );
 }
