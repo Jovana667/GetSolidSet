@@ -159,7 +159,8 @@ function Home() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+      <div className="flex-1 pt-8 px-8">
       <div className="max-w-7xl mx-auto">
         <header className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Macrology</h1>
@@ -506,6 +507,7 @@ function Home() {
           {/* Right side - Food Sidebar (1/3 width) */}
           <FoodPanel onFoodClick={addFoodToMeal} />
         </div>
+      </div>
       </div>
       <Footer />
     </div>
