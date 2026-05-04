@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 import { removeFoodFromMeal, updateFoodServing } from "../services/api";
@@ -23,14 +23,16 @@ function MealPlanDetail() {
   const [servingInput, setServingInput] = useState<number>(1);
   const [formData, setFormData] = useState({ name: "" });
 
-  const calculateGrandTotal = (metric) => {
-    return (
-      calculateMealTotal("breakfast", metric) +
-      calculateMealTotal("lunch", metric) +
-      calculateMealTotal("dinner", metric) +
-      calculateMealTotal("snack", metric)
-    );
-  };
+  const calculateGrandTotal = useMemo(() => {
+    return (metric) => {
+      return (
+        calculateMealTotal("breakfast", metric) +
+        calculateMealTotal("lunch", metric) +
+        calculateMealTotal("dinner", metric) +
+        calculateMealTotal("snack", metric)
+      );
+    };
+  }, [calculateMealTotal]);
 
   const addFoodToMeal = async (food: any) => {
     if (!activeMealSlot) {
@@ -183,12 +185,14 @@ function MealPlanDetail() {
     fetchMealPlan();
   }, [id, navigate]);
 
-  const calculateMealTotal = (mealType: string, metric: string) => {
-    const meals = mealPlan?.meals?.[mealType]?.foods || [];
-    return meals.reduce((total: number, food: any) => {
-      return total + food[`${metric}_per_100g`] * food.serving;
-    }, 0);
-  };
+  const calculateMealTotal = useMemo(() => {
+    return (mealType: string, metric: string) => {
+      const meals = mealPlan?.meals?.[mealType]?.foods || [];
+      return meals.reduce((total: number, food: any) => {
+        return total + food[`${metric}_per_100g`] * food.serving;
+      }, 0);
+    };
+  }, [mealPlan]);
 
   if (loading) return <div className="p-8">Loading...</div>;
   if (error) return <div className="p-8 text-red-600">{error}</div>;

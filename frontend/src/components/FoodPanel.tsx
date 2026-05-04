@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { getFoods, deleteCustomFood } from "../services/api";
 import { Trash2 } from "lucide-react";
 import CustomFoodForm from "./CustomFoodForm";
@@ -82,15 +82,19 @@ function FoodPanel({ onFoodClick }: FoodPanelProps) {
     }
   };
 
-  const filteredFoods = foods.filter((f) =>
-    f.name.toLowerCase().includes(searchTerm.toLowerCase()),
-  );
+  const filteredFoods = useMemo(() => {
+    return foods.filter((f) =>
+      f.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [foods, searchTerm]);
 
-  const groupedFoods = {
-    protein: filteredFoods.filter((f) => f.category === "protein"),
-    carbs: filteredFoods.filter((f) => f.category === "carbs"),
-    fats: filteredFoods.filter((f) => f.category === "fats"),
-  };
+  const groupedFoods = useMemo(() => {
+    return {
+      protein: filteredFoods.filter((f) => f.category === "protein"),
+      carbs: filteredFoods.filter((f) => f.category === "carbs"),
+      fats: filteredFoods.filter((f) => f.category === "fats"),
+    };
+  }, [filteredFoods]);
 
   const toggleCategory = (category: string) => {
     if (expandedCategories.includes(category)) {
