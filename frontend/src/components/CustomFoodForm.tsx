@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { createCustomFood } from "../services/api";
 
 function CustomFoodForm({
@@ -8,6 +8,13 @@ function CustomFoodForm({
   onSuccess: () => void;
   onFoodAdded: () => void;
 }) {
+
+  const nameInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+  nameInputRef.current?.focus();
+}, []);
+
   const [formData, setFormData] = useState({
     name: "",
     category: "",
@@ -60,6 +67,7 @@ function CustomFoodForm({
         <div className="mb-4">
           <label className="block text-sm font-medium mb-1">Name</label>
           <input
+            ref={nameInputRef}
             type="text"
             className="w-full border border-gray-300 rounded px-3 py-2"
             value={formData.name}

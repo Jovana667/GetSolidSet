@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { createMeal } from "../services/api";
 import FoodPanel from "../components/FoodPanel";
 import Footer from "../components/Footer";
@@ -67,20 +67,24 @@ function Home() {
     setMealFoods(updatedMealFoods);
   };
 
-  const calculateMealTotal = (mealType: string, metric: string) => {
-    return mealFoods[mealType].reduce((total, food) => {
-      return total + food[`${metric}_per_100g`] * food.serving;
-    }, 0);
-  };
+  const calculateMealTotal = useMemo(() => {
+    return (mealType: string, metric: string) => {
+      return mealFoods[mealType].reduce((total, food) => {
+        return total + food[`${metric}_per_100g`] * food.serving;
+      }, 0);
+    };
+  }, [mealFoods]);
 
-  const calculateGrandTotal = (metric) => {
-    return (
-      calculateMealTotal("breakfast", metric) +
-      calculateMealTotal("lunch", metric) +
-      calculateMealTotal("dinner", metric) +
-      calculateMealTotal("snack", metric)
-    );
-  };
+  const calculateGrandTotal = useMemo(() => {
+    return (metric) => {
+      return (
+        calculateMealTotal("breakfast", metric) +
+        calculateMealTotal("lunch", metric) +
+        calculateMealTotal("dinner", metric) +
+        calculateMealTotal("snack", metric)
+      );
+    };
+  }, [calculateMealTotal]);
 
   const handleSaveMeal = async () => {
     // Check authentication first
