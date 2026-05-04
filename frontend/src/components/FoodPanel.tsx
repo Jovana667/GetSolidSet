@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { getFoods, deleteCustomFood } from "../services/api";
 import { Trash2 } from "lucide-react";
 import CustomFoodForm from "./CustomFoodForm";
@@ -38,9 +38,11 @@ function FoodPanel({ onFoodClick }: FoodPanelProps) {
     }
   };
 
+  const fetchFoodsCallback = useCallback(fetchFoods, []);
+
   useEffect(() => {
-    fetchFoods();
-  }, []);
+    fetchFoodsCallback();
+  }, [fetchFoodsCallback]);
 
   const loadMore = (category: string) => {
     setVisibleCounts((prev) => ({
@@ -60,7 +62,7 @@ function FoodPanel({ onFoodClick }: FoodPanelProps) {
     setSearchTerm("");
   };
 
-  const toggleFoodSelection = (foodId: number) => {
+  const toggleFoodSelection = useCallback((foodId: number) => {
     if (selectedFoodIds.includes(foodId)) {
       // already selected — remove it
       setSelectedFoodIds(selectedFoodIds.filter((id) => id !== foodId));
@@ -68,19 +70,19 @@ function FoodPanel({ onFoodClick }: FoodPanelProps) {
       // not selected — add it
       setSelectedFoodIds([...selectedFoodIds, foodId]);
     }
-  };
+  }, [selectedFoodIds]);
 
-  const handleDeleteFoods = async () => {
+  const handleDeleteFoods = useCallback(async () => {
     try {
       setIsDeleteModalOpen(false);
       await Promise.all(selectedFoodIds.map((id) => deleteCustomFood(id)));
       setSelectedFoodIds([]);
-      await fetchFoods();
+      await fetchFoodsCallback();
     } catch (error) {
       console.error("Delete failed:", error);
       alert("Failed to delete food");
     }
-  };
+  }, [selectedFoodIds, fetchFoodsCallback]);
 
   const filteredFoods = useMemo(() => {
     return foods.filter((f) =>
@@ -126,7 +128,7 @@ function FoodPanel({ onFoodClick }: FoodPanelProps) {
       {isAddingCustomFood && (
         <CustomFoodForm
           onSuccess={() => setIsAddingCustomFood(false)}
-          onFoodAdded={fetchFoods}
+          onFoodAdded={fetchFoodsCallback}
         />
       )}
 
