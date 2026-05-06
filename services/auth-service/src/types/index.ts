@@ -9,6 +9,7 @@ export interface User {
 
 export interface RegisterRequest {
   email: string;
+  role: 'client' | 'trainer';
   username: string;
   password: string;
 }
@@ -21,6 +22,7 @@ export interface LoginRequest {
 export interface JWTPayload {
   id: number;
   email: string;
+  role: 'client' | 'trainer';
 }
 
 export interface RequestReset {
