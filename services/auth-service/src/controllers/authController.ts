@@ -7,7 +7,13 @@ import { validateEmail, validatePassword } from "../utils/validation";
 
 export const register = async (req: Request, res: Response) => {
   try {
-    const { username, email, password }: RegisterRequest = req.body;
+    const { username, role, email, password }: RegisterRequest = req.body;
+
+    // Validate role
+
+    if (role && !['client', 'trainer'].includes(role)) {
+      return res.status(400).json({ error: "Invalid role" });
+    }
 
     // TODO: Add validation
     if (!validateEmail(email)) {
@@ -37,15 +43,15 @@ export const register = async (req: Request, res: Response) => {
 
     // TODO: Insert user into database
     const result = await pool.query(
-      "INSERT INTO users (username, email, password_hash) VALUES ($1, $2, $3) RETURNING id, username, email, created_at",
-      [username, email, hashedPassword]
+      "INSERT INTO users (username, role, email, password_hash) VALUES ($1, $2, $3, $4) RETURNING id, username, role, email, created_at",
+      [username, role, email, hashedPassword]
     );
     const newUser = result.rows[0];
 
     // TODO: Return user info (without password)
     res.status(201).json({
       message: "User registered successfully",
-      user: newUser, // This contains id, username, email, created_at (no password!)
+      user: newUser, // This contains id, username, role, email, created_at (no password!)
     });
   } catch (error) {
     // ← Need this!
@@ -69,7 +75,7 @@ export const login = async (req: Request, res: Response) => {
 
     // Find user by email
     const result = await pool.query(
-      "SELECT id, email, username, password_hash FROM users WHERE email = $1",
+      "SELECT id, email, username, role, password_hash FROM users WHERE email = $1",
       [email]
     );
 
@@ -90,6 +96,7 @@ export const login = async (req: Request, res: Response) => {
     const payload: JWTPayload = {
       id: user.id,
       email: user.email,
+      role: user.role,
     };
 
     const token = jwt.sign(
@@ -106,6 +113,7 @@ export const login = async (req: Request, res: Response) => {
         id: user.id,
         email: user.email,
         username: user.username,
+        role: user.role,
       },
     });
   } catch (error) {
