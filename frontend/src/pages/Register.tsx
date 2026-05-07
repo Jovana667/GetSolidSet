@@ -4,6 +4,7 @@ import { register } from "../services/api";
 
 function Register() {
   const [email, setEmail] = useState("");
+  const [role, setRole] = useState<'trainer' | 'client'>('client');
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
@@ -16,10 +17,10 @@ function Register() {
     }
 
     try {
-      const response = await register(email, password);
-      console.log("Registration response:", response);
-      localStorage.setItem("token", response.token);
-      console.log("Token stored, redirecting...");
+const response = await register(email, role, password);
+localStorage.setItem("token", response.token);
+localStorage.setItem("role", response.user.role);
+window.location.href = "/";
       window.location.href = "/";
     } catch (error) {
       console.error("Registration failed:", error);
@@ -49,6 +50,24 @@ function Register() {
               onChange={(e) => setEmail(e.target.value)}
             />
           </div>
+
+            <div>
+              <label
+                htmlFor="role"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                Role
+              </label>
+              <select
+                id="role"
+                value={role}
+                onChange={(e) => setRole(e.target.value as 'trainer' | 'client')}
+                className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="client">Client</option>
+                <option value="trainer">Trainer</option>
+              </select>
+            </div>
 
           <div>
             <label
