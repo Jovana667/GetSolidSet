@@ -7,8 +7,8 @@ import Profile from "./pages/Profile";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Meals from "./pages/Meals";
 import MealPlanDetail from "./pages/MealPlanDetail";
+import ClientsPage from "./pages/ClientsPage";
 import { AuthUtils } from "./utils/auth";
-
 
 function App() {
   useEffect(() => {
@@ -34,6 +34,14 @@ function App() {
           element={
             <ProtectedRoute>
               <Profile />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/clients"
+          element={
+            <ProtectedRoute requiredRole="trainer">
+              <ClientsPage />
             </ProtectedRoute>
           }
         />

@@ -18,6 +18,7 @@ function Login() {
       if (response.token) {
         localStorage.setItem("token", response.token);
         localStorage.setItem("user", JSON.stringify(response.user));
+        localStorage.setItem("role", response.user.role);
         console.log("Token stored successfully");
         window.location.href = "/";
       } else {
