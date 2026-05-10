@@ -1,17 +1,18 @@
 import { useEffect, useState, useMemo } from "react";
-import { useParams, useNavigate, Link } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { removeFoodFromMeal, updateFoodServing } from "../services/api";
 import FoodPanel from "../components/FoodPanel";
 import { addFoodToMeal as addFoodToMealApi } from "../services/api";
 import MealSlot from "../components/MealSlot";
+import Navbar from "../components/Navbar";
+import { useAuth } from "../context/AuthContext";
 
 function MealPlanDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [mealPlan, setMealPlan] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [error, setError] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [activeMealSlot, setActiveMealSlot] = useState<string | null>(null);
@@ -23,6 +24,15 @@ function MealPlanDetail() {
   const [servingInput, setServingInput] = useState<number>(1);
   const [formData, setFormData] = useState({ name: "" });
 
+    const calculateMealTotal = useMemo(() => {
+    return (mealType: string, metric: string) => {
+      const meals = mealPlan?.meals?.[mealType]?.foods || [];
+      return meals.reduce((total: number, food: any) => {
+        return total + food[`${metric}_per_100g`] * food.serving;
+      }, 0);
+    };
+  }, [mealPlan]);
+  
   const calculateGrandTotal = useMemo(() => {
     return (metric) => {
       return (
@@ -48,11 +58,7 @@ function MealPlanDetail() {
     }
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    setIsLoggedIn(false);
-    navigate("/");
-  };
+  const { setIsLoggedIn } = useAuth();
 
   const handleSubmit = async () => {
     if (!formData.name.trim()) {
@@ -149,12 +155,6 @@ function MealPlanDetail() {
     }
   };
 
-  useEffect(() => {
-    // Check if user is logged in
-    const token = localStorage.getItem("token");
-    setIsLoggedIn(!!token);
-  }, []);
-
   const fetchMealPlan = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -185,15 +185,6 @@ function MealPlanDetail() {
     fetchMealPlan();
   }, [id, navigate]);
 
-  const calculateMealTotal = useMemo(() => {
-    return (mealType: string, metric: string) => {
-      const meals = mealPlan?.meals?.[mealType]?.foods || [];
-      return meals.reduce((total: number, food: any) => {
-        return total + food[`${metric}_per_100g`] * food.serving;
-      }, 0);
-    };
-  }, [mealPlan]);
-
   if (loading) return <div className="p-8">Loading...</div>;
   if (error) return <div className="p-8 text-red-600">{error}</div>;
   if (!mealPlan) return <div className="p-8">Meal plan not found</div>;
@@ -201,27 +192,7 @@ function MealPlanDetail() {
   return (
     <div className="min-h-screen bg-gray-50 p-8">
       <div className="max-w-7xl mx-auto">
-        <header className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Macrology</h1>
-          <div className="space-x-4">
-            <Link to="/" className="text-blue-600 hover:text-blue-800">
-              Home
-            </Link>
-            <Link
-              to="/meals"
-              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-            >
-              Back to Meals
-            </Link>
-            <Link
-              to="/"
-              className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
-              onClick={handleLogout}
-            >
-              Log Out
-            </Link>
-          </div>
-        </header>
+        <Navbar />
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left side - Meal Planner (2/3 width) */}

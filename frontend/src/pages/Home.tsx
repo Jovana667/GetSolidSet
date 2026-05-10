@@ -1,16 +1,12 @@
-import { Link, useNavigate } from "react-router-dom";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { createMeal } from "../services/api";
+import Navbar from "../components/Navbar";
 import FoodPanel from "../components/FoodPanel";
 import Footer from "../components/Footer";
 
 function Home() {
-  const navigate = useNavigate();
-  const [loading, setLoading] = useState(true);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [mealName, setMealName] = useState("");
   const [selectedFood, setSelectedFood] = useState<any | null>(null);
-  const [formData, setFormData] = useState({ name: "" });
   const [selectedMeal, setSelectedMeal] = useState<string>("breakfast"); // which meal is active
   const [mealFoods, setMealFoods] = useState({
     breakfast: [],
@@ -150,50 +146,11 @@ function Home() {
     }
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    setIsLoggedIn(false);
-    navigate("/");
-  };
-
-  useEffect(() => {
-    // Check if user is logged in
-    const token = localStorage.getItem("token");
-    setIsLoggedIn(!!token);
-  }, []);
-
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <div className="flex-1 pt-8 px-8">
       <div className="max-w-7xl mx-auto">
-        <header className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Macrology</h1>
-          <div className="space-x-4">
-            <Link to="/meals" className="text-blue-600 hover:text-blue-800">
-              Saved Meals
-            </Link>
-            {isLoggedIn ? (
-              <button
-                onClick={handleLogout}
-                className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
-              >
-                Log Out
-              </button>
-            ) : (
-              <>
-                <Link to="/login" className="text-blue-600 hover:text-blue-800">
-                  Login
-                </Link>
-                <Link
-                  to="/register"
-                  className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-                >
-                  Sign Up
-                </Link>
-              </>
-            )}
-          </div>
-        </header>
+          <Navbar />
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left side - Meal Planner (2/3 width) */}

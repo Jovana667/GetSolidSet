@@ -1,38 +1,14 @@
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
 import { getMeals } from "../services/api";
 import { Meal } from "../types";
+import Navbar from "../components/Navbar";
 
 function Meals() {
   const navigate = useNavigate();
   const [meals, setMeals] = useState<Meal[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-
-  // const deleteMeal = async (mealId) => {
-  //   try {
-  //     const response = await fetch(
-  //       `http://localhost:3003/api/meals/plans/${mealId}`,
-  //       {
-  //         method: "DELETE",
-  //         headers: {
-  //           Authorization: `Bearer ${localStorage.getItem("token")}`,
-  //         },
-  //       },
-  //     );
-
-  //     if (!response.ok) {
-  //       throw new Error("Network response was not ok");
-  //     }
-
-  //     // Update the state to remove the deleted item from the UI
-  //     setMeals(meals.filter((meal) => meal.id !== mealId));
-  //   } catch (err) {
-  //     setError(err.message);
-  //     console.error("Error deleting meal:", err);
-  //   }
-  // };
 
   useEffect(() => {
     const fetchMeals = async () => {
@@ -54,20 +30,7 @@ function Meals() {
   return (
     <div className="min-h-screen bg-gray-50 p-8">
       <div className="max-w-7xl mx-auto">
-        <header className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">My Saved Meals</h1>
-          <div className="space-x-4">
-            <Link to="/" className="text-blue-600 hover:text-blue-800">
-              Home
-            </Link>
-            <Link
-              to="/"
-              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-            >
-              Log out
-            </Link>
-          </div>
-        </header>
+        <Navbar />
 
         {loading && (
           <div className="text-center text-gray-500 py-8">Loading meals...</div>
@@ -90,16 +53,12 @@ function Meals() {
                   Created: {new Date(meal.created_at).toLocaleDateString()}
                 </p>
                 <div className="flex gap-2">
-                  <button onClick={() => navigate(`/meal-plan/${meal.id}`)}
-                    className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-                      View Details
-                  </button>
-                  {/* <button
-                    onClick={() => deleteMeal(meal.id)}
-                    className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+                  <button
+                    onClick={() => navigate(`/meal-plan/${meal.id}`)}
+                    className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
                   >
-                    Delete
-                  </button> */}
+                    View Details
+                  </button>
                 </div>
               </div>
             ))}
