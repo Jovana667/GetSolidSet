@@ -74,3 +74,54 @@ if (!userId) {
         res.status(500).json({ error: "Failed to retrieve nutrition goal" });
     }
 };
+
+export const addClient = async (req: Request, res: Response) => {
+  try {
+    const trainerId = req.user?.id;
+    const { email } = req.body;
+
+    // Step 1: find client in users table by email
+    const clientResult = await pool.query(
+      `SELECT id FROM users WHERE email = $1`,
+      [email]
+    );
+
+    // Step 2: if not found return 404
+    if (clientResult.rows.length === 0) {
+      return res.status(404).json({ error: "Client not found" });
+    }
+
+    const clientId = clientResult.rows[0].id;
+
+    // Step 3: insert into trainer_clients
+    const result = await pool.query(
+      `INSERT INTO trainer_clients (trainer_id, client_id) 
+       VALUES ($1, $2) RETURNING *`,
+      [trainerId, clientId]
+    );
+
+    res.status(201).json(result.rows[0]);
+  } catch (error) {
+    console.error("Add client error:", error);
+    res.status(500).json({ error: "Failed to add client" });
+  }
+};
+
+export const getClients = async (req: Request, res: Response) => {
+  try {
+    const trainerId = req.user?.id;
+
+    const result = await pool.query(
+      `SELECT u.id, u.username, u.email
+       FROM trainer_clients tc
+       JOIN users u ON tc.client_id = u.id
+       WHERE tc.trainer_id = $1`,
+      [trainerId]
+    );
+
+    res.status(200).json(result.rows);
+  } catch (error) {
+    console.error("Get clients error:", error);
+    res.status(500).json({ error: "Failed to retrieve clients" });
+  }
+};
