@@ -9,6 +9,7 @@ import Meals from "./pages/Meals";
 import MealPlanDetail from "./pages/MealPlanDetail";
 import ClientsPage from "./pages/ClientsPage";
 import { AuthUtils } from "./utils/auth";
+import { AuthProvider } from "./context/AuthContext";
 
 function App() {
   useEffect(() => {
@@ -16,38 +17,40 @@ function App() {
     AuthUtils.initAuthCheck();
   }, []);
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route
-          path="/meals"
-          element={
-            <ProtectedRoute>
-              <Meals />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/profile"
-          element={
-            <ProtectedRoute>
-              <Profile />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/clients"
-          element={
-            <ProtectedRoute requiredRole="trainer">
-              <ClientsPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route path="/meal-plan/:id" element={<MealPlanDetail />} />
-      </Routes>
-    </BrowserRouter>
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route
+            path="/meals"
+            element={
+              <ProtectedRoute>
+                <Meals />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <Profile />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/clients"
+            element={
+              <ProtectedRoute requiredRole="trainer">
+                <ClientsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route path="/meal-plan/:id" element={<MealPlanDetail />} />
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
   );
 }
 
