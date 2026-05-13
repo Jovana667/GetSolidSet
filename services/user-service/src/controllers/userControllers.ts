@@ -78,30 +78,31 @@ if (!userId) {
 export const addClient = async (req: Request, res: Response) => {
   try {
     const trainerId = req.user?.id;
-    const { email } = req.body;
+    const { email, name } = req.body;
 
-    // Step 1: find client in users table by email
+    // Step 1: try to find client in users table by email
     const clientResult = await pool.query(
       `SELECT id FROM users WHERE email = $1`,
       [email]
     );
 
-    // Step 2: if not found return 404
-    if (clientResult.rows.length === 0) {
-      return res.status(404).json({ error: "Client not found" });
-    }
-
-    const clientId = clientResult.rows[0].id;
+    // Step 2: client_id is optional — null if no account exists
+    const clientId = clientResult.rows.length > 0 
+      ? clientResult.rows[0].id 
+      : null;
 
     // Step 3: insert into trainer_clients
     const result = await pool.query(
-      `INSERT INTO trainer_clients (trainer_id, client_id) 
-       VALUES ($1, $2) RETURNING *`,
-      [trainerId, clientId]
+      `INSERT INTO trainer_clients (trainer_id, client_id, client_name, client_email) 
+       VALUES ($1, $2, $3, $4) RETURNING *`,
+      [trainerId, clientId, name, email]
     );
 
     res.status(201).json(result.rows[0]);
-  } catch (error) {
+  } catch (error: any) {
+    if (error.code === '23505') {
+      return res.status(409).json({ error: "Client already added" });
+    }
     console.error("Add client error:", error);
     res.status(500).json({ error: "Failed to add client" });
   }
@@ -112,9 +113,9 @@ export const getClients = async (req: Request, res: Response) => {
     const trainerId = req.user?.id;
 
     const result = await pool.query(
-      `SELECT u.id, u.username, u.email
+      `SELECT u.id, u.username, u.email, tc.client_name, tc.client_email
        FROM trainer_clients tc
-       JOIN users u ON tc.client_id = u.id
+       LEFT JOIN users u ON tc.client_id = u.id
        WHERE tc.trainer_id = $1`,
       [trainerId]
     );

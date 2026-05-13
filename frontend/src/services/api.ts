@@ -68,6 +68,17 @@ export const updateUserProfile = async (profileData: any) => {
   return response.data;
 };
 
+// Trainer client management
+export const getClients = async () => {
+  const response = await userApi.get("/users/clients");
+  return response.data;
+};
+
+export const addClient = async (email: string, name: string) => {
+  const response = await userApi.post("/users/clients", { email, name });
+  return response.data;
+};
+
 // meals
 export const getMeals = async () => {
   const response = await mealApi.get("/meals");
