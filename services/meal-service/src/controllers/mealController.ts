@@ -644,3 +644,65 @@ export const deleteMealPlan = async (req: Request, res: Response) => {
     client.release();
   }
 };
+
+// Trainer-only endpoint to get a client's meals
+export const getClientMeals =  async (req: Request, res: Response) => {
+  try {
+    const userId = req.params.userId; // Client's user ID passed as URL param
+
+    if (!userId) {
+      return res.status(400).json({ error: "Client user ID is required" });
+    }
+
+
+    const page = parseInt(req.query.page as string) || 1;
+    const pageSize = parseInt(req.query.pageSize as string) || 20;
+    const offset = (page - 1) * pageSize;
+
+    // Query meal_plans instead of meals
+    const mealsQuery = `
+      SELECT 
+        mp.id,
+        mp.name,
+        mp.is_template,
+        mp.meal_date,
+        mp.created_at,
+        mp.updated_at,
+        COUNT(DISTINCT m.id)::INTEGER as meal_count,
+        COUNT(mf.id)::INTEGER as food_count
+      FROM meal_plans mp
+      LEFT JOIN meals m ON mp.id = m.meal_plan_id
+      LEFT JOIN meal_foods mf ON m.id = mf.meal_id
+      WHERE mp.user_id = $1
+      GROUP BY mp.id
+      ORDER BY mp.created_at DESC
+      LIMIT $2 OFFSET $3
+    `;
+
+    const mealsResult = await pool.query(mealsQuery, [
+      userId,
+      pageSize,
+      offset,
+    ]);
+
+    const countQuery = `
+      SELECT COUNT(*)::INTEGER as total
+      FROM meal_plans
+      WHERE user_id = $1
+    `;
+
+    const countResult = await pool.query(countQuery, [userId]);
+    const total = countResult.rows[0].total;
+
+    res.status(200).json({
+      meals: mealsResult.rows,
+      total: total,
+      page: page,
+      pageSize: pageSize,
+      totalPages: Math.ceil(total / pageSize),
+    });
+  } catch (error) {
+    console.error("Get meals error:", error);
+    res.status(500).json({ error: "Failed to retrieve meals" });
+  }
+};
