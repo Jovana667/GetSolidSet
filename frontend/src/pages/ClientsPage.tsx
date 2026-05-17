@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { getClients, addClient } from "../services/api";
@@ -11,6 +12,8 @@ function ClientsPage() {
   const [clientEmail, setClientEmail] = useState("");
   const [clientName, setClientName] = useState("");
   const [modalError, setModalError] = useState<string | null>(null);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchClients = async () => {
@@ -92,10 +95,12 @@ function ClientsPage() {
               {clients.map((client: any) => (
                 <div key={client.id} className="bg-white rounded-lg shadow p-6">
                   <h3 className="text-xl font-semibold mb-2">
-                    {client.client_name  || client.email}
+                    {client.client_name || client.email}
                   </h3>{" "}
                   <p className="text-gray-600 mb-4">{client.email}</p>
-                  <button className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                  <button
+onClick={() => navigate(`/clients/${client.id}?name=${encodeURIComponent(client.client_name || client.email)}`)}                    className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                  >
                     View Details
                   </button>
                 </div>

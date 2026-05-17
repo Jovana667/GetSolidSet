@@ -8,6 +8,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import Meals from "./pages/Meals";
 import MealPlanDetail from "./pages/MealPlanDetail";
 import ClientsPage from "./pages/ClientsPage";
+import ClientDetailPage from "./pages/ClientDetailPage";
 import { AuthUtils } from "./utils/auth";
 import { AuthProvider } from "./context/AuthContext";
 
@@ -44,6 +45,14 @@ function App() {
             element={
               <ProtectedRoute requiredRole="trainer">
                 <ClientsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/clients/:clientId"
+            element={
+              <ProtectedRoute requiredRole="trainer">
+                <ClientDetailPage />
               </ProtectedRoute>
             }
           />
