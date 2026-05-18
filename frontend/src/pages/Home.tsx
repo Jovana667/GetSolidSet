@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { createMeal } from "../services/api";
 import Navbar from "../components/Navbar";
 import FoodPanel from "../components/FoodPanel";
@@ -16,6 +16,10 @@ function Home() {
     snack: [],
   });
 
+  const [searchParams] = useSearchParams();
+  const clientId = searchParams.get("clientId");
+  const clientName = searchParams.get("clientName");
+  const trainerClientId = searchParams.get("trainerClientId");
   const navigate = useNavigate();
 
   const addFoodToMeal = (food: any) => {
@@ -113,12 +117,16 @@ function Home() {
       })),
     };
 
+    console.log("trainer_client_id being sent:", trainerClientId);
+    console.log("all search params:", Object.fromEntries(searchParams));
+
     // Step 3: Prepare the meal data
     const mealData = {
       name: mealName,
       is_template: true,
       meal_date: new Date().toISOString().split("T")[0], // Today's date
       foods: transformedFoods,
+      trainer_client_id: trainerClientId ? parseInt(trainerClientId) : null,
     };
     if (!mealName.trim()) {
       alert("Please enter a meal plan name");
@@ -129,10 +137,16 @@ function Home() {
     // Step 4: Send to backend
     try {
       const response = await createMeal(mealData);
-      console.log("Create meal response:", response); // ← add here
       setMealFoods({ breakfast: [], lunch: [], dinner: [], snack: [] });
       setMealName("");
-      navigate(`/meal-plan/${response.meal_plan.id}`);
+
+      if (clientId && clientName) {
+        navigate(
+          `/clients/${clientId}?name=${encodeURIComponent(clientName)}&trainerClientId=${trainerClientId}`,
+        );
+      } else {
+        navigate(`/meal-plan/${response.meal_plan.id}`);
+      }
     } catch (error) {
       console.error("Error saving meal:", error);
       if (error.message?.includes("No authentication token")) {
@@ -154,7 +168,11 @@ function Home() {
             {/* Left side - Meal Planner (2/3 width) */}
             <div className="lg:col-span-2 order-2 lg:order-1 bg-white rounded-lg shadow p-6">
               <h2 className="text-2xl font-semibold mb-4">Meal Planner</h2>
-
+              {clientName && (
+                <p className="text-blue-600 font-medium mb-4">
+                  Creating meal plan for: {clientName}
+                </p>
+              )}
               {/* Meal Name Input */}
               <div className="mb-4">
                 <input

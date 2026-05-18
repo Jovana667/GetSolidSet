@@ -113,10 +113,10 @@ export const getClients = async (req: Request, res: Response) => {
     const trainerId = req.user?.id;
 
     const result = await pool.query(
-      `SELECT u.id, u.username, u.email, tc.client_name, tc.client_email
-       FROM trainer_clients tc
-       LEFT JOIN users u ON tc.client_id = u.id
-       WHERE tc.trainer_id = $1`,
+      `SELECT u.id, u.username, u.email, tc.client_name, tc.client_email, tc.id as trainer_client_id
+FROM trainer_clients tc
+LEFT JOIN users u ON tc.client_id = u.id
+WHERE tc.trainer_id = $1`,
       [trainerId]
     );
 
