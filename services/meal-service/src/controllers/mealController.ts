@@ -389,8 +389,9 @@ export const getMealPlanById = async (req: Request, res: Response) => {
     const mealPlanQuery = `
       SELECT id, user_id, name, is_template, meal_date, created_at, updated_at
       FROM meal_plans
-      WHERE id = $1 AND user_id = $2
-    `;
+WHERE id = $1 AND (user_id = $2 OR $2 IN (
+  SELECT trainer_id FROM trainer_clients WHERE client_id = user_id
+))    `;
 
     const mealPlanResult = await pool.query(mealPlanQuery, [
       mealPlanId,
@@ -646,15 +647,13 @@ export const deleteMealPlan = async (req: Request, res: Response) => {
 };
 
 // Trainer-only endpoint to get a client's meals
-export const getClientMeals =  async (req: Request, res: Response) => {
+export const getClientMeals = async (req: Request, res: Response) => {
   try {
-    const userId = req.params.userId; // Client's user ID passed as URL param
+    const userId = req.params.userId;
 
-    if (!userId) {
-      return res.status(400).json({ error: "Client user ID is required" });
+    if (!userId || userId === "null") {
+      return res.status(400).json({ error: "Invalid client ID" });
     }
-
-
     const page = parseInt(req.query.page as string) || 1;
     const pageSize = parseInt(req.query.pageSize as string) || 20;
     const offset = (page - 1) * pageSize;
