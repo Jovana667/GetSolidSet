@@ -79,8 +79,8 @@ export const addClient = async (email: string, name: string) => {
   return response.data;
 };
 
-export const getClientMeals = async (clientId: string) => {
-  const response = await mealApi.get(`/meals/plans/user/${clientId}`);
+export const getClientMeals = async (trainerClientId: string) => {
+  const response = await mealApi.get(`/meals/plans/client/${trainerClientId}`);
   return response.data;
 };
 

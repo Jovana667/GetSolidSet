@@ -24,6 +24,7 @@ export const createMeal = async (req: Request, res: Response) => {
       meal_date,
       is_template,
       foods,
+      trainer_client_id,
     }: CreateMealRequest = req.body;
     const userId = req.user?.id; // Set by auth middleware
 
@@ -98,16 +99,17 @@ export const createMeal = async (req: Request, res: Response) => {
 
     // STEP 5: Insert meal record
     const insertMealQuery = `
-      INSERT INTO meal_plans (user_id, name, is_template, meal_date)
-      VALUES ($1, $2, $3, $4)
-      RETURNING id, user_id, name, is_template, meal_date, created_at, updated_at
-    `;
+  INSERT INTO meal_plans (user_id, name, is_template, meal_date, trainer_client_id)
+  VALUES ($1, $2, $3, $4, $5)
+  RETURNING id, user_id, name, is_template, meal_date, created_at, updated_at
+`;
 
     const mealResult = await client.query(insertMealQuery, [
       userId,
       name,
       is_template || false,
       meal_date || new Date().toISOString().split("T")[0],
+      trainer_client_id || null,
     ]);
     const mealPlan = mealResult.rows[0];
     const mealPlanId = mealPlan.id;
@@ -649,16 +651,16 @@ export const deleteMealPlan = async (req: Request, res: Response) => {
 // Trainer-only endpoint to get a client's meals
 export const getClientMeals = async (req: Request, res: Response) => {
   try {
-    const userId = req.params.userId;
+    const trainerClientId = req.params.trainerClientId;
 
-    if (!userId || userId === "null") {
+    if (!trainerClientId || trainerClientId === "null") {
       return res.status(400).json({ error: "Invalid client ID" });
     }
+
     const page = parseInt(req.query.page as string) || 1;
     const pageSize = parseInt(req.query.pageSize as string) || 20;
     const offset = (page - 1) * pageSize;
 
-    // Query meal_plans instead of meals
     const mealsQuery = `
       SELECT 
         mp.id,
@@ -672,14 +674,14 @@ export const getClientMeals = async (req: Request, res: Response) => {
       FROM meal_plans mp
       LEFT JOIN meals m ON mp.id = m.meal_plan_id
       LEFT JOIN meal_foods mf ON m.id = mf.meal_id
-      WHERE mp.user_id = $1
+      WHERE mp.trainer_client_id = $1
       GROUP BY mp.id
       ORDER BY mp.created_at DESC
       LIMIT $2 OFFSET $3
     `;
 
     const mealsResult = await pool.query(mealsQuery, [
-      userId,
+      trainerClientId,
       pageSize,
       offset,
     ]);
@@ -687,10 +689,10 @@ export const getClientMeals = async (req: Request, res: Response) => {
     const countQuery = `
       SELECT COUNT(*)::INTEGER as total
       FROM meal_plans
-      WHERE user_id = $1
+      WHERE trainer_client_id = $1
     `;
 
-    const countResult = await pool.query(countQuery, [userId]);
+    const countResult = await pool.query(countQuery, [trainerClientId]);
     const total = countResult.rows[0].total;
 
     res.status(200).json({

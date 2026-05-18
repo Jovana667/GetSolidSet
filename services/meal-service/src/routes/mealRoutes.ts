@@ -25,7 +25,7 @@ router.get("/plans/:id", verifyToken, getMealPlanById);
 router.get("/:id", verifyToken, getMealById);
 
 // trainer routes for managing meal plans for clients
-router.get("/plans/user/:userId", verifyToken, getClientMeals);
+router.get("/plans/client/:trainerClientId", verifyToken, getClientMeals);
 
 // Create a new meal plan
 router.post("/", verifyToken, createMeal);
