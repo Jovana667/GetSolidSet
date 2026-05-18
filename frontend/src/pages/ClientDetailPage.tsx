@@ -9,43 +9,49 @@ function ClientDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchParams] = useSearchParams();
-const clientName = searchParams.get("name");
+  const clientName = searchParams.get("name");
+  const trainerClientId = searchParams.get("trainerClientId");
 
   const navigate = useNavigate();
 
   useEffect(() => {
-const fetchClientMeals = async () => {
-  try {
-    const data = await getClientMeals(clientId!);
-    setMealPlans(data.meals || data);
-    setError(null);
-  } catch (error: any) {
-    if (error.response?.status === 400) {
-      // Client has no account — just show empty state
-      setMealPlans([]);
-      setError(null);
-    } else {
-      console.error("Error fetching client meals:", error);
-      setError("Failed to fetch client's meal plans. Please try again later.");
-    }
-  } finally {
-    setLoading(false);
-  }
-};
+    const fetchClientMeals = async () => {
+      try {
+const data = await getClientMeals(trainerClientId!);
+        setMealPlans(data.meals || data);
+        setError(null);
+      } catch (error: any) {
+        if (error.response?.status === 400) {
+          // Client has no account — just show empty state
+          setMealPlans([]);
+          setError(null);
+        } else {
+          console.error("Error fetching client meals:", error);
+          setError(
+            "Failed to fetch client's meal plans. Please try again later.",
+          );
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
     fetchClientMeals();
   }, [clientId]);
 
-return (
+  return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <Navbar />
       <div className="flex-1 p-8">
         <div className="max-w-7xl mx-auto">
-
           {/* Header with create button always visible */}
           <div className="flex justify-between items-center mb-8">
             <h1 className="text-3xl font-bold">{clientName}</h1>
             <button
-              onClick={() => navigate("/")}
+              onClick={() =>
+                navigate(
+                  `/?clientId=${clientId}&clientName=${encodeURIComponent(clientName || "")}&trainerClientId=${trainerClientId}`,
+                )
+              }
               className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
             >
               + Create Meal Plan
