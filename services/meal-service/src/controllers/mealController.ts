@@ -194,22 +194,30 @@ export const getMeals = async (req: Request, res: Response) => {
 
     // Query meal_plans instead of meals
     const mealsQuery = `
-      SELECT 
-        mp.id,
-        mp.name,
-        mp.is_template,
-        mp.meal_date,
-        mp.created_at,
-        mp.updated_at,
-        COUNT(DISTINCT m.id)::INTEGER as meal_count,
-        COUNT(mf.id)::INTEGER as food_count
-      FROM meal_plans mp
-      LEFT JOIN meals m ON mp.id = m.meal_plan_id
-      LEFT JOIN meal_foods mf ON m.id = mf.meal_id
-      WHERE mp.user_id = $1
-      GROUP BY mp.id
-      ORDER BY mp.created_at DESC
-      LIMIT $2 OFFSET $3
+SELECT 
+  mp.id,
+  mp.name,
+  mp.is_template,
+  mp.meal_date,
+  mp.created_at,
+  mp.updated_at,
+  COUNT(DISTINCT m.id)::INTEGER as meal_count,
+  COUNT(mf.id)::INTEGER as food_count,
+CASE 
+  WHEN mp.user_id != $1 THEN COALESCE(u.username, u.email)
+  ELSE NULL
+END as assigned_by
+FROM meal_plans mp
+LEFT JOIN meals m ON mp.id = m.meal_plan_id
+LEFT JOIN meal_foods mf ON m.id = mf.meal_id
+LEFT JOIN users u ON mp.user_id = u.id
+WHERE mp.user_id = $1 
+OR mp.trainer_client_id IN (
+  SELECT id FROM trainer_clients WHERE client_id = $1
+)
+GROUP BY mp.id, u.username, u.email
+ORDER BY mp.created_at DESC
+LIMIT $2 OFFSET $3
     `;
 
     const mealsResult = await pool.query(mealsQuery, [
@@ -221,7 +229,10 @@ export const getMeals = async (req: Request, res: Response) => {
     const countQuery = `
       SELECT COUNT(*)::INTEGER as total
       FROM meal_plans
-      WHERE user_id = $1
+     WHERE user_id = $1
+OR trainer_client_id IN (
+  SELECT id FROM trainer_clients WHERE client_id = $1
+)
     `;
 
     const countResult = await pool.query(countQuery, [userId]);
@@ -391,9 +402,11 @@ export const getMealPlanById = async (req: Request, res: Response) => {
     const mealPlanQuery = `
       SELECT id, user_id, name, is_template, meal_date, created_at, updated_at
       FROM meal_plans
-WHERE id = $1 AND (user_id = $2 OR $2 IN (
-  SELECT trainer_id FROM trainer_clients WHERE client_id = user_id
-))    `;
+WHERE id = $1 AND (
+  user_id = $2 
+  OR $2 IN (SELECT trainer_id FROM trainer_clients WHERE client_id = user_id)
+  OR $2 IN (SELECT tc.client_id FROM trainer_clients tc WHERE tc.id = meal_plans.trainer_client_id)
+)    `;
 
     const mealPlanResult = await pool.query(mealPlanQuery, [
       mealPlanId,

@@ -52,6 +52,9 @@ function Meals() {
                 <p className="text-gray-600 mb-4">
                   Created: {new Date(meal.created_at).toLocaleDateString()}
                 </p>
+                {meal.assigned_by && (
+                  <p className="text-gray-600 mb-4">Assigned by: {meal.assigned_by}</p>
+                )}
                 <div className="flex gap-2">
                   <button
                     onClick={() => navigate(`/meal-plan/${meal.id}`)}
