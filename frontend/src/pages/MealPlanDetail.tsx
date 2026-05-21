@@ -7,7 +7,7 @@ import { addFoodToMeal as addFoodToMealApi } from "../services/api";
 import MealSlot from "../components/MealSlot";
 import Navbar from "../components/Navbar";
 import { useAuth } from "../context/AuthContext";
-import { generateShareLink, revokeShareLink } from "../services/shareApi";
+import { generateShareLink } from "../services/shareApi";
 
 function MealPlanDetail() {
   const { id } = useParams();
@@ -15,6 +15,7 @@ function MealPlanDetail() {
   const [mealPlan, setMealPlan] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [dropdownMenu, setDropdownMenu] = useState(false)
   const [isEditing, setIsEditing] = useState(false);
   const [activeMealSlot, setActiveMealSlot] = useState<string | null>(null);
   const [foodToDelete, setFoodToDelete] = useState<any | null>(null);
@@ -25,11 +26,7 @@ function MealPlanDetail() {
   const [servingInput, setServingInput] = useState<number>(1);
   const [formData, setFormData] = useState({ name: "" });
 
-  interface Props {
-  mealPlanId: number;
-}
-
-    const calculateMealTotal = useMemo(() => {
+  const calculateMealTotal = useMemo(() => {
     return (mealType: string, metric: string) => {
       const meals = mealPlan?.meals?.[mealType]?.foods || [];
       return meals.reduce((total: number, food: any) => {
@@ -37,7 +34,7 @@ function MealPlanDetail() {
       }, 0);
     };
   }, [mealPlan]);
-  
+
   const calculateGrandTotal = useMemo(() => {
     return (metric) => {
       return (
@@ -100,7 +97,7 @@ function MealPlanDetail() {
       // Handle different types of errors
       if (error.response?.status === 401) {
         alert("You're not authorized to edit this meal plan. Please log in.");
-      } else if (error.response?.status === 404) {fe
+      } else if (error.response?.status === 404) {
         alert("Meal plan not found.");
       } else if (error.response?.data?.error) {
         alert(`Error: ${error.response.data.error}`);
@@ -193,8 +190,7 @@ function MealPlanDetail() {
   if (loading) return <div className="p-8">Loading...</div>;
   if (error) return <div className="p-8 text-red-600">{error}</div>;
   if (!mealPlan) return <div className="p-8">Meal plan not found</div>;
-
-  return (
+return (
     <div className="min-h-screen bg-gray-50 p-8">
       <div className="max-w-7xl mx-auto">
         <Navbar />
@@ -202,10 +198,12 @@ function MealPlanDetail() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left side - Meal Planner (2/3 width) */}
           <div className="lg:col-span-2 order-2 lg:order-1 bg-white rounded-lg shadow p-6">
-            <div className="flex justify-between items-center">
+            
+            {/* Header row — title + actions */}
+            <div className="flex justify-between items-center mb-2">
               {isEditing ? (
                 <input
-                  className="text-3xl font-bold text-gray-900" // ← Add this!
+                  className="text-3xl font-bold text-gray-900"
                   type="text"
                   value={formData.name}
                   onChange={(e) => setFormData({ name: e.target.value })}
@@ -216,31 +214,103 @@ function MealPlanDetail() {
                 </h1>
               )}
 
-              <div className="flex space-x-2">
+              {/* Actions — top right */}
+              <div className="flex items-center space-x-2">
                 {isEditing && (
-                  <button
-                    className="mt-6 bg-gray-600 text-white px-6 py-2 rounded hover:bg-gray-700"
-                    onClick={() => {
-                      setIsEditing(false);
-                      setFormData({ name: mealPlan.name }); // Reset to original name
-                    }}
-                  >
-                    Cancel
-                  </button>
+                  <>
+                    <button
+                      className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+                      onClick={handleSubmit}
+                      disabled={loading}
+                    >
+                      {loading ? "Saving..." : "Save Meal"}
+                    </button>
+                    <button
+                      className="bg-gray-200 text-gray-700 px-4 py-2 rounded hover:bg-gray-300 text-sm"
+                      onClick={() => {
+                        setIsEditing(false);
+                        setFormData({ name: mealPlan.name });
+                      }}
+                    >
+                      Cancel
+                    </button>
+                  </>
                 )}
+                  <div className="relative">
+                    <button
+                      onClick={() => setDropdownMenu(!dropdownMenu)}
+                      className="p-2 rounded hover:bg-gray-100 text-gray-500"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <circle cx="12" cy="12" r="1" />
+                        <circle cx="19" cy="12" r="1" />
+                        <circle cx="5" cy="12" r="1" />
+                      </svg>
+                    </button>
 
-                {/* delete button */}
-                <button
-                  className="mt-6 bg-red-600 text-white px-6 py-2 rounded hover:bg-red-700"
-                  onClick={() => {
-                    deleteItem();
-                  }}
-                >
-                  Delete
-                </button>
+                    {dropdownMenu && (
+                      <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
+                        <button
+                          onClick={() => {
+                            setIsEditing(true);
+                            setFormData({ name: mealPlan.name });
+                            setDropdownMenu(false);
+                          }}
+                          className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => {
+                            deleteItem();
+                            setDropdownMenu(false);
+                          }}
+                          className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-50"
+                        >
+                          Delete
+                        </button>
+                        <button
+                          onClick={async () => {
+                            try {
+                              const token = await generateShareLink(Number(id));
+                              const url = `${window.location.origin}/share/${token}`;
+                              await navigator.clipboard.writeText(url);
+                              alert("Share link copied to clipboard!");
+                            } catch {
+                              alert("Failed to generate share link. Please try again.");
+                            }
+                            setDropdownMenu(false);
+                          }}
+                          className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                        >
+                          Share Link
+                        </button>
+                        <button
+                          onClick={() => {
+                            window.print();
+                            setDropdownMenu(false);
+                          }}
+                          className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                        >
+                          Download PDF
+                        </button>
+                      </div>
+                    )}
+                  </div>
               </div>
             </div>
-            <p className="text-gray-600">
+
+            <p className="text-gray-600 mb-4">
               Created: {new Date(mealPlan.created_at).toLocaleDateString()}
             </p>
 
@@ -308,38 +378,14 @@ function MealPlanDetail() {
               setIsDeleteFoodModalOpen={setIsDeleteFoodModalOpen}
             />
 
-            <div style={{ display: "flex", justifyContent: "space-between" }}>
-              {isEditing ? (
-                // EDIT MODE - show Save button
-                <button
-                  className="mt-6 bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                  onClick={handleSubmit}
-                  disabled={loading}
-                >
-                  {loading ? "Saving..." : "Save Meal"}
-                </button>
-              ) : (
-                // VIEW MODE - show Edit button
-                <button
-                  className="mt-6 bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700"
-                  onClick={() => {
-                    setIsEditing(true);
-                    setFormData({ name: mealPlan.name });
-                  }}
-                >
-                  Edit Meal
-                </button>
-              )}
-
-              {/* Grand Total */}
-              <div className="mt-6 pt-6 ">
-                <h3 className="font-semibold text-lg">
-                  Calories: {calculateGrandTotal("calories").toFixed(1)} cal,
-                  Protein: {calculateGrandTotal("protein").toFixed(1)}g, Carbs:{" "}
-                  {calculateGrandTotal("carbs").toFixed(1)}g, Fats:{" "}
-                  {calculateGrandTotal("fat").toFixed(1)}g
-                </h3>
-              </div>
+            {/* Grand Total */}
+            <div className="mt-6 pt-6">
+              <h3 className="font-semibold text-lg">
+                Calories: {calculateGrandTotal("calories").toFixed(1)} cal,
+                Protein: {calculateGrandTotal("protein").toFixed(1)}g, Carbs:{" "}
+                {calculateGrandTotal("carbs").toFixed(1)}g, Fats:{" "}
+                {calculateGrandTotal("fat").toFixed(1)}g
+              </h3>
             </div>
           </div>
 
@@ -347,13 +393,13 @@ function MealPlanDetail() {
           <FoodPanel onFoodClick={addFoodToMeal} />
         </div>
       </div>
+
       {isDeleteFoodModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 max-w-sm w-full mx-4">
             <h3 className="text-lg font-semibold mb-2">Remove Food</h3>
             <p className="text-gray-600 mb-6">
-              Are you sure you want to remove {foodToDelete?.name} from this
-              meal?
+              Are you sure you want to remove {foodToDelete?.name} from this meal?
             </p>
             <div className="flex justify-end gap-3">
               <button

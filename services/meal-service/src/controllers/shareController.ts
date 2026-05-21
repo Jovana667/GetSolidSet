@@ -1,5 +1,8 @@
 
+import { error } from "console";
 import crypto from "crypto";
+import { error } from "console";
+import pool from "../utils/db";
 
 // POST /meals/plans/:id/share
 // Generates (or returns existing) share token for a meal plan.
@@ -52,6 +55,7 @@ export const generateShareLink = async (req: Request, res: Response) => {
     console.error("Generate share link error:", error);
     res.status(500).json({ error: "Failed to generate share link" });
   }
+  console.error("Generate share link error:", error);
 };
 
 // DELETE /meals/plans/:id/share
