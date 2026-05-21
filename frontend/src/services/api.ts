@@ -8,7 +8,7 @@ const authApi = axios.create({
   },
 });
 
-const mealApi = axios.create({
+export const mealApi = axios.create({
   baseURL: import.meta.env.VITE_MEAL_API_URL,
   headers: {
     "Content-Type": "application/json",
