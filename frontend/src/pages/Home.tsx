@@ -188,16 +188,13 @@ function Home() {
               <div className="space-y-6">
                 <div>
                   <h3 className="font-semibold text-lg mb-2">
-                    <h3>
-                      Breakfast:{" "}
-                      {calculateMealTotal("breakfast", "calories").toFixed(1)}{" "}
-                      cal,{" "}
-                      {calculateMealTotal("breakfast", "protein").toFixed(1)}g
-                      protein,{" "}
-                      {calculateMealTotal("breakfast", "carbs").toFixed(1)}g
-                      carbs, {calculateMealTotal("breakfast", "fat").toFixed(1)}
-                      g fats
-                    </h3>{" "}
+                    Breakfast:{" "}
+                    {calculateMealTotal("breakfast", "calories").toFixed(1)}{" "}
+                    cal, {calculateMealTotal("breakfast", "protein").toFixed(1)}
+                    g protein,{" "}
+                    {calculateMealTotal("breakfast", "carbs").toFixed(1)}g
+                    carbs, {calculateMealTotal("breakfast", "fat").toFixed(1)}g
+                    fats
                   </h3>
                   <div
                     className={`border-2 border-dashed rounded p-4 cursor-pointer ${
@@ -267,14 +264,10 @@ function Home() {
                 </div>
                 <div>
                   <h3 className="font-semibold text-lg mb-2">
-                    <h3>
-                      Lunch:{" "}
-                      {calculateMealTotal("lunch", "calories").toFixed(1)} cal,{" "}
-                      {calculateMealTotal("lunch", "protein").toFixed(1)}g
-                      protein, {calculateMealTotal("lunch", "carbs").toFixed(1)}
-                      g carbs, {calculateMealTotal("lunch", "fat").toFixed(1)}g
-                      fats
-                    </h3>{" "}
+                    Lunch: {calculateMealTotal("lunch", "calories").toFixed(1)}{" "}
+                    cal, {calculateMealTotal("lunch", "protein").toFixed(1)}g
+                    protein, {calculateMealTotal("lunch", "carbs").toFixed(1)}g
+                    carbs, {calculateMealTotal("lunch", "fat").toFixed(1)}g fats
                   </h3>
                   <div
                     className={`border-2 border-dashed rounded p-4 cursor-pointer ${
@@ -345,14 +338,12 @@ function Home() {
 
                 <div>
                   <h3 className="font-semibold text-lg mb-2">
-                    <h3>
-                      Dinner:{" "}
-                      {calculateMealTotal("dinner", "calories").toFixed(1)} cal,{" "}
-                      {calculateMealTotal("dinner", "protein").toFixed(1)}g
-                      protein,{" "}
-                      {calculateMealTotal("dinner", "carbs").toFixed(1)}g carbs,{" "}
-                      {calculateMealTotal("dinner", "fat").toFixed(1)}g fats
-                    </h3>{" "}
+                    Dinner:{" "}
+                    {calculateMealTotal("dinner", "calories").toFixed(1)} cal,{" "}
+                    {calculateMealTotal("dinner", "protein").toFixed(1)}g
+                    protein, {calculateMealTotal("dinner", "carbs").toFixed(1)}g
+                    carbs, {calculateMealTotal("dinner", "fat").toFixed(1)}g
+                    fats
                   </h3>
                   <div
                     className={`border-2 border-dashed rounded p-4 cursor-pointer ${
@@ -423,14 +414,10 @@ function Home() {
 
                 <div>
                   <h3 className="font-semibold text-lg mb-2">
-                    <h3>
-                      Snack:{" "}
-                      {calculateMealTotal("snack", "calories").toFixed(1)} cal,{" "}
-                      {calculateMealTotal("snack", "protein").toFixed(1)}g
-                      protein, {calculateMealTotal("snack", "carbs").toFixed(1)}
-                      g carbs, {calculateMealTotal("snack", "fat").toFixed(1)}g
-                      fats
-                    </h3>{" "}
+                    Snack: {calculateMealTotal("snack", "calories").toFixed(1)}{" "}
+                    cal, {calculateMealTotal("snack", "protein").toFixed(1)}g
+                    protein, {calculateMealTotal("snack", "carbs").toFixed(1)}g
+                    carbs, {calculateMealTotal("snack", "fat").toFixed(1)}g fats
                   </h3>
                   <div
                     className={`border-2 border-dashed rounded p-4 cursor-pointer ${
