@@ -7,6 +7,7 @@ import { addFoodToMeal as addFoodToMealApi } from "../services/api";
 import MealSlot from "../components/MealSlot";
 import Navbar from "../components/Navbar";
 import { useAuth } from "../context/AuthContext";
+import { generateShareLink, revokeShareLink } from "../services/shareApi";
 
 function MealPlanDetail() {
   const { id } = useParams();
@@ -23,6 +24,10 @@ function MealPlanDetail() {
   );
   const [servingInput, setServingInput] = useState<number>(1);
   const [formData, setFormData] = useState({ name: "" });
+
+  interface Props {
+  mealPlanId: number;
+}
 
     const calculateMealTotal = useMemo(() => {
     return (mealType: string, metric: string) => {
@@ -95,7 +100,7 @@ function MealPlanDetail() {
       // Handle different types of errors
       if (error.response?.status === 401) {
         alert("You're not authorized to edit this meal plan. Please log in.");
-      } else if (error.response?.status === 404) {
+      } else if (error.response?.status === 404) {fe
         alert("Meal plan not found.");
       } else if (error.response?.data?.error) {
         alert(`Error: ${error.response.data.error}`);
