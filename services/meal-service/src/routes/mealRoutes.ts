@@ -11,6 +11,13 @@ import {
   updateFoodServing,
   removeFoodFromMeal,
 } from "../controllers/mealController";
+
+import {
+  generateShareLink,
+  revokeShareLink,
+  getSharedMealPlan,
+} from "../controllers/shareController";
+
 import { verifyToken } from "../middleware/auth";
 
 const router = Router();
@@ -45,4 +52,12 @@ router.put("/:mealId/foods/:mealFoodId", verifyToken, updateFoodServing);
 // Remove a food item from a meal slot
 router.delete("/:mealId/foods/:mealFoodId", verifyToken, removeFoodFromMeal);
 
+// share link routes
+// Public — no verifyToken middleware
+router.get("/share/:token", getSharedMealPlan);
+ 
+// Protected — trainer/owner only
+router.post("/plans/:id/share",   verifyToken, generateShareLink);
+router.delete("/plans/:id/share", verifyToken, revokeShareLink);
+ 
 export default router;
