@@ -9,6 +9,7 @@ import Meals from "./pages/Meals";
 import MealPlanDetail from "./pages/MealPlanDetail";
 import ClientsPage from "./pages/ClientsPage";
 import ClientDetailPage from "./pages/ClientDetailPage";
+import SharedMealPlan from "./pages/SharedMealPlan";
 import { AuthUtils } from "./utils/auth";
 import { AuthProvider } from "./context/AuthContext";
 
@@ -57,6 +58,7 @@ function App() {
             }
           />
           <Route path="/meal-plan/:id" element={<MealPlanDetail />} />
+          <Route path="/share/:token" element={<SharedMealPlan />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>
