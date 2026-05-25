@@ -24,17 +24,17 @@ function Home() {
   const [selectClientModal, setSelectClientModal] = useState(false);
   const [selectedClient, setSelectedClient] = useState<any>(null);
   const navigate = useNavigate();
-const { role } = useAuth();
-const [clients, setClients] = useState<any[]>([]);
+  const { role } = useAuth();
+  const [clients, setClients] = useState<any[]>([]);
 
-const fetchClients = async () => {
-  try {
-    const data = await getClients();
-    setClients(data);
-  } catch (error) {
-    console.error("Failed to fetch clients:", error);
-  }
-};
+  const fetchClients = async () => {
+    try {
+      const data = await getClients();
+      setClients(data);
+    } catch (error) {
+      console.error("Failed to fetch clients:", error);
+    }
+  };
 
   const addFoodToMeal = (food: any) => {
     console.log(`Adding ${food.name} to ${selectedMeal}`);
@@ -140,7 +140,11 @@ const fetchClients = async () => {
       is_template: true,
       meal_date: new Date().toISOString().split("T")[0], // Today's date
       foods: transformedFoods,
-      trainer_client_id: trainerClientId ? parseInt(trainerClientId) : null,
+      trainer_client_id: selectedClient
+        ? selectedClient.trainer_client_id
+        : trainerClientId
+          ? parseInt(trainerClientId)
+          : null,
     };
     if (!mealName.trim()) {
       alert("Please enter a meal plan name");
@@ -154,7 +158,11 @@ const fetchClients = async () => {
       setMealFoods({ breakfast: [], lunch: [], dinner: [], snack: [] });
       setMealName("");
 
-      if (clientId && clientName) {
+      if (selectedClient) {
+        setMealFoods({ breakfast: [], lunch: [], dinner: [], snack: [] });
+        setMealName("");
+        setSelectedClient(null);
+      } else if (clientId && clientName) {
         navigate(
           `/clients/${clientId}?name=${encodeURIComponent(clientName)}&trainerClientId=${trainerClientId}`,
         );
@@ -181,25 +189,25 @@ const fetchClients = async () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Left side - Meal Planner (2/3 width) */}
             <div className="lg:col-span-2 order-2 lg:order-1 bg-white rounded-lg shadow p-6">
-<div className="flex justify-between items-center mb-4">
-  <h2 className="text-2xl font-semibold">Meal Planner</h2>
-  {role === "trainer" && (
-    <button
-      onClick={() => {
-        setSelectClientModal(true);
-        fetchClients();
-      }}
-      className="p-2 rounded hover:bg-gray-100 text-gray-500 text-2xl font-light"
-    >
-      +
-    </button>
-  )}
-</div>          
-    {selectedClient && (
-  <p className="text-blue-600 font-medium mb-4">
-    Creating meal plan for: {selectedClient.name}
-  </p>
-)}
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-2xl font-semibold">Meal Planner</h2>
+                {role === "trainer" && (
+                  <button
+                    onClick={() => {
+                      setSelectClientModal(true);
+                      fetchClients();
+                    }}
+                    className="p-2 rounded hover:bg-gray-100 text-gray-500 text-2xl font-light"
+                  >
+                    +
+                  </button>
+                )}
+              </div>
+              {selectedClient && (
+                <p className="text-blue-600 font-medium mb-4">
+                  Creating meal plan for: {selectedClient.client_name || selectedClient.client_email}
+                </p>
+              )}
               {/* Meal Name Input */}
               <div className="mb-4">
                 <input
@@ -539,36 +547,36 @@ const fetchClients = async () => {
       </div>
       <Footer />
       {selectClientModal && (
-  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-    <div className="bg-white rounded-lg p-6 max-w-sm w-full mx-4">
-      <h3 className="text-lg font-semibold mb-4">Select Client</h3>
-      
-      <div className="space-y-1 mb-4">
-        {clients.map((client: any) => (
-          <div
-            key={client.id}
-            onClick={() => {
-              setSelectedClient(client);
-              setSelectClientModal(false);
-            }}
-            className="px-4 py-2 hover:bg-gray-100 cursor-pointer rounded"
-          >
-            {client.name}
-          </div>
-        ))}
-      </div>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-sm w-full mx-4">
+            <h3 className="text-lg font-semibold mb-4">Select Client</h3>
 
-      <div className="flex justify-end">
-        <button
-          className="px-4 py-2 text-gray-600 hover:text-gray-800"
-          onClick={() => setSelectClientModal(false)}
-        >
-          Cancel
-        </button>
-      </div>
-    </div>
-  </div>
-)}
+            <div className="space-y-1 mb-4">
+              {clients.map((client: any) => (
+                <div
+                  key={client.id}
+                  onClick={() => {
+                    setSelectedClient(client);
+                    setSelectClientModal(false);
+                  }}
+                  className="px-4 py-2 hover:bg-gray-100 cursor-pointer rounded"
+                >
+                  {client.client_name || client.client_email}
+                </div>
+              ))}
+            </div>
+
+            <div className="flex justify-end">
+              <button
+                className="px-4 py-2 text-gray-600 hover:text-gray-800"
+                onClick={() => setSelectClientModal(false)}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
