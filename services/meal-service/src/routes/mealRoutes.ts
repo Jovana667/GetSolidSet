@@ -10,6 +10,7 @@ import {
   addFoodToMeal,
   updateFoodServing,
   removeFoodFromMeal,
+  getAssignedMeals
 } from "../controllers/mealController";
 
 import {
@@ -25,14 +26,15 @@ const router = Router();
 // Get all meals for authenticated user (with pagination)
 router.get("/", verifyToken, getMeals);
 
-// Get a specific meal plan by plan ID
-router.get("/plans/:id", verifyToken, getMealPlanById);
-
 // Get a specific meal by ID
 router.get("/:id", verifyToken, getMealById);
 
-// trainer routes for managing meal plans for clients
+// Specific routes first
+router.get("/plans/assigned", verifyToken, getAssignedMeals);
 router.get("/plans/client/:trainerClientId", verifyToken, getClientMeals);
+
+// Dynamic route after
+router.get("/plans/:id", verifyToken, getMealPlanById);
 
 // Create a new meal plan
 router.post("/", verifyToken, createMeal);

@@ -720,3 +720,39 @@ export const getClientMeals = async (req: Request, res: Response) => {
     res.status(500).json({ error: "Failed to retrieve meals" });
   }
 };
+
+export const getAssignedMeals = async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(401).json({ error: "User not authenticated" });
+    }
+    const mealsQuery = `
+SELECT 
+  mp.id,
+  mp.name,
+  mp.is_template, 
+  mp.meal_date,
+  mp.created_at,
+  mp.updated_at,
+CASE
+  WHEN mp.user_id != $1 THEN u.email
+  ELSE NULL
+END as assigned_by
+FROM meal_plans mp
+LEFT JOIN users u ON mp.user_id = u.id
+WHERE mp.trainer_client_id IN (
+  SELECT id FROM trainer_clients WHERE client_id = $1
+)
+ORDER BY mp.created_at DESC
+    `;
+    const mealsResult = await pool.query(mealsQuery, [userId]);
+    res.status(200).json({
+      meals: mealsResult.rows,
+    });
+  } catch (error) {
+    console.error("Get assigned meals error:", error);
+    res.status(500).json({ error: "Failed to retrieve assigned meals" });
+  }
+};
+
