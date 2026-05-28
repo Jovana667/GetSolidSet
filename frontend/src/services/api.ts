@@ -84,6 +84,12 @@ export const getClientMeals = async (trainerClientId: string) => {
   return response.data;
 };
 
+// retrieve assigned meals from trainers
+export const getAssignedMeals = async () => {
+  const response = await mealApi.get("/meals/plans/assigned");
+  return response.data;
+};
+
 // meals
 export const getMeals = async () => {
   const response = await mealApi.get("/meals");
