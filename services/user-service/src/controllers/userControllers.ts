@@ -126,3 +126,24 @@ WHERE tc.trainer_id = $1`,
     res.status(500).json({ error: "Failed to retrieve clients" });
   }
 };
+
+export const removeClient = async (req: Request, res: Response) => {
+  try {
+    const trainerId = req.user?.id;
+    const { trainerClientId } = req.params;
+    
+    const result = await pool.query(
+      `DELETE FROM trainer_clients WHERE id = $1 AND trainer_id = $2 RETURNING *`,
+      [trainerClientId, trainerId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Client not found" });
+    }
+
+    res.status(200).json({ message: "Client removed successfully" });
+  } catch (error) {
+    console.error("Remove client error:", error);
+    res.status(500).json({ error: "Failed to remove client" });
+  }
+};
