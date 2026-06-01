@@ -4,6 +4,7 @@ import {
   getNutritionGoalByUserId,
   addClient,
   getClients,
+  removeClient,
 } from "../controllers/userControllers";
 import { verifyToken } from "../middleware/auth";
 
@@ -16,5 +17,6 @@ router.get("/profile", verifyToken, getNutritionGoalByUserId);
 // Trainer client management
 router.post("/clients", verifyToken, addClient);
 router.get("/clients", verifyToken, getClients);
+router.delete("/clients/:trainerClientId", verifyToken, removeClient);
 
 export default router;
