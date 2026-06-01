@@ -17,7 +17,7 @@ function Home() {
     snack: [],
   });
 
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const clientId = searchParams.get("clientId");
   const clientName = searchParams.get("clientName");
   const trainerClientId = searchParams.get("trainerClientId");
@@ -162,6 +162,7 @@ function Home() {
         setMealFoods({ breakfast: [], lunch: [], dinner: [], snack: [] });
         setMealName("");
         setSelectedClient(null);
+        setSearchParams({});
       } else if (clientId && clientName) {
         navigate(
           `/clients/${clientId}?name=${encodeURIComponent(clientName)}&trainerClientId=${trainerClientId}`,
@@ -203,9 +204,12 @@ function Home() {
                   </button>
                 )}
               </div>
-              {selectedClient && (
+              {(selectedClient || clientName) && (
                 <p className="text-blue-600 font-medium mb-4">
-                  Creating meal plan for: {selectedClient.client_name || selectedClient.client_email}
+                  Creating meal plan for:{" "}
+                  {selectedClient
+                    ? selectedClient.client_name || selectedClient.client_email
+                    : clientName}
                 </p>
               )}
               {/* Meal Name Input */}
