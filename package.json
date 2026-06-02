@@ -1,0 +1,11 @@
+{
+  "name": "macrology",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently --names \"auth,food,meal,user,chatbot,frontend\" --prefix-colors \"blue,green,yellow,magenta,cyan,white\" \"npm run dev --prefix services/auth-service\" \"npm run dev --prefix services/food-service\" \"npm run dev --prefix services/meal-service\" \"npm run dev --prefix services/user-service\" \"npm run dev --prefix services/chatbot-service\" \"npm run dev --prefix frontend\""
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
