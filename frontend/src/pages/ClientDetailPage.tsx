@@ -17,7 +17,7 @@ function ClientDetailPage() {
   useEffect(() => {
     const fetchClientMeals = async () => {
       try {
-const data = await getClientMeals(trainerClientId!);
+        const data = await getClientMeals(trainerClientId!);
         setMealPlans(data.meals || data);
         setError(null);
       } catch (error: any) {
@@ -76,7 +76,9 @@ const data = await getClientMeals(trainerClientId!);
                     Created: {new Date(plan.created_at).toLocaleDateString()}
                   </p>
                   <button
-                    onClick={() => navigate(`/meal-plan/${plan.id}`)}
+                    onClick={() =>
+                      navigate(`/meal-plan/${plan.id}?clientId=${clientId}`)
+                    }
                     className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
                   >
                     View Details

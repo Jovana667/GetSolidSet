@@ -130,6 +130,11 @@ export const getMealById = async (mealId: number) => {
   return response.data;
 };
 
+export const deleteMeal = async (mealId: number) => {
+  const response = await mealApi.delete(`/meals/plans/${mealId}`);
+  return response.data;
+};
+
 // Foods
 export const getFoods = async (params?: {
   category?: string;

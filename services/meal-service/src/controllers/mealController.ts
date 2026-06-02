@@ -212,9 +212,6 @@ LEFT JOIN meals m ON mp.id = m.meal_plan_id
 LEFT JOIN meal_foods mf ON m.id = mf.meal_id
 LEFT JOIN users u ON mp.user_id = u.id
 WHERE mp.user_id = $1 
-OR mp.trainer_client_id IN (
-  SELECT id FROM trainer_clients WHERE client_id = $1
-)
 GROUP BY mp.id, u.username, u.email
 ORDER BY mp.created_at DESC
 LIMIT $2 OFFSET $3
@@ -400,8 +397,8 @@ export const getMealPlanById = async (req: Request, res: Response) => {
 
     // Get meal plan info
     const mealPlanQuery = `
-      SELECT id, user_id, name, is_template, meal_date, created_at, updated_at
-      FROM meal_plans
+SELECT id, user_id, name, is_template, meal_date, created_at, updated_at, trainer_client_id
+FROM meal_plans
 WHERE id = $1 AND (
   user_id = $2 
   OR $2 IN (SELECT trainer_id FROM trainer_clients WHERE client_id = user_id)
