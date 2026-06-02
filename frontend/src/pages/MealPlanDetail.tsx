@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import axios from "axios";
 import { removeFoodFromMeal, updateFoodServing } from "../services/api";
 import FoodPanel from "../components/FoodPanel";
@@ -12,6 +12,9 @@ import { generateShareLink } from "../services/shareApi";
 function MealPlanDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const clientId = searchParams.get("clientId");
+  const { role } = useAuth();
   const [mealPlan, setMealPlan] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -118,8 +121,11 @@ function MealPlanDetail() {
       await axios.delete(`http://localhost:3003/api/meals/plans/${id}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
-      console.log(`Item ${id} deleted successfully`);
-      navigate("/meals", { replace: true });
+if (role === "trainer" && clientId) {
+navigate(`/clients/${clientId}?trainerClientId=${mealPlan.trainer_client_id}`, { replace: true });
+} else {
+  navigate("/meals", { replace: true });
+}
     } catch (error) {
       console.error("Delete failed:", error.message);
       alert("Failed to delete meal plan");
