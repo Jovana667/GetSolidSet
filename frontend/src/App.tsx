@@ -12,6 +12,7 @@ import ClientDetailPage from "./pages/ClientDetailPage";
 import SharedMealPlan from "./pages/SharedMealPlan";
 import { AuthUtils } from "./utils/auth";
 import { AuthProvider } from "./context/AuthContext";
+import ResetPassword from "./pages/ResetPassword";
 
 function App() {
   useEffect(() => {
@@ -25,6 +26,7 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           <Route
             path="/meals"
             element={
