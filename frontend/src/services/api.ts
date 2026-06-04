@@ -68,6 +68,21 @@ export const updateUserProfile = async (profileData: any) => {
   return response.data;
 };
 
+export const forgotPassword = async (email: string) => {
+  const response = await authApi.post("/forgot-password", { email });
+  return response.data;
+};
+
+export const verifyOTP = async (email: string, otp: string) => {
+  const response = await authApi.post("/verify-otp", { email, otp });
+  return response.data;
+};
+
+export const resetPassword = async (email: string, newPassword: string) => {
+  const response = await authApi.post("/reset-password", { email, newPassword });
+  return response.data;
+};
+
 // Trainer client management
 export const getClients = async () => {
   const response = await userApi.get("/users/clients");
