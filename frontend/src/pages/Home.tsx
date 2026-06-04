@@ -205,12 +205,23 @@ function Home() {
                 )}
               </div>
               {(selectedClient || clientName) && (
-                <p className="text-blue-600 font-medium mb-4">
-                  Creating meal plan for:{" "}
-                  {selectedClient
-                    ? selectedClient.client_name || selectedClient.client_email
-                    : clientName}
-                </p>
+                <div className="flex items-center gap-2 mb-4">
+                  <p className="text-blue-600 font-medium">
+                    Creating meal plan for:{" "}
+                    {selectedClient
+                      ? selectedClient.client_name ||
+                        selectedClient.client_email
+                      : clientName}
+                  </p>
+                  {selectedClient && (
+                    <button
+                      onClick={() => setSelectedClient(null)}
+                      className="text-gray-400 hover:text-gray-600 text-sm"
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
               )}
               {/* Meal Name Input */}
               <div className="mb-4">

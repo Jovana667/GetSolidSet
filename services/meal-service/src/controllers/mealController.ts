@@ -204,15 +204,16 @@ SELECT
   COUNT(DISTINCT m.id)::INTEGER as meal_count,
   COUNT(mf.id)::INTEGER as food_count,
 CASE 
-  WHEN mp.user_id != $1 THEN COALESCE(u.username, u.email)
+  WHEN mp.trainer_client_id IS NOT NULL THEN tc.client_name
   ELSE NULL
-END as assigned_by
+END as assigned_to
 FROM meal_plans mp
 LEFT JOIN meals m ON mp.id = m.meal_plan_id
 LEFT JOIN meal_foods mf ON m.id = mf.meal_id
 LEFT JOIN users u ON mp.user_id = u.id
+LEFT JOIN trainer_clients tc ON mp.trainer_client_id = tc.id
 WHERE mp.user_id = $1 
-GROUP BY mp.id, u.username, u.email
+GROUP BY mp.id, u.username, u.email, tc.id, tc.client_name
 ORDER BY mp.created_at DESC
 LIMIT $2 OFFSET $3
     `;

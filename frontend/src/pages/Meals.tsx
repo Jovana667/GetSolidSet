@@ -37,38 +37,34 @@ function Meals() {
     fetchMeals();
   }, []);
 
-    const handleRemoveMeal = async () => {
-      try {
-        await deleteMeal(mealToRemove.id);
-const data = await getMeals();
-setMeals(data.meals || data);
-        setMealToRemove(null);
-        setIsDeleteModalOpen(false);
-      } catch (error) {
-        console.error("Error removing meal:", error);
-        setError("Failed to remove meal. Please try again later.");
-      }
-    };
-  
-    const handleBulkRemoveMeals = async () => {
-      try {
-        await Promise.all(
-          mealBulkRemove.map((meal) =>
-            deleteMeal(meal.id),
-          ),
-        );
-const data = await getMeals();
-setMeals(data.meals || data);
-        setMealBulkRemove([]);
-        setMealSelectMode("none");
-        setIsDeleteModalOpen(false);
-      } catch (error) {
-        console.error("Error removing meals:", error);
-        setError("Failed to remove meals. Please try again later.");
-      }
-    };
+  const handleRemoveMeal = async () => {
+    try {
+      await deleteMeal(mealToRemove.id);
+      const data = await getMeals();
+      setMeals(data.meals || data);
+      setMealToRemove(null);
+      setIsDeleteModalOpen(false);
+    } catch (error) {
+      console.error("Error removing meal:", error);
+      setError("Failed to remove meal. Please try again later.");
+    }
+  };
 
-return (
+  const handleBulkRemoveMeals = async () => {
+    try {
+      await Promise.all(mealBulkRemove.map((meal) => deleteMeal(meal.id)));
+      const data = await getMeals();
+      setMeals(data.meals || data);
+      setMealBulkRemove([]);
+      setMealSelectMode("none");
+      setIsDeleteModalOpen(false);
+    } catch (error) {
+      console.error("Error removing meals:", error);
+      setError("Failed to remove meals. Please try again later.");
+    }
+  };
+
+  return (
     <div className="min-h-screen bg-gray-50 p-8">
       <div className="max-w-7xl mx-auto">
         <Navbar />
@@ -83,13 +79,29 @@ return (
           <>
             {/* Personal Meal Plans Header */}
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold text-gray-900">My Meal Plans</h2>
+              <h2 className="text-2xl font-bold text-gray-900">
+                My Meal Plans
+              </h2>
               <div className="flex items-center gap-3">
                 {mealSelectMode === "remove" ? (
                   <>
                     <span className="text-sm text-gray-500">
                       {mealBulkRemove.length} selected
                     </span>
+                    <button
+                      onClick={() => {
+                        if (mealBulkRemove.length === meals.length) {
+                          setMealBulkRemove([]);
+                        } else {
+                          setMealBulkRemove([...meals]);
+                        }
+                      }}
+                      className="px-4 py-2 text-gray-600 hover:text-gray-800 text-sm"
+                    >
+                      {mealBulkRemove.length === meals.length
+                        ? "Deselect All"
+                        : "Select All"}
+                    </button>
                     <button
                       onClick={() => {
                         setMealSelectMode("none");
@@ -104,7 +116,17 @@ return (
                       disabled={mealBulkRemove.length === 0}
                       className="flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 disabled:opacity-50"
                     >
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
                         <polyline points="3 6 5 6 21 6" />
                         <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" />
                         <path d="M10 11v6m4-6v6" />
@@ -144,7 +166,7 @@ return (
                         setMealBulkRemove((prev) =>
                           prev.includes(meal)
                             ? prev.filter((m) => m !== meal)
-                            : [...prev, meal]
+                            : [...prev, meal],
                         );
                       }
                     }}
@@ -154,12 +176,25 @@ return (
                         <input
                           type="checkbox"
                           checked={mealBulkRemove.includes(meal)}
-                          onChange={() => {}}
+                          onChange={() => {
+                            if (mealSelectMode === "remove") {
+                              setMealBulkRemove((prev) =>
+                                prev.includes(meal)
+                                  ? prev.filter((m) => m !== meal)
+                                  : [...prev, meal],
+                              );
+                            }
+                          }}
                           className="w-4 h-4 accent-red-500"
                         />
                       </div>
                     )}
                     <h3 className="text-xl font-semibold mb-2">{meal.name}</h3>
+                    {meal.assigned_to && (
+                      <p className="text-blue-600 text-sm mb-1">
+                        Assigned to: {meal.assigned_to}
+                      </p>
+                    )}
                     <p className="text-gray-600 mb-4">
                       Created: {new Date(meal.created_at).toLocaleDateString()}
                     </p>
@@ -185,10 +220,16 @@ return (
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {assignedMeals.map((meal: any) => (
-                    <div key={meal.id} className="bg-white rounded-lg shadow p-6">
-                      <h3 className="text-xl font-semibold mb-2">{meal.name}</h3>
+                    <div
+                      key={meal.id}
+                      className="bg-white rounded-lg shadow p-6"
+                    >
+                      <h3 className="text-xl font-semibold mb-2">
+                        {meal.name}
+                      </h3>
                       <p className="text-gray-600 mb-2">
-                        Created: {new Date(meal.created_at).toLocaleDateString()}
+                        Created:{" "}
+                        {new Date(meal.created_at).toLocaleDateString()}
                       </p>
                       {meal.assigned_by && (
                         <p className="text-blue-600 text-sm mb-4">
