@@ -1,32 +1,38 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { register } from "../services/api";
 
 function Register() {
+  const navigate = useNavigate();
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [role, setRole] = useState<'trainer' | 'client'>('client');
+  const [role, setRole] = useState<"trainer" | "client">("client");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
 
-    if (password !== confirmPassword) {
-      alert("Passwords do not match!");
-      return;
-    }
+  if (password !== confirmPassword) {
+    alert("Passwords do not match!");
+    return;
+  }
 
-    try {
-const response = await register(email, role, password);
-localStorage.setItem("token", response.token);
-localStorage.setItem("role", response.user.role);
-window.location.href = "/";
-      window.location.href = "/";
-    } catch (error) {
-      console.error("Registration failed:", error);
-      alert("Registration failed! Check console for details.");
+  try {
+    await register(name, email, role, password);
+    alert("Account created successfully! Please log in.");
+    navigate("/login");
+  } catch (error: any) {
+    console.error("Registration failed:", error);
+    if (error.response?.status === 409) {
+      alert("An account with this email already exists.");
+    } else if (error.response?.status === 400) {
+      alert("Password must be at least 8 characters and include a number and special character.");
+    } else {
+      alert("Registration failed! Please try again.");
     }
-  };
+  }
+};
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
@@ -34,6 +40,23 @@ window.location.href = "/";
         <h2 className="text-2xl font-bold text-center mb-6">Create Account</h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label
+              htmlFor="name"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Name
+            </label>
+            <input
+              type="text"
+              id="name"
+              className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Your Name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
+          </div>
+
           <div>
             <label
               htmlFor="email"
@@ -51,23 +74,23 @@ window.location.href = "/";
             />
           </div>
 
-            <div>
-              <label
-                htmlFor="role"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
-                Role
-              </label>
-              <select
-                id="role"
-                value={role}
-                onChange={(e) => setRole(e.target.value as 'trainer' | 'client')}
-                className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="client">Client</option>
-                <option value="trainer">Trainer</option>
-              </select>
-            </div>
+          <div>
+            <label
+              htmlFor="role"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Role
+            </label>
+            <select
+              id="role"
+              value={role}
+              onChange={(e) => setRole(e.target.value as "trainer" | "client")}
+              className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="client">Client</option>
+              <option value="trainer">Trainer</option>
+            </select>
+          </div>
 
           <div>
             <label
