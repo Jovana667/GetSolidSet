@@ -1,7 +1,7 @@
 export interface User {
   id: number;
   email: string;
-  username: string;
+  name: string;
   password_hash: string;
   created_at: Date;
   updated_at: Date;
@@ -10,7 +10,7 @@ export interface User {
 export interface RegisterRequest {
   email: string;
   role: 'client' | 'trainer';
-  username: string;
+  name: string;
   password: string;
 }
 

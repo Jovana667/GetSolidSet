@@ -52,19 +52,19 @@ export const login = async (email: string, password: string) => {
   return response.data;
 };
 
-export const register = async (email: string, role: 'trainer' | 'client', password: string) => {
-  const response = await authApi.post("/register", { email, role, password });
+export const register = async (name: string, email: string, role: 'trainer' | 'client', password: string) => {
+  const response = await authApi.post("/register", { name, email, role, password });
   return response.data;
 };
 
 // profile
 export const getUserProfile = async () => {
-  const response = await userApi.get("/profile");
+  const response = await userApi.get("/users/profile");
   return response.data;
 };
 
 export const updateUserProfile = async (profileData: any) => {
-  const response = await userApi.put("/profile", profileData);
+  const response = await userApi.put("/users/profile", profileData);
   return response.data;
 };
 
@@ -80,6 +80,11 @@ export const verifyOTP = async (email: string, otp: string) => {
 
 export const resetPassword = async (email: string, newPassword: string) => {
   const response = await authApi.post("/reset-password", { email, newPassword });
+  return response.data;
+};
+
+export const deleteUserProfile = async () => {
+  const response = await userApi.delete("/users/profile");
   return response.data;
 };
 

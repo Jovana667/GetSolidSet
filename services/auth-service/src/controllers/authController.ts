@@ -7,7 +7,7 @@ import { validateEmail, validatePassword } from "../utils/validation";
 
 export const register = async (req: Request, res: Response) => {
   try {
-    const { username, role, email, password }: RegisterRequest = req.body;
+    const { name, role, email, password }: RegisterRequest = req.body;
 
     // Validate role
 
@@ -43,15 +43,15 @@ export const register = async (req: Request, res: Response) => {
 
     // TODO: Insert user into database
     const result = await pool.query(
-      "INSERT INTO users (username, role, email, password_hash) VALUES ($1, $2, $3, $4) RETURNING id, username, role, email, created_at",
-      [username, role, email, hashedPassword]
+      "INSERT INTO users (name, role, email, password_hash) VALUES ($1, $2, $3, $4) RETURNING id, name, role, email, created_at",
+      [name, role, email, hashedPassword]
     );
     const newUser = result.rows[0];
 
     // TODO: Return user info (without password)
     res.status(201).json({
       message: "User registered successfully",
-      user: newUser, // This contains id, username, role, email, created_at (no password!)
+      user: newUser, // This contains id, name, role, email, created_at (no password!)
     });
   } catch (error) {
     // ← Need this!
@@ -75,7 +75,7 @@ export const login = async (req: Request, res: Response) => {
 
     // Find user by email
     const result = await pool.query(
-      "SELECT id, email, username, role, password_hash FROM users WHERE email = $1",
+      "SELECT id, email, name, role, password_hash FROM users WHERE email = $1",
       [email]
     );
 
@@ -112,7 +112,7 @@ export const login = async (req: Request, res: Response) => {
       user: {
         id: user.id,
         email: user.email,
-        username: user.username,
+        name: user.name,
         role: user.role,
       },
     });

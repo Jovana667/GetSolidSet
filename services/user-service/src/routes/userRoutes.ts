@@ -5,14 +5,22 @@ import {
   addClient,
   getClients,
   removeClient,
+  getProfile,
+  updateProfile,
+  deleteProfile,
 } from "../controllers/userControllers";
 import { verifyToken } from "../middleware/auth";
 
 const router = Router();
 
+// User profile routes
+router.get("/profile", verifyToken, getProfile);
+router.put("/profile", verifyToken, updateProfile);
+router.delete("/profile", verifyToken, deleteProfile);
+
 // Nutrition goals
-router.put("/profile", verifyToken, createNutritionGoal);
-router.get("/profile", verifyToken, getNutritionGoalByUserId);
+router.put("/nutrition-goals", verifyToken, createNutritionGoal);
+router.get("/nutrition-goals", verifyToken, getNutritionGoalByUserId);
 
 // Trainer client management
 router.post("/clients", verifyToken, addClient);
