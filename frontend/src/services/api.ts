@@ -40,11 +40,30 @@ const addTokenInterceptor = (apiInstance: any) => {
   });
 };
 
+const addResponseInterceptor = (apiInstance: any) => {
+  apiInstance.interceptors.response.use(
+    (response: any) => response,
+    (error: any) => {
+      if (error.response?.status === 401) {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        localStorage.removeItem("role");
+        window.location.href = "/login";
+      }
+      return Promise.reject(error);
+    }
+  );
+};
+
 // Apply interceptor to all instances that need authentication
 addTokenInterceptor(userApi);
 addTokenInterceptor(mealApi);
 addTokenInterceptor(foodApi);
 // authApi doesn't need it (login/register don't require tokens)
+
+addResponseInterceptor(userApi);
+addResponseInterceptor(mealApi);
+addResponseInterceptor(foodApi);
 
 // Authentication
 export const login = async (email: string, password: string) => {
