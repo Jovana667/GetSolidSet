@@ -5,6 +5,7 @@ import {
   addClient,
   getClients,
   removeClient,
+  linkClient,
   getProfile,
   updateProfile,
   deleteProfile,
@@ -26,5 +27,6 @@ router.get("/nutrition-goals", verifyToken, getNutritionGoalByUserId);
 router.post("/clients", verifyToken, addClient);
 router.get("/clients", verifyToken, getClients);
 router.delete("/clients/:trainerClientId", verifyToken, removeClient);
+router.put("/clients/:trainerClientId/link", verifyToken, linkClient);
 
 export default router;

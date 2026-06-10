@@ -26,7 +26,7 @@ function ClientsPage() {
       try {
         const data = await getClients();
         setClients(data);
-        setError(null); // ← add this
+        setError(null);
       } catch (error) {
         console.error("Error fetching clients:", error);
         setError("Failed to fetch clients. Please try again later.");
@@ -243,18 +243,21 @@ function ClientsPage() {
             <h3 className="text-lg font-semibold mb-4">Add Client</h3>
             <input
               type="text"
-              placeholder="Client name (optional)"
+              placeholder="Client name"
               value={clientName}
               onChange={(e) => setClientName(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             <input
               type="email"
-              placeholder="Client email address"
+              placeholder="Email (optional)"
               value={clientEmail}
               onChange={(e) => setClientEmail(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
+            <p className="text-xs text-gray-400 mb-4">
+              Enter email only if client has a Macrology account
+            </p>
             {modalError && (
               <p className="text-red-500 text-sm mb-4">{modalError}</p>
             )}

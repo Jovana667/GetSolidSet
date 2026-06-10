@@ -128,6 +128,11 @@ export const removeClient = async (trainerClientId: string) => {
   return response.data;
 }
 
+export const linkClient = async (trainerClientId: string, email: string) => {
+  const response = await userApi.put(`/users/clients/${trainerClientId}/link`, { email });
+  return response.data;
+};
+
 // retrieve assigned meals from trainers
 export const getAssignedMeals = async () => {
   const response = await mealApi.get("/meals/plans/assigned");
