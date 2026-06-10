@@ -81,6 +81,13 @@ export const updateProfile = async (req: Request, res: Response) => {
     values.push(userId);
     const query = `UPDATE users SET ${fields.join(", ")} WHERE id = $${idx} RETURNING name, email`;
     const result = await pool.query(query, values);
+    if (email) {
+      await pool.query(
+        `UPDATE trainer_clients SET client_email = $1 WHERE client_id = $2`,
+        [email, userId],
+      );
+    }
+
     res.status(200).json(result.rows[0]);
   } catch (error) {
     console.error("Update profile error:", error);
@@ -263,5 +270,42 @@ export const removeClient = async (req: Request, res: Response) => {
   } catch (error) {
     console.error("Remove client error:", error);
     res.status(500).json({ error: "Failed to remove client" });
+  }
+};
+
+export const linkClient = async (req: Request, res: Response) => {
+  try {
+    const trainerId = req.user?.id;
+    const { trainerClientId } = req.params;
+    const email = req.body.email;
+
+    const userResult = await pool.query(
+      `SELECT id FROM users WHERE email = $1`,
+      [email],
+    );
+
+    if (userResult.rows.length === 0) {
+      return res
+        .status(404)
+        .json({ error: "No account found with that email" });
+    }
+
+    const clientId = userResult.rows[0].id;
+
+    const result = await pool.query(
+      `UPDATE trainer_clients SET client_id = $1 WHERE id = $2 AND trainer_id = $3 RETURNING *`,
+      [clientId, trainerClientId, trainerId],
+    );
+
+    if (result.rows.length === 0) {
+      return res
+        .status(404)
+        .json({ error: "Client not found or not authorized" });
+    }
+
+    res.status(200).json(result.rows[0]);
+  } catch (error) {
+    console.error("Link client error:", error);
+    res.status(500).json({ error: "Failed to link client" });
   }
 };
