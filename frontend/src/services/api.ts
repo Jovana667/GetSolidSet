@@ -133,6 +133,22 @@ export const linkClient = async (trainerClientId: string, email: string) => {
   return response.data;
 };
 
+// skin fold managemnent 
+export const getSkinFolds = async (trainerClientId: string) => {
+  const response = await userApi.get(`/users/clients/${trainerClientId}/skinfolds`);
+  return response.data;
+}
+
+export const createSkinFold = async (trainerClientId: string, skinFoldData: any) => {
+  const response = await userApi.post(`/users/clients/${trainerClientId}/skinfolds`, skinFoldData);
+  return response.data;
+}
+
+export const updateSkinFold = async (trainerClientId: string, skinFoldId: number, skinFoldData: any) => {
+  const response = await userApi.put(`/users/clients/${trainerClientId}/skinfolds/${skinFoldId}`, skinFoldData);
+  return response.data;
+}
+
 // retrieve assigned meals from trainers
 export const getAssignedMeals = async () => {
   const response = await mealApi.get("/meals/plans/assigned");
