@@ -201,6 +201,8 @@ export const getNutritionGoalByUserId = async (req: Request, res: Response) => {
   }
 };
 
+// trainer client management controllers
+
 export const addClient = async (req: Request, res: Response) => {
   try {
     const trainerId = req.user?.id;
@@ -307,5 +309,60 @@ export const linkClient = async (req: Request, res: Response) => {
   } catch (error) {
     console.error("Link client error:", error);
     res.status(500).json({ error: "Failed to link client" });
+  }
+};
+
+// skin fold management controllers
+
+export const getSkinFolds = async (req: Request, res: Response) => {
+  try {
+    const { trainerClientId } = req.params;
+    const result = await pool.query(
+      `SELECT * FROM skin_fold 
+       WHERE trainer_client_id = $1 
+       ORDER BY week_number ASC`,
+      [trainerClientId]
+    );
+    res.status(200).json(result.rows);
+  } catch (error) {
+    console.error("Get skin folds error:", error);
+    res.status(500).json({ error: "Failed to retrieve skin folds" });
+  }
+};
+
+export const createSkinFold = async (req: Request, res: Response) => {
+  try {
+    const { trainerClientId } = req.params;
+    const { week_number, weight_kg, triceps, biceps, chest, subscapular, midaxillary, suprailiac, abdominal, thigh, hamstring, notes } = req.body;
+    const result = await pool.query(
+      `INSERT INTO skin_folds (trainer_client_id, week_number, weight_kg, triceps, biceps, chest, subscapular, midaxillary, suprailiac, abdominal, thigh, hamstring, notes) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13) RETURNING *`,
+      [trainerClientId, week_number, weight_kg, triceps, biceps, chest, subscapular, midaxillary, suprailiac, abdominal, thigh, hamstring, notes],
+    );
+    res.status(201).json(result.rows[0]);
+  }
+  catch (error) {
+    console.error("Create skin fold error:", error);
+    res.status(500).json({ error: "Failed to create skin fold" });
+  }
+};
+
+export const updateSkinFold = async (req: Request, res: Response) => {
+  try {
+    const { trainerClientId, id } = req.params;
+    const { week_number, weight_kg, triceps, biceps, chest, subscapular, midaxillary, suprailiac, abdominal, thigh, hamstring, notes } = req.body;
+    const result = await pool.query(
+      `UPDATE skin_folds SET week_number = $1, weight_kg = $2, triceps = $3, biceps = $4, chest = $5, 
+      subscapular = $6, midaxillary = $7, suprailiac = $8, abdominal = $9, thigh = $10, hamstring = $11, notes = $12, updated_at = NOW()
+      WHERE id = $13 AND trainer_client_id = $14 RETURNING *`,  
+      [week_number, weight_kg, triceps, biceps, chest, subscapular, midaxillary, suprailiac, abdominal, thigh, hamstring, notes, id, trainerClientId],
+    );  
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Skin fold not found or not authorized" });
+    }
+    res.status(200).json(result.rows[0]);
+  }
+  catch (error) {
+    console.error("Update skin fold error:", error);
+    res.status(500).json({ error: "Failed to update skin fold" });
   }
 };
