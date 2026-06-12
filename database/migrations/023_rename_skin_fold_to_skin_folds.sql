@@ -1,0 +1,1 @@
+ALTER TABLE skin_fold RENAME TO skin_folds;
