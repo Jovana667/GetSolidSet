@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import Navbar from "../components/Navbar";
-import { getClientMeals, linkClient } from "../services/api";
+import SkinFoldsTable, { SkinFoldEntry } from "../components/SkinFoldsTable";
+import { getClientMeals, linkClient, getSkinFolds } from "../services/api";
 
 function ClientDetailPage() {
   const { clientId } = useParams();
@@ -9,6 +10,10 @@ function ClientDetailPage() {
   const [linkClientModal, setLinkClientModal] = useState(false);
   const [linkEmail, setLinkEmail] = useState("");
   const [linkError, setLinkError] = useState<string | null>(null);
+  const [skinFolds, setSkinFolds] = useState<SkinFoldEntry[]>([]);
+  const [activeTab, setActiveTab] = useState<
+    "mealPlans" | "skinFolds" | "notes"
+  >("mealPlans");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [linkSuccess, setLinkSuccess] = useState(false);
@@ -41,6 +46,20 @@ function ClientDetailPage() {
     fetchClientMeals();
   }, [clientId]);
 
+  useEffect(() => {
+    if (activeTab !== "skinFolds") return;
+    const fetchSkinFolds = async () => {
+      try {
+        const data = await getSkinFolds(trainerClientId!);
+        setSkinFolds(data);
+        console.log("Fetched skin folds:", data);
+      } catch (error: any) {
+        console.error("Error fetching skin folds:", error);
+      }
+    };
+    fetchSkinFolds();
+  }, [clientId]);
+
   const handleLinkClient = async () => {
     try {
       await linkClient(trainerClientId!, linkEmail);
@@ -63,7 +82,7 @@ function ClientDetailPage() {
       <div className="flex-1 p-8">
         <div className="max-w-7xl mx-auto">
           {/* Header */}
-          <div className="flex justify-between items-center mb-8">
+          <div className="flex justify-between items-center mb-6">
             <h1 className="text-3xl font-bold">{clientName}</h1>
             <div className="flex items-center gap-3">
               <button
@@ -101,38 +120,104 @@ function ClientDetailPage() {
               </button>
             </div>
           </div>
+
           {linkSuccess && (
             <p className="text-green-600 text-sm mb-4">
-              Account linked successfully
+              ✓ Account linked successfully
             </p>
           )}
-          {/* Meal Plans */}
-          {loading ? (
-            <p>Loading meal plans...</p>
-          ) : error ? (
-            <p className="text-red-500">{error}</p>
-          ) : mealPlans.length === 0 ? (
-            <div className="text-center text-gray-500 py-8">
-              <p>No meal plans yet. Create one for this client!</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {mealPlans.map((plan: any) => (
-                <div key={plan.id} className="bg-white rounded-lg shadow p-6">
-                  <h2 className="text-xl font-semibold mb-2">{plan.name}</h2>
-                  <p className="text-gray-600 mb-4">
-                    Created: {new Date(plan.created_at).toLocaleDateString()}
-                  </p>
-                  <button
-                    onClick={() =>
-                      navigate(`/meal-plan/${plan.id}?clientId=${clientId}`)
-                    }
-                    className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-                  >
-                    View Details
-                  </button>
+
+          {/* Tabs */}
+          <div className="flex border-b border-gray-200 mb-6">
+            <button
+              onClick={() => setActiveTab("mealPlans")}
+              className={`px-4 py-2 text-sm font-medium border-b-2 -mb-px ${
+                activeTab === "mealPlans"
+                  ? "border-blue-600 text-blue-600"
+                  : "border-transparent text-gray-500 hover:text-gray-700"
+              }`}
+            >
+              Meal Plans
+            </button>
+            <button
+              onClick={() => setActiveTab("skinFolds")}
+              className={`px-4 py-2 text-sm font-medium border-b-2 -mb-px ${
+                activeTab === "skinFolds"
+                  ? "border-blue-600 text-blue-600"
+                  : "border-transparent text-gray-500 hover:text-gray-700"
+              }`}
+            >
+              Skin Folds
+            </button>
+            <button
+              onClick={() => setActiveTab("notes")}
+              className={`px-4 py-2 text-sm font-medium border-b-2 -mb-px ${
+                activeTab === "notes"
+                  ? "border-blue-600 text-blue-600"
+                  : "border-transparent text-gray-500 hover:text-gray-700"
+              }`}
+            >
+              Notes
+            </button>
+          </div>
+
+          {/* Meal Plans Tab */}
+          {activeTab === "mealPlans" && (
+            <>
+              {loading ? (
+                <p>Loading meal plans...</p>
+              ) : error ? (
+                <p className="text-red-500">{error}</p>
+              ) : mealPlans.length === 0 ? (
+                <div className="text-center text-gray-500 py-8">
+                  <p>No meal plans yet. Create one for this client!</p>
                 </div>
-              ))}
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {mealPlans.map((plan: any) => (
+                    <div
+                      key={plan.id}
+                      className="bg-white rounded-lg shadow p-6"
+                    >
+                      <h2 className="text-xl font-semibold mb-2">
+                        {plan.name}
+                      </h2>
+                      <p className="text-gray-600 mb-4">
+                        Created:{" "}
+                        {new Date(plan.created_at).toLocaleDateString()}
+                      </p>
+                      <button
+                        onClick={() =>
+                          navigate(`/meal-plan/${plan.id}?clientId=${clientId}`)
+                        }
+                        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                      >
+                        View Details
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </>
+          )}
+
+          {activeTab === "skinFolds" && (
+            <SkinFoldsTable
+              skinFolds={skinFolds}
+              trainerClientId={trainerClientId!}
+              onEntryCreated={() =>
+                getSkinFolds(trainerClientId!).then(setSkinFolds)
+              }
+              onEntryUpdated={() =>
+                getSkinFolds(trainerClientId!).then(setSkinFolds)
+              }
+            />
+          )}
+
+          {/* Notes Tab */}
+          {activeTab === "notes" && (
+            <div className="bg-white rounded-lg shadow p-6">
+              <p className="text-gray-500">Notes coming soon...</p>
             </div>
           )}
         </div>

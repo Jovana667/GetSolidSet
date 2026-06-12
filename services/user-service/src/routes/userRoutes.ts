@@ -6,6 +6,9 @@ import {
   getClients,
   removeClient,
   linkClient,
+  getSkinFolds,
+  createSkinFold,
+  updateSkinFold,
   getProfile,
   updateProfile,
   deleteProfile,
@@ -28,5 +31,10 @@ router.post("/clients", verifyToken, addClient);
 router.get("/clients", verifyToken, getClients);
 router.delete("/clients/:trainerClientId", verifyToken, removeClient);
 router.put("/clients/:trainerClientId/link", verifyToken, linkClient);
+
+// skin fold managment
+router.get("/clients/:trainerClientId/skin-folds", verifyToken, getSkinFolds);
+router.post("/clients/:trainerClientId/skin-folds", verifyToken, createSkinFold);
+router.put("/clients/:trainerClientId/skin-folds/:id", verifyToken, updateSkinFold);
 
 export default router;
