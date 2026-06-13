@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { createSkinFold, updateSkinFold } from "../services/api";
 
 export interface SkinFoldEntry {
@@ -31,28 +31,29 @@ interface EditableCellProps {
   week: number;
   column: string;
   editingCell: { week: number; column: string } | null;
-  editValue: string;
   setEditingCell: (cell: { week: number; column: string } | null) => void;
-  setEditValue: (value: string) => void;
   onSave: (week: number, column: string, value: string) => void;
 }
 
-// ── Small reusable component — defined OUTSIDE SkinFoldsTable ──
 function EditableCell({
-  value, week, column, editingCell, editValue,
-  setEditingCell, setEditValue, onSave
+  value, week, column, editingCell, setEditingCell, onSave
 }: EditableCellProps) {
+  const [editValue, setEditValue] = useState(value?.toString() ?? "");
+  const savedRef = useRef(false);
   const isEditing = editingCell?.week === week && editingCell?.column === column;
+
+  useEffect(() => {
+    if (isEditing) {
+      setEditValue(value?.toString() ?? "");
+    }
+  }, [isEditing, value]);
 
   return (
     <td
       className={`border-b border-x cursor-pointer p-0 ${
         isEditing ? "outline outline-2 outline-gray-400" : "hover:bg-gray-50"
       }`}
-      onClick={() => {
-        setEditingCell({ week, column });
-        setEditValue(value?.toString() ?? "");
-      }}
+      onClick={() => setEditingCell({ week, column })}
     >
       {isEditing ? (
         <input
@@ -61,8 +62,18 @@ function EditableCell({
           inputMode="decimal"
           value={editValue}
           onChange={(e) => setEditValue(e.target.value)}
-          onBlur={() => onSave(week, column, editValue)}
-          onKeyDown={(e) => { if (e.key === "Enter") onSave(week, column, editValue); }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              savedRef.current = true;
+              onSave(week, column, editValue);
+            }
+          }}
+          onBlur={() => {
+            if (!savedRef.current) {
+              onSave(week, column, editValue);
+            }
+            savedRef.current = false;
+          }}
           className="w-full text-center outline-none bg-transparent py-2 px-4"
         />
       ) : (
@@ -72,7 +83,6 @@ function EditableCell({
   );
 }
 
-// ── Main table component ──
 export default function SkinFoldsTable({
   skinFolds,
   trainerClientId,
@@ -80,18 +90,77 @@ export default function SkinFoldsTable({
   onEntryUpdated,
 }: SkinFoldsTableProps) {
   const [editingCell, setEditingCell] = useState<{ week: number; column: string } | null>(null);
-  const [editValue, setEditValue] = useState<string>("");
+  
+  // 1. Maintain local state to avoid "disappearing numbers" during async operations
+  const [localSkinFolds, setLocalSkinFolds] = useState<SkinFoldEntry[]>(skinFolds);
+
+  // Sync local state whenever the parent component refetches data
+  useEffect(() => {
+    setLocalSkinFolds(skinFolds);
+  }, [skinFolds]);
 
   const rows = Array.from({ length: 50 }, (_, i) => {
     const weekNumber = i + 1;
-    const existing = skinFolds.find((f) => f.week_number === weekNumber);
-    return existing || { week_number: weekNumber, id: null, weight_kg: null, triceps: null, biceps: null, chest: null, subscapular: null, midaxillary: null, suprailiac: null, abdominal: null, thigh: null, hamstring: null, notes: null };
+    const existing = localSkinFolds.find((f) => f.week_number === weekNumber);
+    return existing || {
+      week_number: weekNumber,
+      id: null,
+      weight_kg: null,
+      triceps: null,
+      biceps: null,
+      chest: null,
+      subscapular: null,
+      midaxillary: null,
+      suprailiac: null,
+      abdominal: null,
+      thigh: null,
+      hamstring: null,
+      notes: null,
+    };
   });
 
   const handleSave = async (week: number, column: string, value: string) => {
     const numValue = value === "" ? null : parseFloat(value);
-    const existing = skinFolds.find(f => f.week_number === week);
-    
+    const existing = localSkinFolds.find((f) => f.week_number === week);
+
+    if (numValue === null && !existing?.id) {
+      setEditingCell(prev => (prev?.week === week && prev?.column === column ? null : prev));
+      return;
+    }
+
+    // 2. Optimistically update local state immediately
+    setLocalSkinFolds((prevFolds) => {
+      const exists = prevFolds.some((f) => f.week_number === week);
+      if (exists) {
+        return prevFolds.map((f) =>
+          f.week_number === week ? { ...f, [column]: numValue } : f
+        );
+      } else {
+        return [
+          ...prevFolds,
+          {
+            week_number: week,
+            id: null,
+            weight_kg: null,
+            triceps: null,
+            biceps: null,
+            chest: null,
+            subscapular: null,
+            midaxillary: null,
+            suprailiac: null,
+            abdominal: null,
+            thigh: null,
+            hamstring: null,
+            notes: null,
+            [column]: numValue,
+          } as SkinFoldEntry,
+        ];
+      }
+    });
+
+    // 3. Intelligently clear the active editing view only if the user hasn't clicked somewhere else
+    setEditingCell(prev => (prev?.week === week && prev?.column === column ? null : prev));
+
     try {
       if (existing?.id) {
         await updateSkinFold(trainerClientId, existing.id, { [column]: numValue });
@@ -102,8 +171,9 @@ export default function SkinFoldsTable({
       }
     } catch (error) {
       console.error("Failed to save:", error);
+      // Fallback: revert back to the verified parent state if api fails
+      setLocalSkinFolds(skinFolds);
     }
-    setEditingCell(null);
   };
 
   return (
@@ -128,25 +198,34 @@ export default function SkinFoldsTable({
         </thead>
         <tbody>
           {rows.map((entry: any) => {
-            const measurements = [entry.triceps, entry.biceps, entry.chest, entry.subscapular, entry.midaxillary, entry.suprailiac, entry.abdominal, entry.thigh, entry.hamstring];
+            const measurements = [
+              entry.triceps, entry.biceps, entry.chest,
+              entry.subscapular, entry.midaxillary, entry.suprailiac,
+              entry.abdominal, entry.thigh, entry.hamstring,
+            ];
+            const hasMeasurements = measurements.some(v => v !== null);
+            
             return (
               <tr key={entry.week_number} className="text-center">
                 <td className="py-2 px-4 border-b border-x text-gray-500">{entry.week_number}</td>
-                <EditableCell value={entry.weight_kg} week={entry.week_number} column="weight_kg" editingCell={editingCell} editValue={editValue} setEditingCell={setEditingCell} setEditValue={setEditValue} onSave={handleSave} />
-                <EditableCell value={entry.triceps} week={entry.week_number} column="triceps" editingCell={editingCell} editValue={editValue} setEditingCell={setEditingCell} setEditValue={setEditValue} onSave={handleSave} />
-                <EditableCell value={entry.biceps} week={entry.week_number} column="biceps" editingCell={editingCell} editValue={editValue} setEditingCell={setEditingCell} setEditValue={setEditValue} onSave={handleSave} />
-                <EditableCell value={entry.chest} week={entry.week_number} column="chest" editingCell={editingCell} editValue={editValue} setEditingCell={setEditingCell} setEditValue={setEditValue} onSave={handleSave} />
-                <EditableCell value={entry.subscapular} week={entry.week_number} column="subscapular" editingCell={editingCell} editValue={editValue} setEditingCell={setEditingCell} setEditValue={setEditValue} onSave={handleSave} />
-                <EditableCell value={entry.midaxillary} week={entry.week_number} column="midaxillary" editingCell={editingCell} editValue={editValue} setEditingCell={setEditingCell} setEditValue={setEditValue} onSave={handleSave} />
-                <EditableCell value={entry.suprailiac} week={entry.week_number} column="suprailiac" editingCell={editingCell} editValue={editValue} setEditingCell={setEditingCell} setEditValue={setEditValue} onSave={handleSave} />
-                <EditableCell value={entry.abdominal} week={entry.week_number} column="abdominal" editingCell={editingCell} editValue={editValue} setEditingCell={setEditingCell} setEditValue={setEditValue} onSave={handleSave} />
-                <EditableCell value={entry.thigh} week={entry.week_number} column="thigh" editingCell={editingCell} editValue={editValue} setEditingCell={setEditingCell} setEditValue={setEditValue} onSave={handleSave} />
-                <EditableCell value={entry.hamstring} week={entry.week_number} column="hamstring" editingCell={editingCell} editValue={editValue} setEditingCell={setEditingCell} setEditValue={setEditValue} onSave={handleSave} />
+                <EditableCell value={entry.weight_kg} week={entry.week_number} column="weight_kg" editingCell={editingCell} setEditingCell={setEditingCell} onSave={handleSave} />
+                <EditableCell value={entry.triceps} week={entry.week_number} column="triceps" editingCell={editingCell} setEditingCell={setEditingCell} onSave={handleSave} />
+                <EditableCell value={entry.biceps} week={entry.week_number} column="biceps" editingCell={editingCell} setEditingCell={setEditingCell} onSave={handleSave} />
+                <EditableCell value={entry.chest} week={entry.week_number} column="chest" editingCell={editingCell} setEditingCell={setEditingCell} onSave={handleSave} />
+                <EditableCell value={entry.subscapular} week={entry.week_number} column="subscapular" editingCell={editingCell} setEditingCell={setEditingCell} onSave={handleSave} />
+                <EditableCell value={entry.midaxillary} week={entry.week_number} column="midaxillary" editingCell={editingCell} setEditingCell={setEditingCell} onSave={handleSave} />
+                <EditableCell value={entry.suprailiac} week={entry.week_number} column="suprailiac" editingCell={editingCell} setEditingCell={setEditingCell} onSave={handleSave} />
+                <EditableCell value={entry.abdominal} week={entry.week_number} column="abdominal" editingCell={editingCell} setEditingCell={setEditingCell} onSave={handleSave} />
+                <EditableCell value={entry.thigh} week={entry.week_number} column="thigh" editingCell={editingCell} setEditingCell={setEditingCell} onSave={handleSave} />
+                <EditableCell value={entry.hamstring} week={entry.week_number} column="hamstring" editingCell={editingCell} setEditingCell={setEditingCell} onSave={handleSave} />
                 <td className="py-2 px-4 border-b border-x text-gray-400 text-sm">
                   {entry.created_at ? new Date(entry.created_at).toLocaleDateString() : ""}
                 </td>
                 <td className="py-2 px-4 border-b border-x font-medium">
-                  {entry.id ? measurements.filter(v => v !== null).reduce((sum, v) => sum + v!, 0).toFixed(1) : ""}
+                  {/* 4. Display totals instantly based on presence of data, not just row IDs */}
+                  {hasMeasurements
+                    ? measurements.filter(v => v !== null).reduce((sum, v) => sum + v!, 0).toFixed(1)
+                    : ""}
                 </td>
               </tr>
             );

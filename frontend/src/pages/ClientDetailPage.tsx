@@ -46,19 +46,22 @@ function ClientDetailPage() {
     fetchClientMeals();
   }, [clientId]);
 
-  useEffect(() => {
-    if (activeTab !== "skinFolds") return;
-    const fetchSkinFolds = async () => {
-      try {
-        const data = await getSkinFolds(trainerClientId!);
-        setSkinFolds(data);
-        console.log("Fetched skin folds:", data);
-      } catch (error: any) {
-        console.error("Error fetching skin folds:", error);
-      }
-    };
-    fetchSkinFolds();
-  }, [clientId]);
+// Find this block in ClientDetailPage and update the dependency array:
+useEffect(() => {
+  if (activeTab !== "skinFolds" || !trainerClientId) return;
+  
+  const fetchSkinFolds = async () => {
+    try {
+      const data = await getSkinFolds(trainerClientId);
+      setSkinFolds(data);
+      console.log("Fetched skin folds:", data);
+    } catch (error: any) {
+      console.error("Error fetching skin folds:", error);
+    }
+  };
+  
+  fetchSkinFolds();
+}, [activeTab, trainerClientId]); 
 
   const handleLinkClient = async () => {
     try {
@@ -74,6 +77,11 @@ function ClientDetailPage() {
           "Failed to link client. Please check the email and try again.",
       );
     }
+  };
+
+  const refreshSkinFolds = async () => {
+    const data = await getSkinFolds(trainerClientId!);
+    setSkinFolds(data);
   };
 
   return (
@@ -205,12 +213,8 @@ function ClientDetailPage() {
             <SkinFoldsTable
               skinFolds={skinFolds}
               trainerClientId={trainerClientId!}
-              onEntryCreated={() =>
-                getSkinFolds(trainerClientId!).then(setSkinFolds)
-              }
-              onEntryUpdated={() =>
-                getSkinFolds(trainerClientId!).then(setSkinFolds)
-              }
+              onEntryCreated={refreshSkinFolds}
+              onEntryUpdated={refreshSkinFolds}
             />
           )}
 

@@ -135,17 +135,17 @@ export const linkClient = async (trainerClientId: string, email: string) => {
 
 // skin fold managemnent 
 export const getSkinFolds = async (trainerClientId: string) => {
-  const response = await userApi.get(`/users/clients/${trainerClientId}/skinfolds`);
+  const response = await userApi.get(`/users/clients/${trainerClientId}/skin-folds`);
   return response.data;
 }
 
 export const createSkinFold = async (trainerClientId: string, skinFoldData: any) => {
-  const response = await userApi.post(`/users/clients/${trainerClientId}/skinfolds`, skinFoldData);
+  const response = await userApi.post(`/users/clients/${trainerClientId}/skin-folds`, skinFoldData);
   return response.data;
-}
+};
 
 export const updateSkinFold = async (trainerClientId: string, skinFoldId: number, skinFoldData: any) => {
-  const response = await userApi.put(`/users/clients/${trainerClientId}/skinfolds/${skinFoldId}`, skinFoldData);
+  const response = await userApi.put(`/users/clients/${trainerClientId}/skin-folds/${skinFoldId}`, skinFoldData);
   return response.data;
 }
 
