@@ -95,9 +95,11 @@ export default function SkinFoldsTable({
   const [localSkinFolds, setLocalSkinFolds] =
     useState<SkinFoldEntry[]>(skinFolds);
 
-  useEffect(() => {
+useEffect(() => {
+  if (skinFolds.length !== localSkinFolds.length) {
     setLocalSkinFolds(skinFolds);
-  }, [skinFolds]);
+  }
+}, [skinFolds]);
 
   const rows = Array.from({ length: 50 }, (_, i) => {
     const weekNumber = i + 1;
