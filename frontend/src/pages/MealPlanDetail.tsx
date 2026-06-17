@@ -8,6 +8,7 @@ import MealSlot from "../components/MealSlot";
 import Navbar from "../components/Navbar";
 import { useAuth } from "../context/AuthContext";
 import { generateShareLink } from "../services/shareApi";
+import Footer from "../components/Footer";
 
 function MealPlanDetail() {
   const { id } = useParams();
@@ -121,11 +122,14 @@ function MealPlanDetail() {
       await axios.delete(`http://localhost:3003/api/meals/plans/${id}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
-if (role === "trainer" && clientId) {
-navigate(`/clients/${clientId}?trainerClientId=${mealPlan.trainer_client_id}`, { replace: true });
-} else {
-  navigate("/meals", { replace: true });
-}
+      if (role === "trainer" && clientId) {
+        navigate(
+          `/clients/${clientId}?trainerClientId=${mealPlan.trainer_client_id}`,
+          { replace: true },
+        );
+      } else {
+        navigate("/meals", { replace: true });
+      }
     } catch (error) {
       console.error("Delete failed:", error.message);
       alert("Failed to delete meal plan");
@@ -197,217 +201,220 @@ navigate(`/clients/${clientId}?trainerClientId=${mealPlan.trainer_client_id}`, {
   if (error) return <div className="p-8 text-red-600">{error}</div>;
   if (!mealPlan) return <div className="p-8">Meal plan not found</div>;
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
-      <div className="max-w-7xl mx-auto">
-        <Navbar />
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+      <div className="flex-1 pt-8 px-8">
+        <div className="max-w-7xl mx-auto">
+          <Navbar />
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left side - Meal Planner (2/3 width) */}
-          <div className="lg:col-span-2 order-2 lg:order-1 bg-white rounded-lg shadow p-6">
-            {/* Header row — title + actions */}
-            <div className="flex justify-between items-center mb-2">
-              {isEditing ? (
-                <input
-                  className="text-3xl font-bold text-gray-900"
-                  type="text"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ name: e.target.value })}
-                />
-              ) : (
-                <h1 className="text-3xl font-bold text-gray-900">
-                  {mealPlan.name}
-                </h1>
-              )}
-
-              {/* Actions — top right */}
-              <div className="flex items-center space-x-2">
-                {isEditing && (
-                  <>
-                    <button
-                      className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
-                      onClick={handleSubmit}
-                      disabled={loading}
-                    >
-                      {loading ? "Saving..." : "Save Meal"}
-                    </button>
-                    <button
-                      className="bg-gray-200 text-gray-700 px-4 py-2 rounded hover:bg-gray-300 text-sm"
-                      onClick={() => {
-                        setIsEditing(false);
-                        setFormData({ name: mealPlan.name });
-                      }}
-                    >
-                      Cancel
-                    </button>
-                  </>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Left side - Meal Planner (2/3 width) */}
+            <div className="lg:col-span-2 order-2 lg:order-1 bg-white rounded-lg shadow p-6">
+              {/* Header row — title + actions */}
+              <div className="flex justify-between items-center mb-2">
+                {isEditing ? (
+                  <input
+                    className="text-3xl font-bold text-gray-900"
+                    type="text"
+                    value={formData.name}
+                    onChange={(e) => setFormData({ name: e.target.value })}
+                  />
+                ) : (
+                  <h1 className="text-3xl font-bold text-gray-900">
+                    {mealPlan.name}
+                  </h1>
                 )}
-                <div className="relative">
-                  <button
-                    onClick={() => setDropdownMenu(!dropdownMenu)}
-                    className="p-2 rounded hover:bg-gray-100 text-gray-500"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <circle cx="12" cy="12" r="1" />
-                      <circle cx="19" cy="12" r="1" />
-                      <circle cx="5" cy="12" r="1" />
-                    </svg>
-                  </button>
 
-                  {dropdownMenu && (
-                    <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
+                {/* Actions — top right */}
+                <div className="flex items-center space-x-2">
+                  {isEditing && (
+                    <>
                       <button
+                        className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+                        onClick={handleSubmit}
+                        disabled={loading}
+                      >
+                        {loading ? "Saving..." : "Save Meal"}
+                      </button>
+                      <button
+                        className="bg-gray-200 text-gray-700 px-4 py-2 rounded hover:bg-gray-300 text-sm"
                         onClick={() => {
-                          setIsEditing(true);
+                          setIsEditing(false);
                           setFormData({ name: mealPlan.name });
-                          setDropdownMenu(false);
                         }}
-                        className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
                       >
-                        Edit
+                        Cancel
                       </button>
-                      <button
-                        onClick={() => {
-                          deleteItem();
-                          setDropdownMenu(false);
-                        }}
-                        className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-50"
-                      >
-                        Delete
-                      </button>
-                      <button
-                        onClick={async () => {
-                          try {
-                            const token = await generateShareLink(Number(id));
-                            const url = `${window.location.origin}/share/${token}`;
-                            await navigator.clipboard.writeText(url);
-                            alert("Share link copied to clipboard!");
-                          } catch {
-                            alert(
-                              "Failed to generate share link. Please try again.",
-                            );
-                          }
-                          setDropdownMenu(false);
-                        }}
-                        className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
-                      >
-                        Share Link
-                      </button>
-                      <button
-                        onClick={async () => {
-                          try {
-                            const token = await generateShareLink(Number(id));
-                            const url = `${window.location.origin}/share/${token}?print=true`;
-                            window.open(url, "_blank");
-                          } catch {
-                            alert(
-                              "Failed to generate share link. Please try again.",
-                            );
-                          }
-                          setDropdownMenu(false);
-                        }}
-                        className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
-                      >
-                        Download PDF
-                      </button>
-                    </div>
+                    </>
                   )}
+                  <div className="relative">
+                    <button
+                      onClick={() => setDropdownMenu(!dropdownMenu)}
+                      className="p-2 rounded hover:bg-gray-100 text-gray-500"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <circle cx="12" cy="12" r="1" />
+                        <circle cx="19" cy="12" r="1" />
+                        <circle cx="5" cy="12" r="1" />
+                      </svg>
+                    </button>
+
+                    {dropdownMenu && (
+                      <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
+                        <button
+                          onClick={() => {
+                            setIsEditing(true);
+                            setFormData({ name: mealPlan.name });
+                            setDropdownMenu(false);
+                          }}
+                          className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => {
+                            deleteItem();
+                            setDropdownMenu(false);
+                          }}
+                          className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-50"
+                        >
+                          Delete
+                        </button>
+                        <button
+                          onClick={async () => {
+                            try {
+                              const token = await generateShareLink(Number(id));
+                              const url = `${window.location.origin}/share/${token}`;
+                              await navigator.clipboard.writeText(url);
+                              alert("Share link copied to clipboard!");
+                            } catch {
+                              alert(
+                                "Failed to generate share link. Please try again.",
+                              );
+                            }
+                            setDropdownMenu(false);
+                          }}
+                          className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                        >
+                          Share Link
+                        </button>
+                        <button
+                          onClick={async () => {
+                            try {
+                              const token = await generateShareLink(Number(id));
+                              const url = `${window.location.origin}/share/${token}?print=true`;
+                              window.open(url, "_blank");
+                            } catch {
+                              alert(
+                                "Failed to generate share link. Please try again.",
+                              );
+                            }
+                            setDropdownMenu(false);
+                          }}
+                          className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                        >
+                          Download PDF
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </div>
+              </div>
+
+              <p className="text-gray-600 mb-4">
+                Created: {new Date(mealPlan.created_at).toLocaleDateString()}
+              </p>
+
+              {/* Breakfast */}
+              <MealSlot
+                mealType="breakfast"
+                foods={mealPlan.meals.breakfast.foods}
+                isEditing={isEditing}
+                activeMealSlot={activeMealSlot}
+                setActiveMealSlot={setActiveMealSlot}
+                selectedMealFoodId={selectedMealFoodId}
+                setSelectedMealFoodId={setSelectedMealFoodId}
+                servingInput={servingInput}
+                setServingInput={setServingInput}
+                handleUpdateServing={handleUpdateServing}
+                setFoodToDelete={setFoodToDelete}
+                setIsDeleteFoodModalOpen={setIsDeleteFoodModalOpen}
+              />
+
+              {/* Lunch */}
+              <MealSlot
+                mealType="lunch"
+                foods={mealPlan.meals.lunch.foods}
+                isEditing={isEditing}
+                activeMealSlot={activeMealSlot}
+                setActiveMealSlot={setActiveMealSlot}
+                selectedMealFoodId={selectedMealFoodId}
+                setSelectedMealFoodId={setSelectedMealFoodId}
+                servingInput={servingInput}
+                setServingInput={setServingInput}
+                handleUpdateServing={handleUpdateServing}
+                setFoodToDelete={setFoodToDelete}
+                setIsDeleteFoodModalOpen={setIsDeleteFoodModalOpen}
+              />
+
+              {/* Dinner */}
+              <MealSlot
+                mealType="dinner"
+                foods={mealPlan.meals.dinner.foods}
+                isEditing={isEditing}
+                activeMealSlot={activeMealSlot}
+                setActiveMealSlot={setActiveMealSlot}
+                selectedMealFoodId={selectedMealFoodId}
+                setSelectedMealFoodId={setSelectedMealFoodId}
+                servingInput={servingInput}
+                setServingInput={setServingInput}
+                handleUpdateServing={handleUpdateServing}
+                setFoodToDelete={setFoodToDelete}
+                setIsDeleteFoodModalOpen={setIsDeleteFoodModalOpen}
+              />
+
+              {/* Snack */}
+              <MealSlot
+                mealType="snack"
+                foods={mealPlan.meals.snack.foods}
+                isEditing={isEditing}
+                activeMealSlot={activeMealSlot}
+                setActiveMealSlot={setActiveMealSlot}
+                selectedMealFoodId={selectedMealFoodId}
+                setSelectedMealFoodId={setSelectedMealFoodId}
+                servingInput={servingInput}
+                setServingInput={setServingInput}
+                handleUpdateServing={handleUpdateServing}
+                setFoodToDelete={setFoodToDelete}
+                setIsDeleteFoodModalOpen={setIsDeleteFoodModalOpen}
+              />
+
+              {/* Grand Total */}
+              <div className="mt-6 pt-6">
+                <h3 className="font-semibold text-lg">
+                  Calories: {calculateGrandTotal("calories").toFixed(1)} cal,
+                  Protein: {calculateGrandTotal("protein").toFixed(1)}g, Carbs:{" "}
+                  {calculateGrandTotal("carbs").toFixed(1)}g, Fats:{" "}
+                  {calculateGrandTotal("fat").toFixed(1)}g
+                </h3>
               </div>
             </div>
 
-            <p className="text-gray-600 mb-4">
-              Created: {new Date(mealPlan.created_at).toLocaleDateString()}
-            </p>
-
-            {/* Breakfast */}
-            <MealSlot
-              mealType="breakfast"
-              foods={mealPlan.meals.breakfast.foods}
-              isEditing={isEditing}
-              activeMealSlot={activeMealSlot}
-              setActiveMealSlot={setActiveMealSlot}
-              selectedMealFoodId={selectedMealFoodId}
-              setSelectedMealFoodId={setSelectedMealFoodId}
-              servingInput={servingInput}
-              setServingInput={setServingInput}
-              handleUpdateServing={handleUpdateServing}
-              setFoodToDelete={setFoodToDelete}
-              setIsDeleteFoodModalOpen={setIsDeleteFoodModalOpen}
-            />
-
-            {/* Lunch */}
-            <MealSlot
-              mealType="lunch"
-              foods={mealPlan.meals.lunch.foods}
-              isEditing={isEditing}
-              activeMealSlot={activeMealSlot}
-              setActiveMealSlot={setActiveMealSlot}
-              selectedMealFoodId={selectedMealFoodId}
-              setSelectedMealFoodId={setSelectedMealFoodId}
-              servingInput={servingInput}
-              setServingInput={setServingInput}
-              handleUpdateServing={handleUpdateServing}
-              setFoodToDelete={setFoodToDelete}
-              setIsDeleteFoodModalOpen={setIsDeleteFoodModalOpen}
-            />
-
-            {/* Dinner */}
-            <MealSlot
-              mealType="dinner"
-              foods={mealPlan.meals.dinner.foods}
-              isEditing={isEditing}
-              activeMealSlot={activeMealSlot}
-              setActiveMealSlot={setActiveMealSlot}
-              selectedMealFoodId={selectedMealFoodId}
-              setSelectedMealFoodId={setSelectedMealFoodId}
-              servingInput={servingInput}
-              setServingInput={setServingInput}
-              handleUpdateServing={handleUpdateServing}
-              setFoodToDelete={setFoodToDelete}
-              setIsDeleteFoodModalOpen={setIsDeleteFoodModalOpen}
-            />
-
-            {/* Snack */}
-            <MealSlot
-              mealType="snack"
-              foods={mealPlan.meals.snack.foods}
-              isEditing={isEditing}
-              activeMealSlot={activeMealSlot}
-              setActiveMealSlot={setActiveMealSlot}
-              selectedMealFoodId={selectedMealFoodId}
-              setSelectedMealFoodId={setSelectedMealFoodId}
-              servingInput={servingInput}
-              setServingInput={setServingInput}
-              handleUpdateServing={handleUpdateServing}
-              setFoodToDelete={setFoodToDelete}
-              setIsDeleteFoodModalOpen={setIsDeleteFoodModalOpen}
-            />
-
-            {/* Grand Total */}
-            <div className="mt-6 pt-6">
-              <h3 className="font-semibold text-lg">
-                Calories: {calculateGrandTotal("calories").toFixed(1)} cal,
-                Protein: {calculateGrandTotal("protein").toFixed(1)}g, Carbs:{" "}
-                {calculateGrandTotal("carbs").toFixed(1)}g, Fats:{" "}
-                {calculateGrandTotal("fat").toFixed(1)}g
-              </h3>
-            </div>
+            {/* Right side - 1/3 width */}
+            <FoodPanel onFoodClick={addFoodToMeal} />
           </div>
-
-          {/* Right side - 1/3 width */}
-          <FoodPanel onFoodClick={addFoodToMeal} />
         </div>
       </div>
+      <Footer />
 
       {isDeleteFoodModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">

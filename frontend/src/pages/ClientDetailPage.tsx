@@ -3,6 +3,7 @@ import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import SkinFoldsTable, { SkinFoldEntry } from "../components/SkinFoldsTable";
 import { getClientMeals, linkClient, getSkinFolds } from "../services/api";
+import Footer from "../components/Footer";
 
 function ClientDetailPage() {
   const { clientId } = useParams();
@@ -46,22 +47,22 @@ function ClientDetailPage() {
     fetchClientMeals();
   }, [clientId]);
 
-// Find this block in ClientDetailPage and update the dependency array:
-useEffect(() => {
-  if (activeTab !== "skinFolds" || !trainerClientId) return;
-  
-  const fetchSkinFolds = async () => {
-    try {
-      const data = await getSkinFolds(trainerClientId);
-      setSkinFolds(data);
-      console.log("Fetched skin folds:", data);
-    } catch (error: any) {
-      console.error("Error fetching skin folds:", error);
-    }
-  };
-  
-  fetchSkinFolds();
-}, [activeTab, trainerClientId]); 
+  // Find this block in ClientDetailPage and update the dependency array:
+  useEffect(() => {
+    if (activeTab !== "skinFolds" || !trainerClientId) return;
+
+    const fetchSkinFolds = async () => {
+      try {
+        const data = await getSkinFolds(trainerClientId);
+        setSkinFolds(data);
+        console.log("Fetched skin folds:", data);
+      } catch (error: any) {
+        console.error("Error fetching skin folds:", error);
+      }
+    };
+
+    fetchSkinFolds();
+  }, [activeTab, trainerClientId]);
 
   const handleLinkClient = async () => {
     try {
@@ -267,6 +268,7 @@ useEffect(() => {
           </div>
         </div>
       )}
+      <Footer />
     </div>
   );
 }

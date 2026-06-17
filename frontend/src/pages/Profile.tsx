@@ -7,6 +7,7 @@ import {
   deleteUserProfile,
 } from "../services/api";
 import { useNavigate } from "react-router-dom";
+import Footer from "../components/Footer";
 
 function Profile() {
   const { role, setIsLoggedIn, setRole } = useAuth();
@@ -93,106 +94,107 @@ function Profile() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
-      <div className="max-w-4xl mx-auto">
-        <Navbar />
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+      <div className="flex-1 p-8">
+        <div className="max-w-7xl mx-auto">
+          <Navbar />
 
-        {/* Account Details */}
-        <div className="bg-white rounded-lg shadow p-6 mb-6">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-semibold">Account Details</h2>
-            {!isEditing && (
-              <button
-                onClick={() => setIsEditing(true)}
-                className="text-blue-600 hover:text-blue-800 text-sm font-medium"
-              >
-                Edit
-              </button>
-            )}
-          </div>
-
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Name
-              </label>
-              {isEditing ? (
-                <input
-                  name="name"
-                  value={formData.name}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Your name"
-                />
-              ) : (
-                <p className="px-3 py-2 bg-gray-50 border border-gray-200 rounded text-gray-800">
-                  {profile?.name || "—"}
-                </p>
+          {/* Account Details */}
+          <div className="bg-white rounded-lg shadow p-6 mb-6">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-semibold">Account Details</h2>
+              {!isEditing && (
+                <button
+                  onClick={() => setIsEditing(true)}
+                  className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                >
+                  Edit
+                </button>
               )}
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Email
-              </label>
-              {isEditing ? (
-                <input
-                  name="email"
-                  type="email"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              ) : (
-                <p className="px-3 py-2 bg-gray-50 border border-gray-200 rounded text-gray-800">
-                  {profile?.email || "—"}
-                </p>
-              )}
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Role
-              </label>
-              <p className="px-3 py-2 bg-gray-50 border border-gray-200 rounded text-gray-800 capitalize">
-                {role || "—"}
-              </p>
-            </div>
-
-            {isEditing && (
-              <div className="flex justify-end gap-3 pt-2">
-                <button
-                  onClick={() => {
-                    setIsEditing(false);
-                    setFormData({
-                      name: profile?.name || "",
-                      email: profile?.email || "",
-                    });
-                  }}
-                  className="px-4 py-2 text-gray-600 hover:text-gray-800 text-sm"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleSubmit}
-                  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm"
-                >
-                  Save Changes
-                </button>
-              </div>
-            )}
-
-            {!isEditing && (
+            <div className="space-y-4">
               <div>
-                <button className="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                  Reset Password
-                </button>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Name
+                </label>
+                {isEditing ? (
+                  <input
+                    name="name"
+                    value={formData.name}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Your name"
+                  />
+                ) : (
+                  <p className="px-3 py-2 bg-gray-50 border border-gray-200 rounded text-gray-800">
+                    {profile?.name || "—"}
+                  </p>
+                )}
               </div>
-            )}
-          </div>
-        </div>
 
-        {/* Nutrition Goals */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Email
+                </label>
+                {isEditing ? (
+                  <input
+                    name="email"
+                    type="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                ) : (
+                  <p className="px-3 py-2 bg-gray-50 border border-gray-200 rounded text-gray-800">
+                    {profile?.email || "—"}
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Role
+                </label>
+                <p className="px-3 py-2 bg-gray-50 border border-gray-200 rounded text-gray-800 capitalize">
+                  {role || "—"}
+                </p>
+              </div>
+
+              {isEditing && (
+                <div className="flex justify-end gap-3 pt-2">
+                  <button
+                    onClick={() => {
+                      setIsEditing(false);
+                      setFormData({
+                        name: profile?.name || "",
+                        email: profile?.email || "",
+                      });
+                    }}
+                    className="px-4 py-2 text-gray-600 hover:text-gray-800 text-sm"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleSubmit}
+                    className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm"
+                  >
+                    Save Changes
+                  </button>
+                </div>
+              )}
+
+              {!isEditing && (
+                <div>
+                  <button className="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                    Reset Password
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Nutrition Goals
         <div className="bg-white rounded-lg shadow p-6">
           <h2 className="text-2xl font-semibold mb-6">Nutrition Goals</h2>
           <form className="space-y-4">
@@ -275,20 +277,21 @@ function Profile() {
               Save Goals
             </button>
           </form>
-        </div>
-        {/* Danger Zone */}
-        <div className="bg-white rounded-lg shadow p-6 mt-6 border border-red-100">
-          <div className="flex justify-between items-start">
-            <p className="text-sm text-gray-500 max-w-lg">
-              Once you delete your account, all your personal meal plans will be
-              permanently removed. This action cannot be undone.
-            </p>
-            <button
-              onClick={() => setDeleteModalOpen(true)}
-              className="text-red-600 hover:text-red-800 text-sm font-medium underline shrink-0 ml-4"
-            >
-              Delete Account
-            </button>
+        </div> */}
+          {/* Danger Zone */}
+          <div className="bg-white rounded-lg shadow p-6 mt-6 border border-red-100">
+            <div className="flex justify-between items-start">
+              <p className="text-sm text-gray-500 max-w-lg">
+                Once you delete your account, all your personal meal plans will
+                be permanently removed. This action cannot be undone.
+              </p>
+              <button
+                onClick={() => setDeleteModalOpen(true)}
+                className="text-red-600 hover:text-red-800 text-sm font-medium underline shrink-0 ml-4"
+              >
+                Delete Account
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -297,7 +300,8 @@ function Profile() {
           <div className="bg-white rounded-lg p-6 max-w-sm w-full mx-4">
             <h3 className="text-lg font-semibold mb-2">Delete Account</h3>
             <p className="text-gray-600 mb-6">
-              Are you sure you want to delete your account? This action cannot be undone. Your meal plans will be permanently deleted.
+              Are you sure you want to delete your account? This action cannot
+              be undone. Your meal plans will be permanently deleted.
             </p>
             <div className="flex justify-end gap-3">
               <button
@@ -316,6 +320,7 @@ function Profile() {
           </div>
         </div>
       )}
+      <Footer />
     </div>
   );
 }

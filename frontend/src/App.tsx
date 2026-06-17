@@ -13,6 +13,8 @@ import SharedMealPlan from "./pages/SharedMealPlan";
 import { AuthUtils } from "./utils/auth";
 import { AuthProvider } from "./context/AuthContext";
 import ResetPassword from "./pages/ResetPassword";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import TermsOfService from "./pages/TermsOfService";
 
 function App() {
   useEffect(() => {
@@ -61,6 +63,8 @@ function App() {
           />
           <Route path="/meal-plan/:id" element={<MealPlanDetail />} />
           <Route path="/share/:token" element={<SharedMealPlan />} />
+          <Route path="/privacy" element={<PrivacyPolicy />} />
+          <Route path="/terms" element={<TermsOfService />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>
