@@ -51,7 +51,7 @@ const addResponseInterceptor = (apiInstance: any) => {
         window.location.href = "/login";
       }
       return Promise.reject(error);
-    }
+    },
   );
 };
 
@@ -71,8 +71,18 @@ export const login = async (email: string, password: string) => {
   return response.data;
 };
 
-export const register = async (name: string, email: string, role: 'trainer' | 'client', password: string) => {
-  const response = await authApi.post("/register", { name, email, role, password });
+export const register = async (
+  name: string,
+  email: string,
+  role: "trainer" | "client",
+  password: string,
+) => {
+  const response = await authApi.post("/register", {
+    name,
+    email,
+    role,
+    password,
+  });
   return response.data;
 };
 
@@ -98,7 +108,10 @@ export const verifyOTP = async (email: string, otp: string) => {
 };
 
 export const resetPassword = async (email: string, newPassword: string) => {
-  const response = await authApi.post("/reset-password", { email, newPassword });
+  const response = await authApi.post("/reset-password", {
+    email,
+    newPassword,
+  });
   return response.data;
 };
 
@@ -126,28 +139,72 @@ export const getClientMeals = async (trainerClientId: string) => {
 export const removeClient = async (trainerClientId: string) => {
   const response = await userApi.delete(`/users/clients/${trainerClientId}`);
   return response.data;
-}
+};
 
 export const linkClient = async (trainerClientId: string, email: string) => {
-  const response = await userApi.put(`/users/clients/${trainerClientId}/link`, { email });
+  const response = await userApi.put(`/users/clients/${trainerClientId}/link`, {
+    email,
+  });
   return response.data;
 };
 
-// skin fold managemnent 
+// skin fold managemnent
 export const getSkinFolds = async (trainerClientId: string) => {
-  const response = await userApi.get(`/users/clients/${trainerClientId}/skin-folds`);
-  return response.data;
-}
-
-export const createSkinFold = async (trainerClientId: string, skinFoldData: any) => {
-  const response = await userApi.post(`/users/clients/${trainerClientId}/skin-folds`, skinFoldData);
+  const response = await userApi.get(
+    `/users/clients/${trainerClientId}/skin-folds`,
+  );
   return response.data;
 };
 
-export const updateSkinFold = async (trainerClientId: string, skinFoldId: number, skinFoldData: any) => {
-  const response = await userApi.put(`/users/clients/${trainerClientId}/skin-folds/${skinFoldId}`, skinFoldData);
+export const createSkinFold = async (
+  trainerClientId: string,
+  skinFoldData: any,
+) => {
+  const response = await userApi.post(
+    `/users/clients/${trainerClientId}/skin-folds`,
+    skinFoldData,
+  );
   return response.data;
-}
+};
+
+export const updateSkinFold = async (
+  trainerClientId: string,
+  skinFoldId: number,
+  skinFoldData: any,
+) => {
+  const response = await userApi.put(
+    `/users/clients/${trainerClientId}/skin-folds/${skinFoldId}`,
+    skinFoldData,
+  );
+  return response.data;
+};
+
+// client note management
+export const getClientNotes = async (trainerClientId: string) => {
+  const response = await userApi.get(`/users/clients/${trainerClientId}/notes`);
+  return response.data;
+};
+
+export const createClientNote = async (
+  trainerClientId: string,
+  noteData: { note: string },
+) => {
+  const response = await userApi.post(
+    `/users/clients/${trainerClientId}/notes`,
+    noteData,
+  );
+  return response.data;
+};
+
+export const deleteClientNote = async (
+  trainerClientId: string,
+  noteId: number,
+) => {
+  const response = await userApi.delete(
+    `/users/clients/${trainerClientId}/notes/${noteId}`,
+  );
+  return response.data;
+};
 
 // retrieve assigned meals from trainers
 export const getAssignedMeals = async () => {
@@ -226,14 +283,17 @@ export const createCustomFood = async (foodData: {
   return response.data;
 };
 
-export const updateCustomFood = async (id: number, foodData: {
-  name: string;
-  category: string;
-  protein_per_100g: number;
-  fat_per_100g: number;
-  carbs_per_100g: number;
-  calories_per_100g: number;
-}) => {
+export const updateCustomFood = async (
+  id: number,
+  foodData: {
+    name: string;
+    category: string;
+    protein_per_100g: number;
+    fat_per_100g: number;
+    carbs_per_100g: number;
+    calories_per_100g: number;
+  },
+) => {
   const response = await foodApi.put(`/api/foods/custom/${id}`, foodData);
   return response.data;
 };
@@ -243,20 +303,32 @@ export const deleteCustomFood = async (id: number) => {
   return response.data;
 };
 
-  export const addFoodToMeal = async (mealId: number, foodData: {
+export const addFoodToMeal = async (
+  mealId: number,
+  foodData: {
     food_id: number;
     servings: number;
-  }) => {
-    const response = await mealApi.post(`/meals/${mealId}/foods`, foodData);
-    return response.data;
-  };
-
-export const updateFoodServing = async (mealId: number, mealFoodId: number, servings: number) => {
-  const response = await mealApi.put(`/meals/${mealId}/foods/${mealFoodId}`, { servings });
+  },
+) => {
+  const response = await mealApi.post(`/meals/${mealId}/foods`, foodData);
   return response.data;
-};  
+};
 
-export const removeFoodFromMeal = async (mealId: number, mealFoodId: number) => {
+export const updateFoodServing = async (
+  mealId: number,
+  mealFoodId: number,
+  servings: number,
+) => {
+  const response = await mealApi.put(`/meals/${mealId}/foods/${mealFoodId}`, {
+    servings,
+  });
+  return response.data;
+};
+
+export const removeFoodFromMeal = async (
+  mealId: number,
+  mealFoodId: number,
+) => {
   const response = await mealApi.delete(`/meals/${mealId}/foods/${mealFoodId}`);
   return response.data;
 };
