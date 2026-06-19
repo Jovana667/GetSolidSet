@@ -4,7 +4,7 @@ import pool from "../utils/db";
 import {
   GetProfileResponse,
   UpdateProfileRequest,
-  CreateNutritionGoalRequest,
+  // CreateNutritionGoalRequest,
 } from "../types";
 
 export const getProfile = async (req: Request, res: Response) => {
@@ -429,5 +429,56 @@ export const updateSkinFold = async (req: Request, res: Response) => {
   } catch (error) {
     console.error("Update skin fold error:", error);
     res.status(500).json({ error: "Failed to update skin fold" });
+  }
+};
+
+// client note management controllers
+
+export const getClientNotes = async (req: Request, res: Response) => {
+  try {
+    const { trainerClientId } = req.params;
+    const result = await pool.query(
+      `SELECT * FROM client_notes 
+       WHERE trainer_client_id = $1 
+       ORDER BY created_at DESC`,
+      [trainerClientId],
+    );
+    res.status(200).json(result.rows);
+  } catch (error) {
+    console.error("Get client notes error:", error);
+    res.status(500).json({ error: "Failed to retrieve client notes" });
+  }
+};
+
+export const createClientNote = async (req: Request, res: Response) => {
+  try {
+    const { trainerClientId } = req.params;
+    const { note } = req.body;
+    const result = await pool.query(
+      `INSERT INTO client_note (trainer_client_id, content) 
+       VALUES ($1, $2) RETURNING *`,
+      [trainerClientId, note],
+    );
+    res.status(201).json(result.rows[0]);
+  } catch (error) {
+    console.error("Create client note error:", error);
+    res.status(500).json({ error: "Failed to create client note" });
+  }
+};
+
+export const deleteClientNote = async (req: Request, res: Response) => {
+  try {
+    const { trainerClientId, noteId } = req.params;
+    const result = await pool.query(
+      `DELETE FROM client_notes WHERE id = $1 AND trainer_client_id = $2 RETURNING *`,
+      [noteId, trainerClientId],
+    );
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Client note not found" });
+    }
+    res.status(200).json({ message: "Client note deleted successfully" });
+  } catch (error) {
+    console.error("Delete client note error:", error);
+    res.status(500).json({ error: "Failed to delete client note" });
   }
 };

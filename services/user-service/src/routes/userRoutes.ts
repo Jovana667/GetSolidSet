@@ -12,6 +12,9 @@ import {
   getProfile,
   updateProfile,
   deleteProfile,
+  getClientNotes,
+  createClientNote,
+  deleteClientNote,
 } from "../controllers/userControllers";
 import { verifyToken } from "../middleware/auth";
 
@@ -36,5 +39,10 @@ router.put("/clients/:trainerClientId/link", verifyToken, linkClient);
 router.get("/clients/:trainerClientId/skin-folds", verifyToken, getSkinFolds);
 router.post("/clients/:trainerClientId/skin-folds", verifyToken, createSkinFold);
 router.put("/clients/:trainerClientId/skin-folds/:id", verifyToken, updateSkinFold);
+
+// client note management
+router.get("/clients/:trainerClientId/notes", verifyToken, getClientNotes);
+router.post("/clients/:trainerClientId/notes", verifyToken, createClientNote);
+router.delete("/clients/:trainerClientId/notes/:noteId", verifyToken, deleteClientNote);
 
 export default router;
