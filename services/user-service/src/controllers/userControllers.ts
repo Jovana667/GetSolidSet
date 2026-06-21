@@ -455,8 +455,8 @@ export const createClientNote = async (req: Request, res: Response) => {
     const { trainerClientId } = req.params;
     const { note } = req.body;
     const result = await pool.query(
-      `INSERT INTO client_note (trainer_client_id, content) 
-       VALUES ($1, $2) RETURNING *`,
+      `INSERT INTO client_notes (trainer_client_id, note)
+ VALUES ($1, $2) RETURNING *`,
       [trainerClientId, note],
     );
     res.status(201).json(result.rows[0]);
