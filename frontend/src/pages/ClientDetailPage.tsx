@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import SkinFoldsTable, { SkinFoldEntry } from "../components/SkinFoldsTable";
+import ClientNotes from "../components/ClientNotes";
 import { getClientMeals, linkClient, getSkinFolds } from "../services/api";
 import Footer from "../components/Footer";
 
@@ -220,11 +221,11 @@ function ClientDetailPage() {
           )}
 
           {/* Notes Tab */}
-          {activeTab === "notes" && (
-            <div className="bg-white rounded-lg shadow p-6">
-              <p className="text-gray-500">Notes coming soon...</p>
-            </div>
-          )}
+{activeTab === "notes" && (
+  <div className="bg-white rounded-lg shadow p-6 min-h-[700px]">
+    <ClientNotes trainerClientId={trainerClientId!} />
+  </div>
+)}
         </div>
       </div>
 
