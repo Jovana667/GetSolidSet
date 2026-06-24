@@ -14,88 +14,107 @@ interface MealSlotProps {
 }
 
 function MealSlot({
-  mealType,
-  foods,
-  isEditing,
-  activeMealSlot,
-  setActiveMealSlot,
-  selectedMealFoodId,
-  setSelectedMealFoodId,
-  servingInput,
-  setServingInput,
-  handleUpdateServing,
-  setFoodToDelete,
-  setIsDeleteFoodModalOpen,
+  mealType, foods, isEditing, activeMealSlot, setActiveMealSlot,
+  selectedMealFoodId, setSelectedMealFoodId, servingInput, setServingInput,
+  handleUpdateServing, setFoodToDelete, setIsDeleteFoodModalOpen,
 }: MealSlotProps) {
+
+  const calculateMealTotal = (metric: string) => {
+    return foods.reduce((total: number, food: any) => {
+      return total + food[`${metric}_per_100g`] * (food.quantity_g / 100);
+    }, 0);
+  };
+
   return (
     <div
-      className={`bg-white rounded-lg shadow p-6 cursor-pointer ${
+      className={`bg-white rounded-lg shadow p-5 mb-4 cursor-pointer ${
         isEditing && activeMealSlot === mealType
           ? "border-2 border-dashed border-blue-400"
-          : ""
+          : "border border-gray-100"
       }`}
       onClick={() => setActiveMealSlot(mealType)}
     >
-      <h2 className="text-xl font-semibold mb-4">
-        {mealType.charAt(0).toUpperCase() + mealType.slice(1)}:
+      {/* Meal header */}
+      <h2 className="font-semibold text-base text-gray-900 mb-3">
+        {mealType.charAt(0).toUpperCase() + mealType.slice(1)}:{" "}
+        <span className="font-semibold text-gray-600">
+          {calculateMealTotal("calories").toFixed(0)} cal ·{" "}
+          {calculateMealTotal("protein").toFixed(1)}g protein ·{" "}
+          {calculateMealTotal("carbs").toFixed(1)}g carbs ·{" "}
+          {calculateMealTotal("fat").toFixed(1)}g fats
+        </span>
       </h2>
-      {foods.map((food: any, index: number) => (
-        <div
-          key={index}
-          className="flex items-center justify-between p-3 bg-gray-50 rounded"
-        >
-          <div
-            onClick={(e) => {
-              e.stopPropagation();
-              if (isEditing && activeMealSlot === mealType) {
-                setSelectedMealFoodId(food.meal_food_id);
-                setServingInput(food.serving);
-              }
-            }}
-          >
-            <div className="font-medium">{food.name}</div>
-            <div className="text-sm text-gray-600">
-              Serving: {food.serving} x 100g | Calories:{" "}
-              {(food.calories_per_100g * food.serving).toFixed(1)} | Protein:{" "}
-              {(food.protein_per_100g * food.serving).toFixed(1)}g | Carbs:{" "}
-              {(food.carbs_per_100g * food.serving).toFixed(1)}g | Fats:{" "}
-              {(food.fat_per_100g * food.serving).toFixed(1)}g
-            </div>
-          </div>
-          {selectedMealFoodId === food.meal_food_id && (
-            <div className="flex items-center gap-2 mt-2">
-              <input
-                type="number"
-                className="w-20 border border-gray-300 rounded px-2 py-1 text-sm"
-                value={servingInput}
-                onChange={(e) => setServingInput(parseFloat(e.target.value))}
-                onClick={(e) => e.stopPropagation()}
-              />
-              <button
-                className="text-sm text-blue-500 hover:text-blue-700"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleUpdateServing();
-                }}
-              >
-                Save
-              </button>
-            </div>
-          )}
-          {isEditing && activeMealSlot === mealType && (
-            <button
-              className="text-red-400 hover:text-red-600 ml-2"
-              onClick={() => {
-                setFoodToDelete(food);
-                setIsDeleteFoodModalOpen(true);
+
+      {foods.length === 0 ? (
+        <p className="text-gray-300 text-sm">No foods added</p>
+      ) : (
+        <div className="space-y-2">
+          {foods.map((food: any, index: number) => (
+            <div
+              key={index}
+              className="flex items-baseline justify-between py-1.5 border-b border-gray-50 last:border-0"
+              onClick={(e) => {
+                e.stopPropagation();
+                if (isEditing && activeMealSlot === mealType) {
+                  setSelectedMealFoodId(food.meal_food_id);
+                  setServingInput(food.quantity_g);
+                }
               }}
             >
-              ✕
-            </button>
-          )}
+              {/* Name + grams */}
+              <span className="text-sm font-medium text-gray-900">
+                {food.name}{" "}
+                <span className="font-normal text-gray-400">{Math.round(food.quantity_g)}g</span>
+              </span>
+
+              <div className="flex items-center gap-3 ml-6 shrink-0">
+                {/* Inline edit input */}
+                {selectedMealFoodId === food.meal_food_id && (
+                  <div className="flex items-center gap-1">
+                    <input
+                      type="number"
+                      className="w-16 border border-gray-300 rounded px-2 py-0.5 text-sm text-right"
+                      value={servingInput}
+                      onChange={(e) => setServingInput(parseFloat(e.target.value))}
+                      onClick={(e) => e.stopPropagation()}
+                      min="0"
+                    />
+                    <span className="text-xs text-gray-400">g</span>
+                    <button
+                      className="text-xs text-blue-500 hover:text-blue-700 ml-1"
+                      onClick={(e) => { e.stopPropagation(); handleUpdateServing(); }}
+                    >
+                      Save
+                    </button>
+                  </div>
+                )}
+
+                {/* Macros */}
+                <span className="text-xs text-gray-400">
+                  {(food.calories_per_100g * (food.quantity_g / 100)).toFixed(1)} cal ·{" "}
+                  {(food.protein_per_100g * (food.quantity_g / 100)).toFixed(1)}g protein ·{" "}
+                  {(food.carbs_per_100g * (food.quantity_g / 100)).toFixed(1)}g carbs ·{" "}
+                  {(food.fat_per_100g * (food.quantity_g / 100)).toFixed(1)}g fats
+                </span>
+
+                {/* Delete button */}
+                {isEditing && activeMealSlot === mealType && (
+                  <button
+                    className="text-gray-300 hover:text-red-400 text-lg leading-none ml-1"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setFoodToDelete(food);
+                      setIsDeleteFoodModalOpen(true);
+                    }}
+                  >
+                    ✕
+                  </button>
+                )}
+              </div>
+            </div>
+          ))}
         </div>
-      ))}
-      {foods.length === 0 && <p className="text-gray-400">No foods</p>}
+      )}
     </div>
   );
 }

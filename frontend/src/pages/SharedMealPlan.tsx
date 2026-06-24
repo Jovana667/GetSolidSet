@@ -10,31 +10,28 @@ function SharedMealPlan() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-useEffect(() => {
-  const fetchSharedMealPlan = async () => {
-    try {
-      const data = await getSharedMealPlan(token!);
-      setMealPlan(data);
-      
-      // Only print after data has loaded
-      if (window.location.search.includes("print=true")) {
-        setTimeout(() => window.print(), 500);
+  useEffect(() => {
+    const fetchSharedMealPlan = async () => {
+      try {
+        const data = await getSharedMealPlan(token!);
+        setMealPlan(data);
+        if (window.location.search.includes("print=true")) {
+          setTimeout(() => window.print(), 500);
+        }
+      } catch (err) {
+        setError("This link is invalid or has been revoked.");
+      } finally {
+        setLoading(false);
       }
-    } catch (err) {
-      setError("This link is invalid or has been revoked.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  fetchSharedMealPlan();
-}, [token]);
+    };
+    fetchSharedMealPlan();
+  }, [token]);
 
   const calculateMealTotal = useMemo(() => {
     return (mealType: string, metric: string) => {
       const foods = mealPlan?.meals?.[mealType]?.foods || [];
       return foods.reduce((total: number, food: any) => {
-        return total + food[`${metric}_per_100g`] * food.serving;
+        return total + food[`${metric}_per_100g`] * (food.quantity_g / 100);
       }, 0);
     };
   }, [mealPlan]);
@@ -57,68 +54,88 @@ useEffect(() => {
   if (!mealPlan) return <div className="p-8">Meal plan not found</div>;
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
-      <div className="max-w-4xl mx-auto">
+    <>
+      <style>{`
+        @media print {
+          body { margin: 0; }
+          .no-print { display: none !important; }
+          .print-container { padding: 16px !important; background: white !important; }
+          .print-card { box-shadow: none !important; border: 1px solid #e5e7eb !important; }
+        }
+      `}</style>
 
-        {/* Header */}
-        <div className="bg-white rounded-lg shadow p-6 mb-6">
-          <h1 className="text-3xl font-bold text-gray-900">{mealPlan.name}</h1>
-          <p className="text-gray-600 mt-1">
-            Created: {new Date(mealPlan.created_at).toLocaleDateString()}
-          </p>
-        </div>
+      <div className="min-h-screen bg-gray-50 p-6 print-container">
+        <div className="max-w-3xl mx-auto">
 
-        {/* Meal Slots */}
-        <div className="bg-white rounded-lg shadow p-6">
-          {MEAL_TYPES.map((mealType) => {
-            const foods = mealPlan.meals?.[mealType]?.foods || [];
-            return (
-              <div key={mealType} className="mb-6">
-                <h3 className="font-semibold text-lg mb-2 capitalize">
-                  {mealType}: {calculateMealTotal(mealType, "calories").toFixed(1)} cal,{" "}
-                  {calculateMealTotal(mealType, "protein").toFixed(1)}g protein,{" "}
-                  {calculateMealTotal(mealType, "carbs").toFixed(1)}g carbs,{" "}
-                  {calculateMealTotal(mealType, "fat").toFixed(1)}g fats
-                </h3>
-                <div className="border-2 border-dashed border-gray-200 rounded p-4">
+          {/* Header */}
+          <div className="bg-white rounded-lg shadow print-card px-6 py-4 mb-4">
+            <h1 className="text-2xl font-bold text-gray-900">{mealPlan.name}</h1>
+            <p className="text-gray-400 text-xs mt-0.5">
+              Created: {new Date(mealPlan.created_at).toLocaleDateString()}
+            </p>
+          </div>
+
+          {/* Meals */}
+          <div className="bg-white rounded-lg shadow print-card px-6 py-5">
+            {MEAL_TYPES.map((mealType, i) => {
+              const foods = mealPlan.meals?.[mealType]?.foods || [];
+              const hasNext = i < MEAL_TYPES.length - 1;
+              return (
+                <div key={mealType} className={hasNext ? "mb-6 pb-6 border-b border-gray-100" : "mb-2"}>
+                  {/* Meal header — name + macros same line, same weight */}
+                  <h3 className="font-semibold text-base text-gray-900 mb-3">
+                    {mealType.charAt(0).toUpperCase() + mealType.slice(1)}:{" "}
+                    <span className="font-semibold text-gray-600">
+                      {calculateMealTotal(mealType, "calories").toFixed(0)} cal ·{" "}
+                      {calculateMealTotal(mealType, "protein").toFixed(1)}g protein ·{" "}
+                      {calculateMealTotal(mealType, "carbs").toFixed(1)}g carbs ·{" "}
+                      {calculateMealTotal(mealType, "fat").toFixed(1)}g fats
+                    </span>
+                  </h3>
+
                   {foods.length === 0 ? (
-                    <p className="text-gray-400 text-sm">No foods added</p>
+                    <p className="text-gray-300 text-sm">No foods added</p>
                   ) : (
-                    foods.map((food: any, index: number) => (
-                      <div key={index} className="py-2 border-b border-gray-100 last:border-0">
-                        <p className="font-medium text-gray-800">{food.name}</p>
-                        <p className="text-sm text-gray-500">
-                          Serving: {food.serving} x 100g | Calories:{" "}
-                          {(food.calories_per_100g * food.serving).toFixed(1)} | Protein:{" "}
-                          {(food.protein_per_100g * food.serving).toFixed(1)}g | Carbs:{" "}
-                          {(food.carbs_per_100g * food.serving).toFixed(1)}g | Fats:{" "}
-                          {(food.fat_per_100g * food.serving).toFixed(1)}g
-                        </p>
-                      </div>
-                    ))
+                    <div className="space-y-2">
+                      {foods.map((food: any, index: number) => (
+                        <div key={index} className="flex items-baseline justify-between py-1.5 border-b border-gray-50 last:border-0">
+                          {/* Name + grams */}
+                          <span className="text-sm font-medium text-gray-900">
+                            {food.name}{" "}
+                            <span className="font-normal text-gray-400">{Math.round(food.quantity_g)}g</span>
+                          </span>
+                          {/* Macros on the right */}
+                          <span className="text-xs text-gray-400 ml-6 shrink-0">
+                            {(food.calories_per_100g * (food.quantity_g / 100)).toFixed(1)} cal ·{" "}
+                            {(food.protein_per_100g * (food.quantity_g / 100)).toFixed(1)}g protein ·{" "}
+                            {(food.carbs_per_100g * (food.quantity_g / 100)).toFixed(1)}g carbs ·{" "}
+                            {(food.fat_per_100g * (food.quantity_g / 100)).toFixed(1)}g fats
+                          </span>
+                        </div>
+                      ))}
+                    </div>
                   )}
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
 
-          {/* Grand Total */}
-          <div className="mt-6 pt-6 border-t border-gray-200">
-            <h3 className="font-semibold text-lg">
-              Calories: {calculateGrandTotal("calories").toFixed(1)} cal,
-              Protein: {calculateGrandTotal("protein").toFixed(1)}g, Carbs:{" "}
-              {calculateGrandTotal("carbs").toFixed(1)}g, Fats:{" "}
-              {calculateGrandTotal("fat").toFixed(1)}g
-            </h3>
+            {/* Grand total — bottom right, darker and bigger */}
+            <div className="flex justify-end mt-4 pt-4 border-t border-gray-200">
+              <p className="text-sm font-semibold text-gray-700">
+                Total: {calculateGrandTotal("calories").toFixed(0)} cal ·{" "}
+                {calculateGrandTotal("protein").toFixed(1)}g protein ·{" "}
+                {calculateGrandTotal("carbs").toFixed(1)}g carbs ·{" "}
+                {calculateGrandTotal("fat").toFixed(1)}g fats
+              </p>
+            </div>
           </div>
-        </div>
 
-        {/* Footer */}
-        <p className="text-center text-xs text-gray-400 mt-6">
-          This is a read-only view. Contact your trainer to make changes.
-        </p>
+          <p className="text-center text-xs text-gray-400 mt-4 no-print">
+            This is a read-only view. Contact your trainer to make changes.
+          </p>
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 
