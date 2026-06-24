@@ -34,7 +34,6 @@ function MealSlot({
       }`}
       onClick={() => setActiveMealSlot(mealType)}
     >
-      {/* Meal header */}
       <h2 className="font-semibold text-base text-gray-900 mb-3">
         {mealType.charAt(0).toUpperCase() + mealType.slice(1)}:{" "}
         <span className="font-semibold text-gray-600">
@@ -52,65 +51,76 @@ function MealSlot({
           {foods.map((food: any, index: number) => (
             <div
               key={index}
-              className="flex items-baseline justify-between py-1.5 border-b border-gray-50 last:border-0"
+              className="bg-white border border-gray-200 rounded-lg p-3 flex justify-between items-start"
               onClick={(e) => {
                 e.stopPropagation();
                 if (isEditing && activeMealSlot === mealType) {
-                  setSelectedMealFoodId(food.meal_food_id);
+                  setSelectedMealFoodId(
+                    selectedMealFoodId === food.meal_food_id ? null : food.meal_food_id
+                  );
                   setServingInput(food.quantity_g);
                 }
               }}
             >
-              {/* Name + grams */}
-              <span className="text-sm font-medium text-gray-900">
-                {food.name}{" "}
-                <span className="font-normal text-gray-400">{Math.round(food.quantity_g)}g</span>
-              </span>
+              <div className="flex-1">
+                <div className="font-medium text-sm text-gray-900 mb-2">
+                  {food.name}
+                </div>
 
-              <div className="flex items-center gap-3 ml-6 shrink-0">
-                {/* Inline edit input */}
-                {selectedMealFoodId === food.meal_food_id && (
-                  <div className="flex items-center gap-1">
-                    <input
-                      type="number"
-                      className="w-16 border border-gray-300 rounded px-2 py-0.5 text-sm text-right"
-                      value={servingInput}
-                      onChange={(e) => setServingInput(parseFloat(e.target.value))}
-                      onClick={(e) => e.stopPropagation()}
-                      min="0"
-                    />
-                    <span className="text-xs text-gray-400">g</span>
-                    <button
-                      className="text-xs text-blue-500 hover:text-blue-700 ml-1"
-                      onClick={(e) => { e.stopPropagation(); handleUpdateServing(); }}
-                    >
-                      Save
-                    </button>
+                {/* Gram input — shown when this food is selected in edit mode */}
+                {isEditing && activeMealSlot === mealType && selectedMealFoodId === food.meal_food_id ? (
+                  <div className="mb-2">
+                    <div className="flex items-center gap-1 mb-1">
+<input
+  type="number"
+  className="w-20 px-2 py-1 border border-gray-300 rounded text-sm text-right focus:outline-none focus:ring-2 focus:ring-blue-500"
+  value={servingInput}
+  onChange={(e) => setServingInput(e.target.value as any)}
+  onClick={(e) => e.stopPropagation()}
+  min="0"
+  autoFocus
+/>
+                      <span className="text-sm text-gray-500">g</span>
+                      <button
+                        className="ml-2 text-sm text-blue-600 hover:text-blue-800 font-medium"
+                        onClick={(e) => { e.stopPropagation(); handleUpdateServing(); }}
+                      >
+                        Save
+                      </button>
+                      <button
+                        className="text-sm text-gray-400 hover:text-gray-600"
+                        onClick={(e) => { e.stopPropagation(); setSelectedMealFoodId(null); }}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-xs text-gray-400 mb-1">
+                    {Math.round(food.quantity_g)}g
                   </div>
                 )}
 
-                {/* Macros */}
-                <span className="text-xs text-gray-400">
+                <div className="text-xs text-gray-500">
                   {(food.calories_per_100g * (food.quantity_g / 100)).toFixed(1)} cal ·{" "}
                   {(food.protein_per_100g * (food.quantity_g / 100)).toFixed(1)}g protein ·{" "}
                   {(food.carbs_per_100g * (food.quantity_g / 100)).toFixed(1)}g carbs ·{" "}
                   {(food.fat_per_100g * (food.quantity_g / 100)).toFixed(1)}g fats
-                </span>
-
-                {/* Delete button */}
-                {isEditing && activeMealSlot === mealType && (
-                  <button
-                    className="text-gray-300 hover:text-red-400 text-lg leading-none ml-1"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setFoodToDelete(food);
-                      setIsDeleteFoodModalOpen(true);
-                    }}
-                  >
-                    ✕
-                  </button>
-                )}
+                </div>
               </div>
+
+              {isEditing && activeMealSlot === mealType && (
+                <button
+                  className="text-gray-300 hover:text-red-400 ml-3 text-lg leading-none flex-shrink-0"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setFoodToDelete(food);
+                    setIsDeleteFoodModalOpen(true);
+                  }}
+                >
+                  ✕
+                </button>
+              )}
             </div>
           ))}
         </div>

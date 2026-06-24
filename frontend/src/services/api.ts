@@ -317,10 +317,10 @@ export const addFoodToMeal = async (
 export const updateFoodServing = async (
   mealId: number,
   mealFoodId: number,
-  servings: number,
+  quantity_g: number,
 ) => {
   const response = await mealApi.put(`/meals/${mealId}/foods/${mealFoodId}`, {
-    servings,
+    quantity_g,
   });
   return response.data;
 };
