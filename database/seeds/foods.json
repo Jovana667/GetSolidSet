@@ -1,440 +1,66 @@
 {
   "proteins": [
-    {
-      "name": "Chicken thigh",
-      "category": "protein",
-      "protein_per_100g": 27.5,
-      "carbs_per_100g": 0,
-      "fat_per_100g": 5.6,
-      "calories_per_100g": 160.4
-    },
-    {
-      "name": "Chicken breast",
-      "category": "protein",
-      "protein_per_100g": 31,
-      "carbs_per_100g": 0,
-      "fat_per_100g": 3.6,
-      "calories_per_100g": 156.4
-    },
-    {
-      "name": "Rump steak",
-      "category": "protein",
-      "protein_per_100g": 22,
-      "carbs_per_100g": 0,
-      "fat_per_100g": 4.1,
-      "calories_per_100g": 124.9
-    },
-    {
-      "name": "Extra lean mince",
-      "category": "protein",
-      "protein_per_100g": 21.3,
-      "carbs_per_100g": 0.2,
-      "fat_per_100g": 5,
-      "calories_per_100g": 131
-    },
-    {
-      "name": "Grilled Sirloin steak",
-      "category": "protein",
-      "protein_per_100g": 19.8,
-      "carbs_per_100g": 0.8,
-      "fat_per_100g": 13.9,
-      "calories_per_100g": 207.5
-    },
-    {
-      "name": "Salmon",
-      "category": "protein",
-      "protein_per_100g": 23.4,
-      "carbs_per_100g": 0.5,
-      "fat_per_100g": 7.5,
-      "calories_per_100g": 163.1
-    },
-    {
-      "name": "Prawns",
-      "category": "protein",
-      "protein_per_100g": 15,
-      "carbs_per_100g": 0,
-      "fat_per_100g": 1,
-      "calories_per_100g": 69
-    },
-    {
-      "name": "Barramundi",
-      "category": "protein",
-      "protein_per_100g": 19.3,
-      "carbs_per_100g": 0,
-      "fat_per_100g": 1.5,
-      "calories_per_100g": 90.7
-    },
-    {
-      "name": "Short cut bacon",
-      "category": "protein",
-      "protein_per_100g": 16.3,
-      "carbs_per_100g": 1.3,
-      "fat_per_100g": 9.2,
-      "calories_per_100g": 153.2
-    },
-    {
-      "name": "Tuna Can Spring water (95g)",
-      "category": "protein",
-      "protein_per_100g": 17.7,
-      "carbs_per_100g": 0,
-      "fat_per_100g": 0.7,
-      "calories_per_100g": 77.1
-    },
-    {
-      "name": "Tuna Can Olive Oil (95g)",
-      "category": "protein",
-      "protein_per_100g": 18,
-      "carbs_per_100g": 0,
-      "fat_per_100g": 7.7,
-      "calories_per_100g": 141.3
-    },
-    {
-      "name": "Turkey mince",
-      "category": "protein",
-      "protein_per_100g": 19.5,
-      "carbs_per_100g": 0.4,
-      "fat_per_100g": 6.1,
-      "calories_per_100g": 134.5
-    },
-    {
-      "name": "Whole meal bread (2 slices)",
-      "category": "carbs",
-      "protein_per_100g": 27.4,
-      "carbs_per_100g": 2.3,
-      "fat_per_100g": 7.2,
-      "calories_per_100g": 183.6
-    },
-    {
-      "name": "Low carb/high protein wrap",
-      "category": "carbs",
-      "protein_per_100g": 13.6,
-      "carbs_per_100g": 8.9,
-      "fat_per_100g": 6.5,
-      "calories_per_100g": 148.5
-    }
+    { "name": "Chicken breast", "category": "protein", "protein_per_100g": 31, "carbs_per_100g": 0, "fat_per_100g": 3.6, "calories_per_100g": 156.4, "default_serving_g": 150 },
+    { "name": "Chicken thigh", "category": "protein", "protein_per_100g": 27.5, "carbs_per_100g": 0, "fat_per_100g": 5.6, "calories_per_100g": 160.4, "default_serving_g": 150 },
+    { "name": "Rump steak", "category": "protein", "protein_per_100g": 22, "carbs_per_100g": 0, "fat_per_100g": 4.1, "calories_per_100g": 124.9, "default_serving_g": 150 },
+    { "name": "Extra lean mince", "category": "protein", "protein_per_100g": 21.3, "carbs_per_100g": 0.2, "fat_per_100g": 5, "calories_per_100g": 131, "default_serving_g": 150 },
+    { "name": "Grilled sirloin steak", "category": "protein", "protein_per_100g": 19.8, "carbs_per_100g": 0.8, "fat_per_100g": 13.9, "calories_per_100g": 207.5, "default_serving_g": 150 },
+    { "name": "Salmon", "category": "protein", "protein_per_100g": 23.4, "carbs_per_100g": 0.5, "fat_per_100g": 7.5, "calories_per_100g": 163.1, "default_serving_g": 120 },
+    { "name": "Barramundi", "category": "protein", "protein_per_100g": 19.3, "carbs_per_100g": 0, "fat_per_100g": 1.5, "calories_per_100g": 90.7, "default_serving_g": 150 },
+    { "name": "Prawns", "category": "protein", "protein_per_100g": 15, "carbs_per_100g": 0, "fat_per_100g": 1, "calories_per_100g": 69, "default_serving_g": 150 },
+    { "name": "Short cut bacon", "category": "protein", "protein_per_100g": 16.3, "carbs_per_100g": 1.3, "fat_per_100g": 9.2, "calories_per_100g": 153.2, "default_serving_g": 60 },
+    { "name": "Turkey mince", "category": "protein", "protein_per_100g": 19.5, "carbs_per_100g": 0.4, "fat_per_100g": 6.1, "calories_per_100g": 134.5, "default_serving_g": 150 },
+    { "name": "Tuna can spring water (95g)", "category": "protein", "protein_per_100g": 17.7, "carbs_per_100g": 0, "fat_per_100g": 0.7, "calories_per_100g": 77.1, "default_serving_g": 95 },
+    { "name": "Tuna can olive oil (95g)", "category": "protein", "protein_per_100g": 18, "carbs_per_100g": 0, "fat_per_100g": 7.7, "calories_per_100g": 141.3, "default_serving_g": 95 },
+    { "name": "Whole egg", "category": "protein", "protein_per_100g": 6.3, "carbs_per_100g": 0.4, "fat_per_100g": 4.8, "calories_per_100g": 70, "default_serving_g": 60 },
+    { "name": "Egg whites", "category": "protein", "protein_per_100g": 3.6, "carbs_per_100g": 0.2, "fat_per_100g": 0.1, "calories_per_100g": 16.1, "default_serving_g": 100 },
+    { "name": "Chobani Greek yogurt (plain)", "category": "protein", "protein_per_100g": 9.7, "carbs_per_100g": 4.2, "fat_per_100g": 0.2, "calories_per_100g": 57.4, "default_serving_g": 170 }
   ],
   "carbs": [
-    {
-      "name": "Whole Egg",
-      "category": "carbs",
-      "protein_per_100g": 6.3,
-      "carbs_per_100g": 0.4,
-      "fat_per_100g": 4.8,
-      "calories_per_100g": 70
-    },
-    {
-      "name": "Egg whites",
-      "category": "carbs",
-      "protein_per_100g": 3.6,
-      "carbs_per_100g": 0.2,
-      "fat_per_100g": 0.1,
-      "calories_per_100g": 16.1
-    },
-    {
-      "name": "Chobani Greek yogurt (plain)",
-      "category": "carbs",
-      "protein_per_100g": 9.7,
-      "carbs_per_100g": 4.2,
-      "fat_per_100g": 0.2,
-      "calories_per_100g": 57.4
-    },
-    {
-      "name": "White potato (raw)",
-      "category": "carbs",
-      "protein_per_100g": 2,
-      "carbs_per_100g": 17,
-      "fat_per_100g": 0.1,
-      "calories_per_100g": 76.9
-    },
-    {
-      "name": "Sweet potato (raw)",
-      "category": "carbs",
-      "protein_per_100g": 1.6,
-      "carbs_per_100g": 20,
-      "fat_per_100g": 0.1,
-      "calories_per_100g": 87.3
-    },
-    {
-      "name": "Jasmine Rice",
-      "category": "carbs",
-      "protein_per_100g": 2,
-      "carbs_per_100g": 22.4,
-      "fat_per_100g": 0.1,
-      "calories_per_100g": 98.5
-    },
-    {
-      "name": "Brown Rice",
-      "category": "carbs",
-      "protein_per_100g": 2.6,
-      "carbs_per_100g": 23,
-      "fat_per_100g": 0.9,
-      "calories_per_100g": 110.5
-    },
-    {
-      "name": "Quick oats",
-      "category": "carbs",
-      "protein_per_100g": 12.7,
-      "carbs_per_100g": 54.7,
-      "fat_per_100g": 9.3,
-      "calories_per_100g": 353.3
-    },
-    {
-      "name": "Banana",
-      "category": "carbs",
-      "protein_per_100g": 1.1,
-      "carbs_per_100g": 22.8,
-      "fat_per_100g": 0.3,
-      "calories_per_100g": 98.3
-    },
-    {
-      "name": "Blue Berries",
-      "category": "carbs",
-      "protein_per_100g": 1,
-      "carbs_per_100g": 13.4,
-      "fat_per_100g": 0.7,
-      "calories_per_100g": 63.9
-    },
-    {
-      "name": "Apple",
-      "category": "carbs",
-      "protein_per_100g": 0.5,
-      "carbs_per_100g": 25.1,
-      "fat_per_100g": 0.3,
-      "calories_per_100g": 105.1
-    },
-    {
-      "name": "Strawberries",
-      "category": "carbs",
-      "protein_per_100g": 0.7,
-      "carbs_per_100g": 7.7,
-      "fat_per_100g": 0.3,
-      "calories_per_100g": 36.3
-    },
-    {
-      "name": "Pineapple",
-      "category": "carbs",
-      "protein_per_100g": 0.5,
-      "carbs_per_100g": 13.1,
-      "fat_per_100g": 0.1,
-      "calories_per_100g": 55.3
-    },
-    {
-      "name": "Rice cakes",
-      "category": "carbs",
-      "protein_per_100g": 1.1,
-      "carbs_per_100g": 9.9,
-      "fat_per_100g": 0.3,
-      "calories_per_100g": 46.7
-    },
-    {
-      "name": "English muffin (wholemeal)",
-      "category": "carbs",
-      "protein_per_100g": 5.4,
-      "carbs_per_100g": 19.5,
-      "fat_per_100g": 1.3,
-      "calories_per_100g": 111.3
-    },
-    {
-      "name": "English muffin (white)",
-      "category": "carbs",
-      "protein_per_100g": 4.8,
-      "carbs_per_100g": 23.5,
-      "fat_per_100g": 1.4,
-      "calories_per_100g": 125.8
-    },
-    {
-      "name": "Mission low carb wrap",
-      "category": "carbs",
-      "protein_per_100g": 7.5,
-      "carbs_per_100g": 11.3,
-      "fat_per_100g": 4.6,
-      "calories_per_100g": 116.6
-    },
-    {
-      "name": "Spud lite",
-      "category": "carbs",
-      "protein_per_100g": 1.4,
-      "carbs_per_100g": 8.9,
-      "fat_per_100g": 0.1,
-      "calories_per_100g": 42.1
-    },
-    {
-      "name": "Cocopops",
-      "category": "carbs",
-      "protein_per_100g": 4.7,
-      "carbs_per_100g": 88.3,
-      "fat_per_100g": 2.7,
-      "calories_per_100g": 396.3
-    },
-    {
-      "name": "Natural Confectionery Snakes",
-      "category": "carbs",
-      "protein_per_100g": 0.3,
-      "carbs_per_100g": 6.7,
-      "fat_per_100g": 0,
-      "calories_per_100g": 28
-    },
-    {
-      "name": "Baby Spinach",
-      "category": "carbs",
-      "protein_per_100g": 2.7,
-      "carbs_per_100g": 0,
-      "fat_per_100g": 0,
-      "calories_per_100g": 10.8
-    },
-    {
-      "name": "Broccoli",
-      "category": "carbs",
-      "protein_per_100g": 4.7,
-      "carbs_per_100g": 0.4,
-      "fat_per_100g": 0.3,
-      "calories_per_100g": 23.1
-    },
-    {
-      "name": "Zucchini",
-      "category": "carbs",
-      "protein_per_100g": 1.2,
-      "carbs_per_100g": 0.3,
-      "fat_per_100g": 0.3,
-      "calories_per_100g": 8.7
-    },
-    {
-      "name": "Red Capsicum",
-      "category": "carbs",
-      "protein_per_100g": 1.5,
-      "carbs_per_100g": 3.5,
-      "fat_per_100g": 0.2,
-      "calories_per_100g": 21.8
-    },
-    {
-      "name": "Red onion",
-      "category": "carbs",
-      "protein_per_100g": 1.1,
-      "carbs_per_100g": 9.3,
-      "fat_per_100g": 0.1,
-      "calories_per_100g": 42.5
-    },
-    {
-      "name": "Mushrooms (raw)",
-      "category": "carbs",
-      "protein_per_100g": 3.1,
-      "carbs_per_100g": 3.3,
-      "fat_per_100g": 0.3,
-      "calories_per_100g": 28.3
-    },
-    {
-      "name": "Asparagus",
-      "category": "carbs",
-      "protein_per_100g": 0.4,
-      "carbs_per_100g": 0.6,
-      "fat_per_100g": 0,
-      "calories_per_100g": 4
-    },
-    {
-      "name": "Tomato",
-      "category": "carbs",
-      "protein_per_100g": 0.9,
-      "carbs_per_100g": 3.9,
-      "fat_per_100g": 0.2,
-      "calories_per_100g": 21
-    },
-    {
-      "name": "Cucumber",
-      "category": "carbs",
-      "protein_per_100g": 0.6,
-      "carbs_per_100g": 3.6,
-      "fat_per_100g": 0.1,
-      "calories_per_100g": 17.7
-    },
-    {
-      "name": "Red Kidney beans",
-      "category": "carbs",
-      "protein_per_100g": 7.7,
-      "carbs_per_100g": 14.4,
-      "fat_per_100g": 0.8,
-      "calories_per_100g": 95.6
-    },
-    {
-      "name": "Pumpkin",
-      "category": "carbs",
-      "protein_per_100g": 1,
-      "carbs_per_100g": 8,
-      "fat_per_100g": 0,
-      "calories_per_100g": 36
-    },
-    {
-      "name": "Cherry tomatoes",
-      "category": "carbs",
-      "protein_per_100g": 1.5,
-      "carbs_per_100g": 6.6,
-      "fat_per_100g": 0.3,
-      "calories_per_100g": 35.1
-    },
-    {
-      "name": "Tofu",
-      "category": "carbs",
-      "protein_per_100g": 8.2,
-      "carbs_per_100g": 2.4,
-      "fat_per_100g": 4.7,
-      "calories_per_100g": 84.7
-    },
-    {
-      "name": "Chickpeas",
-      "category": "carbs",
-      "protein_per_100g": 6.5,
-      "carbs_per_100g": 15.8,
-      "fat_per_100g": 2.6,
-      "calories_per_100g": 112.6
-    },
-    {
-      "name": "Lentils",
-      "category": "carbs",
-      "protein_per_100g": 7.7,
-      "carbs_per_100g": 8.2,
-      "fat_per_100g": 0.3,
-      "calories_per_100g": 66.3
-    }
+    { "name": "Jasmine rice", "category": "carbs", "protein_per_100g": 2, "carbs_per_100g": 22.4, "fat_per_100g": 0.1, "calories_per_100g": 98.5, "default_serving_g": 150 },
+    { "name": "Brown rice", "category": "carbs", "protein_per_100g": 2.6, "carbs_per_100g": 23, "fat_per_100g": 0.9, "calories_per_100g": 110.5, "default_serving_g": 150 },
+    { "name": "White potato (raw)", "category": "carbs", "protein_per_100g": 2, "carbs_per_100g": 17, "fat_per_100g": 0.1, "calories_per_100g": 76.9, "default_serving_g": 200 },
+    { "name": "Sweet potato (raw)", "category": "carbs", "protein_per_100g": 1.6, "carbs_per_100g": 20, "fat_per_100g": 0.1, "calories_per_100g": 87.3, "default_serving_g": 150 },
+    { "name": "Spud lite", "category": "carbs", "protein_per_100g": 1.4, "carbs_per_100g": 8.9, "fat_per_100g": 0.1, "calories_per_100g": 42.1, "default_serving_g": 150 },
+    { "name": "Quick oats", "category": "carbs", "protein_per_100g": 12.7, "carbs_per_100g": 54.7, "fat_per_100g": 9.3, "calories_per_100g": 353.3, "default_serving_g": 60 },
+    { "name": "Wholemeal bread (2 slices)", "category": "carbs", "protein_per_100g": 27.4, "carbs_per_100g": 2.3, "fat_per_100g": 7.2, "calories_per_100g": 183.6, "default_serving_g": 80 },
+    { "name": "English muffin (wholemeal)", "category": "carbs", "protein_per_100g": 5.4, "carbs_per_100g": 19.5, "fat_per_100g": 1.3, "calories_per_100g": 111.3, "default_serving_g": 65 },
+    { "name": "English muffin (white)", "category": "carbs", "protein_per_100g": 4.8, "carbs_per_100g": 23.5, "fat_per_100g": 1.4, "calories_per_100g": 125.8, "default_serving_g": 65 },
+    { "name": "Mission low carb wrap", "category": "carbs", "protein_per_100g": 7.5, "carbs_per_100g": 11.3, "fat_per_100g": 4.6, "calories_per_100g": 116.6, "default_serving_g": 45 },
+    { "name": "Simmons low carb high protein wrap", "category": "carbs", "protein_per_100g": 13.6, "carbs_per_100g": 8.9, "fat_per_100g": 6.5, "calories_per_100g": 148.5, "default_serving_g": 45 },
+    { "name": "Rice cakes", "category": "carbs", "protein_per_100g": 1.1, "carbs_per_100g": 9.9, "fat_per_100g": 0.3, "calories_per_100g": 46.7, "default_serving_g": 30 },
+    { "name": "Chickpeas", "category": "carbs", "protein_per_100g": 6.5, "carbs_per_100g": 15.8, "fat_per_100g": 2.6, "calories_per_100g": 112.6, "default_serving_g": 100 },
+    { "name": "Lentils", "category": "carbs", "protein_per_100g": 7.7, "carbs_per_100g": 8.2, "fat_per_100g": 0.3, "calories_per_100g": 66.3, "default_serving_g": 100 },
+    { "name": "Red kidney beans", "category": "carbs", "protein_per_100g": 7.7, "carbs_per_100g": 14.4, "fat_per_100g": 0.8, "calories_per_100g": 95.6, "default_serving_g": 100 },
+    { "name": "Tofu", "category": "carbs", "protein_per_100g": 8.2, "carbs_per_100g": 2.4, "fat_per_100g": 4.7, "calories_per_100g": 84.7, "default_serving_g": 150 },
+    { "name": "Cocopops", "category": "carbs", "protein_per_100g": 4.7, "carbs_per_100g": 88.3, "fat_per_100g": 2.7, "calories_per_100g": 396.3, "default_serving_g": 30 },
+    { "name": "Natural confectionery snakes", "category": "carbs", "protein_per_100g": 0.3, "carbs_per_100g": 6.7, "fat_per_100g": 0, "calories_per_100g": 28, "default_serving_g": 50 }
+  ],
+  "fruits": [
+    { "name": "Banana", "category": "fruits", "protein_per_100g": 1.1, "carbs_per_100g": 22.8, "fat_per_100g": 0.3, "calories_per_100g": 98.3, "default_serving_g": 120 },
+    { "name": "Blueberries", "category": "fruits", "protein_per_100g": 1, "carbs_per_100g": 13.4, "fat_per_100g": 0.7, "calories_per_100g": 63.9, "default_serving_g": 100 },
+    { "name": "Apple", "category": "fruits", "protein_per_100g": 0.5, "carbs_per_100g": 25.1, "fat_per_100g": 0.3, "calories_per_100g": 105.1, "default_serving_g": 150 },
+    { "name": "Strawberries", "category": "fruits", "protein_per_100g": 0.7, "carbs_per_100g": 7.7, "fat_per_100g": 0.3, "calories_per_100g": 36.3, "default_serving_g": 150 },
+    { "name": "Pineapple", "category": "fruits", "protein_per_100g": 0.5, "carbs_per_100g": 13.1, "fat_per_100g": 0.1, "calories_per_100g": 55.3, "default_serving_g": 150 }
+  ],
+  "vegetables": [
+    { "name": "Baby spinach", "category": "vegetables", "protein_per_100g": 2.7, "carbs_per_100g": 0, "fat_per_100g": 0, "calories_per_100g": 10.8, "default_serving_g": 60 },
+    { "name": "Broccoli", "category": "vegetables", "protein_per_100g": 4.7, "carbs_per_100g": 0.4, "fat_per_100g": 0.3, "calories_per_100g": 23.1, "default_serving_g": 150 },
+    { "name": "Zucchini", "category": "vegetables", "protein_per_100g": 1.2, "carbs_per_100g": 0.3, "fat_per_100g": 0.3, "calories_per_100g": 8.7, "default_serving_g": 150 },
+    { "name": "Asparagus", "category": "vegetables", "protein_per_100g": 0.4, "carbs_per_100g": 0.6, "fat_per_100g": 0, "calories_per_100g": 4, "default_serving_g": 100 },
+    { "name": "Red capsicum", "category": "vegetables", "protein_per_100g": 1.5, "carbs_per_100g": 3.5, "fat_per_100g": 0.2, "calories_per_100g": 21.8, "default_serving_g": 100 },
+    { "name": "Red onion", "category": "vegetables", "protein_per_100g": 1.1, "carbs_per_100g": 9.3, "fat_per_100g": 0.1, "calories_per_100g": 42.5, "default_serving_g": 80 },
+    { "name": "Mushrooms (raw)", "category": "vegetables", "protein_per_100g": 3.1, "carbs_per_100g": 3.3, "fat_per_100g": 0.3, "calories_per_100g": 28.3, "default_serving_g": 100 },
+    { "name": "Tomato", "category": "vegetables", "protein_per_100g": 0.9, "carbs_per_100g": 3.9, "fat_per_100g": 0.2, "calories_per_100g": 21, "default_serving_g": 100 },
+    { "name": "Cherry tomatoes", "category": "vegetables", "protein_per_100g": 1.5, "carbs_per_100g": 6.6, "fat_per_100g": 0.3, "calories_per_100g": 35.1, "default_serving_g": 100 },
+    { "name": "Cucumber", "category": "vegetables", "protein_per_100g": 0.6, "carbs_per_100g": 3.6, "fat_per_100g": 0.1, "calories_per_100g": 17.7, "default_serving_g": 100 },
+    { "name": "Kent pumpkin", "category": "vegetables", "protein_per_100g": 1, "carbs_per_100g": 8, "fat_per_100g": 0, "calories_per_100g": 36, "default_serving_g": 150 }
   ],
   "fats": [
-    {
-      "name": "Cobs popcorn (sea salt)",
-      "category": "fats",
-      "protein_per_100g": 10.9,
-      "carbs_per_100g": 51.6,
-      "fat_per_100g": 24.6,
-      "calories_per_100g": 471.4
-    },
-    {
-      "name": "Avocado",
-      "category": "fats",
-      "protein_per_100g": 2,
-      "carbs_per_100g": 8.5,
-      "fat_per_100g": 14.7,
-      "calories_per_100g": 174.3
-    },
-    {
-      "name": "Almonds",
-      "category": "fats",
-      "protein_per_100g": 21.1,
-      "carbs_per_100g": 21.5,
-      "fat_per_100g": 49.9,
-      "calories_per_100g": 619.5
-    },
-    {
-      "name": "No added sugar dark chocolate",
-      "category": "fats",
-      "protein_per_100g": 3.8,
-      "carbs_per_100g": 2.4,
-      "fat_per_100g": 22.6,
-      "calories_per_100g": 228.2
-    },
-    {
-      "name": "Mayver's Peanut butter",
-      "category": "fats",
-      "protein_per_100g": 25,
-      "carbs_per_100g": 13.5,
-      "fat_per_100g": 49,
-      "calories_per_100g": 595
-    }
+    { "name": "Avocado", "category": "fats", "protein_per_100g": 2, "carbs_per_100g": 8.5, "fat_per_100g": 14.7, "calories_per_100g": 174.3, "default_serving_g": 80 },
+    { "name": "Almonds", "category": "fats", "protein_per_100g": 21.1, "carbs_per_100g": 21.5, "fat_per_100g": 49.9, "calories_per_100g": 619.5, "default_serving_g": 28 },
+    { "name": "Mayver's peanut butter", "category": "fats", "protein_per_100g": 25, "carbs_per_100g": 13.5, "fat_per_100g": 49, "calories_per_100g": 595, "default_serving_g": 32 },
+    { "name": "No added sugar dark chocolate", "category": "fats", "protein_per_100g": 3.8, "carbs_per_100g": 2.4, "fat_per_100g": 22.6, "calories_per_100g": 228.2, "default_serving_g": 30 },
+    { "name": "Cobs popcorn (sea salt)", "category": "fats", "protein_per_100g": 10.9, "carbs_per_100g": 51.6, "fat_per_100g": 24.6, "calories_per_100g": 471.4, "default_serving_g": 25 }
   ]
 }

@@ -11,28 +11,29 @@ const pool = new Pool({
 
 async function seed() {
   let successCount = 0;
-  let skipCount = 0;
   let errorCount = 0;
 
   try {
     const foodsData = JSON.parse(fs.readFileSync("./foods.json", "utf8"));
 
-    // Combine all food categories
-    const allFoods = [
-      ...foodsData.proteins,
-      ...foodsData.carbs,
-      ...foodsData.fats,
-    ];
+const allFoods = [
+  ...foodsData.proteins,
+  ...foodsData.carbs,
+  ...foodsData.fruits,
+  ...foodsData.vegetables,
+  ...foodsData.fats,
+];
+
+    console.log("🗑️  Clearing existing foods...");
+    await pool.query("DELETE FROM foods WHERE is_custom = false");
 
     console.log(`📥 Seeding ${allFoods.length} foods...\n`);
 
     for (const food of allFoods) {
       try {
-        const result = await pool.query(
-          `INSERT INTO foods(name, category, protein_per_100g, fat_per_100g, carbs_per_100g, calories_per_100g)
-          VALUES ($1, $2, $3, $4, $5, $6)
-          ON CONFLICT (name) DO NOTHING
-          RETURNING id`,
+        await pool.query(
+          `INSERT INTO foods (name, category, protein_per_100g, fat_per_100g, carbs_per_100g, calories_per_100g, default_serving_g)
+          VALUES ($1, $2, $3, $4, $5, $6, $7)`,
           [
             food.name,
             food.category,
@@ -40,15 +41,10 @@ async function seed() {
             food.fat_per_100g,
             food.carbs_per_100g,
             food.calories_per_100g,
-          ]
+            food.default_serving_g ?? null,
+          ],
         );
-
-        if (result.rowCount > 0) {
-          successCount++;
-        } else {
-          skipCount++;
-          console.log(`⏭️  Skipped: "${food.name}" (already exists)`);
-        }
+        successCount++;
       } catch (itemError) {
         errorCount++;
         console.error(`❌ Error inserting "${food.name}":`, itemError.message);
@@ -57,7 +53,6 @@ async function seed() {
 
     console.log("\n✅ Seeding completed!");
     console.log(`   - ${successCount} foods added`);
-    console.log(`   - ${skipCount} duplicates skipped`);
     console.log(`   - ${errorCount} errors`);
 
     process.exit(errorCount > 0 ? 1 : 0);
