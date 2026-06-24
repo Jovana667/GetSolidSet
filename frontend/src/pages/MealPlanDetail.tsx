@@ -34,7 +34,7 @@ function MealPlanDetail() {
     return (mealType: string, metric: string) => {
       const meals = mealPlan?.meals?.[mealType]?.foods || [];
       return meals.reduce((total: number, food: any) => {
-        return total + food[`${metric}_per_100g`] * food.serving;
+        return total + food[`${metric}_per_100g`] * (food.quantity_g / 100);
       }, 0);
     };
   }, [mealPlan]);
@@ -57,7 +57,7 @@ function MealPlanDetail() {
     }
     try {
       const mealId = mealPlan.meals[activeMealSlot].meal_id;
-      await addFoodToMealApi(mealId, { food_id: food.id, servings: 1 });
+      await addFoodToMealApi(mealId, { food_id: food.id, quantity_g: food.default_serving_g ?? 100 });
       fetchMealPlan();
     } catch (error) {
       console.error("Failed to add food to meal:", error);
@@ -399,14 +399,14 @@ function MealPlanDetail() {
               />
 
               {/* Grand Total */}
-              <div className="mt-6 pt-6">
-                <h3 className="font-semibold text-lg">
-                  Calories: {calculateGrandTotal("calories").toFixed(1)} cal,
-                  Protein: {calculateGrandTotal("protein").toFixed(1)}g, Carbs:{" "}
-                  {calculateGrandTotal("carbs").toFixed(1)}g, Fats:{" "}
-                  {calculateGrandTotal("fat").toFixed(1)}g
-                </h3>
-              </div>
+<div className="flex justify-end mt-6 pt-4 border-t border-gray-200">
+  <p className="text-sm font-semibold text-gray-700">
+    Total: {calculateGrandTotal("calories").toFixed(0)} cal ·{" "}
+    {calculateGrandTotal("protein").toFixed(1)}g protein ·{" "}
+    {calculateGrandTotal("carbs").toFixed(1)}g carbs ·{" "}
+    {calculateGrandTotal("fat").toFixed(1)}g fats
+  </p>
+</div>
             </div>
 
             {/* Right side - 1/3 width */}

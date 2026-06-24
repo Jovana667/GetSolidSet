@@ -165,7 +165,7 @@ export const getSharedMealPlan = async (req: Request, res: Response) => {
           name:             row.name,
           category:         row.category,
           meal_food_id:     row.meal_food_id,
-          serving:          row.quantity_g / 100,
+          quantity_g:       row.quantity_g,
           protein_per_100g: parseFloat(row.protein_per_100g),
           fat_per_100g:     parseFloat(row.fat_per_100g),
           carbs_per_100g:   parseFloat(row.carbs_per_100g),

@@ -14,7 +14,10 @@ function FoodPanel({ onFoodClick }: FoodPanelProps) {
   const [visibleCounts, setVisibleCounts] = useState({
     protein: 15,
     carbs: 15,
+    vegetables: 15,
+    fruits: 15,
     fats: 15,
+    supplements: 15,
   });
   const [isAddingCustomFood, setIsAddingCustomFood] = useState(false);
 
@@ -62,15 +65,18 @@ function FoodPanel({ onFoodClick }: FoodPanelProps) {
     setSearchTerm("");
   };
 
-  const toggleFoodSelection = useCallback((foodId: number) => {
-    if (selectedFoodIds.includes(foodId)) {
-      // already selected — remove it
-      setSelectedFoodIds(selectedFoodIds.filter((id) => id !== foodId));
-    } else {
-      // not selected — add it
-      setSelectedFoodIds([...selectedFoodIds, foodId]);
-    }
-  }, [selectedFoodIds]);
+  const toggleFoodSelection = useCallback(
+    (foodId: number) => {
+      if (selectedFoodIds.includes(foodId)) {
+        // already selected — remove it
+        setSelectedFoodIds(selectedFoodIds.filter((id) => id !== foodId));
+      } else {
+        // not selected — add it
+        setSelectedFoodIds([...selectedFoodIds, foodId]);
+      }
+    },
+    [selectedFoodIds],
+  );
 
   const handleDeleteFoods = useCallback(async () => {
     try {
@@ -86,7 +92,7 @@ function FoodPanel({ onFoodClick }: FoodPanelProps) {
 
   const filteredFoods = useMemo(() => {
     return foods.filter((f) =>
-      f.name.toLowerCase().includes(searchTerm.toLowerCase())
+      f.name.toLowerCase().includes(searchTerm.toLowerCase()),
     );
   }, [foods, searchTerm]);
 
@@ -94,7 +100,10 @@ function FoodPanel({ onFoodClick }: FoodPanelProps) {
     return {
       protein: filteredFoods.filter((f) => f.category === "protein"),
       carbs: filteredFoods.filter((f) => f.category === "carbs"),
+      vegetables: filteredFoods.filter((f) => f.category === "vegetables"),
+      fruits: filteredFoods.filter((f) => f.category === "fruits"),
       fats: filteredFoods.filter((f) => f.category === "fats"),
+      supplements: filteredFoods.filter((f) => f.category === "supplements"),
     };
   }, [filteredFoods]);
 
@@ -196,6 +205,11 @@ function FoodPanel({ onFoodClick }: FoodPanelProps) {
                       {food.protein_per_100g}g P | {food.carbs_per_100g}g C |{" "}
                       {food.fat_per_100g}g F | {food.calories_per_100g} cal
                     </div>
+                    {food.default_serving_g && (
+                      <div className="text-xs text-gray-400">
+                        Default: {Math.round(food.default_serving_g)}g
+                      </div>
+                    )}
                   </div>
                 </div>
               ))}
@@ -262,6 +276,11 @@ function FoodPanel({ onFoodClick }: FoodPanelProps) {
                     {food.protein_per_100g}g P | {food.carbs_per_100g}g C |{" "}
                     {food.fat_per_100g}g F | {food.calories_per_100g} cal
                   </div>
+                  {food.default_serving_g && (
+                    <div className="text-xs text-gray-400">
+                      Default: {Math.round(food.default_serving_g)}g
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
@@ -280,6 +299,136 @@ function FoodPanel({ onFoodClick }: FoodPanelProps) {
               groupedFoods.carbs.length > 15 && (
                 <button
                   onClick={() => showLess("carbs")}
+                  className="w-full text-blue-600 hover:text-blue-800 text-sm py-2"
+                >
+                  Show Less
+                </button>
+              )}
+          </div>
+        )}
+      </div>
+
+      {/* Vegetables Category */}
+      <div className="mb-4">
+        <button
+          onClick={() => toggleCategory("vegetables")}
+          className="w-full flex justify-between items-center p-2 hover:bg-gray-100 rounded"
+        >
+          <span className="font-medium">
+            ➕ Vegetables ({groupedFoods.vegetables.length})
+          </span>
+        </button>
+
+        {expandedCategories.includes("vegetables") && (
+          <div className="mt-2 space-y-1">
+            {groupedFoods.vegetables
+              .slice(0, visibleCounts.vegetables)
+              .map((food) => (
+                <div
+                  key={food.id}
+                  className="group flex items-center p-2 hover:bg-blue-50 cursor-pointer rounded text-sm"
+                >
+                  {food.is_custom && (
+                    <input
+                      type="checkbox"
+                      className="opacity-0 group-hover:opacity-100 checked:opacity-100 mr-2"
+                      checked={selectedFoodIds.includes(food.id)}
+                      onChange={() => toggleFoodSelection(food.id)}
+                      onClick={(e) => e.stopPropagation()}
+                    />
+                  )}
+                  <div onClick={() => onFoodClick(food)}>
+                    <div className="font-medium">{food.name}</div>
+                    <div className="text-xs text-gray-600">
+                      {food.protein_per_100g}g P | {food.carbs_per_100g}g C |{" "}
+                      {food.fat_per_100g}g F | {food.calories_per_100g} cal
+                    </div>
+                    {food.default_serving_g && (
+                      <div className="text-xs text-gray-400">
+                        Default: {Math.round(food.default_serving_g)}g
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+
+            {groupedFoods.vegetables.length > visibleCounts.vegetables && (
+              <button
+                onClick={() => loadMore("vegetables")}
+                className="w-full text-blue-600 hover:text-blue-800 text-sm py-2"
+              >
+                Load More (
+                {groupedFoods.vegetables.length - visibleCounts.vegetables}{" "}
+                more)
+              </button>
+            )}
+
+            {groupedFoods.vegetables.length <= visibleCounts.vegetables &&
+              groupedFoods.vegetables.length > 15 && (
+                <button
+                  onClick={() => showLess("vegetables")}
+                  className="w-full text-blue-600 hover:text-blue-800 text-sm py-2"
+                >
+                  Show Less
+                </button>
+              )}
+          </div>
+        )}
+      </div>
+
+      {/* Fruits Category */}
+      <div className="mb-4">
+        <button
+          onClick={() => toggleCategory("fruits")}
+          className="w-full flex justify-between items-center p-2 hover:bg-gray-100 rounded"
+        >
+          <span className="font-medium">
+            ➕ Fruits ({groupedFoods.fruits.length})
+          </span>
+        </button>
+        {expandedCategories.includes("fruits") && (
+          <div className="mt-2 space-y-1">
+            {groupedFoods.fruits.slice(0, visibleCounts.fruits).map((food) => (
+              <div
+                key={food.id}
+                className="group flex items-center p-2 hover:bg-blue-50 cursor-pointer rounded text-sm"
+              >
+                {food.is_custom && (
+                  <input
+                    type="checkbox"
+                    className="opacity-0 group-hover:opacity-100 checked:opacity-100 mr-2"
+                    checked={selectedFoodIds.includes(food.id)}
+                    onChange={() => toggleFoodSelection(food.id)}
+                    onClick={(e) => e.stopPropagation()}
+                  />
+                )}
+                <div onClick={() => onFoodClick(food)}>
+                  <div className="font-medium">{food.name}</div>
+                  <div className="text-xs text-gray-600">
+                    {food.protein_per_100g}g P | {food.carbs_per_100g}g C |{" "}
+                    {food.fat_per_100g}g F | {food.calories_per_100g} cal
+                  </div>
+                  {food.default_serving_g && (
+                    <div className="text-xs text-gray-400">
+                      Default: {Math.round(food.default_serving_g)}g
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+            {groupedFoods.fruits.length > visibleCounts.fruits && (
+              <button
+                onClick={() => loadMore("fruits")}
+                className="w-full text-blue-600 hover:text-blue-800 text-sm py-2"
+              >
+                Load More ({groupedFoods.fruits.length - visibleCounts.fruits}{" "}
+                more)
+              </button>
+            )}
+            {groupedFoods.fruits.length <= visibleCounts.fruits &&
+              groupedFoods.fruits.length > 15 && (
+                <button
+                  onClick={() => showLess("fruits")}
                   className="w-full text-blue-600 hover:text-blue-800 text-sm py-2"
                 >
                   Show Less
@@ -322,6 +471,11 @@ function FoodPanel({ onFoodClick }: FoodPanelProps) {
                     {food.protein_per_100g}g P | {food.carbs_per_100g}g C |{" "}
                     {food.fat_per_100g}g F | {food.calories_per_100g} cal
                   </div>
+                  {food.default_serving_g && (
+                    <div className="text-xs text-gray-400">
+                      Default: {Math.round(food.default_serving_g)}g
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
@@ -339,6 +493,71 @@ function FoodPanel({ onFoodClick }: FoodPanelProps) {
               groupedFoods.fats.length > 15 && (
                 <button
                   onClick={() => showLess("fats")}
+                  className="w-full text-blue-600 hover:text-blue-800 text-sm py-2"
+                >
+                  Show Less
+                </button>
+              )}
+          </div>
+        )}
+      </div>
+
+      {/* Supplements Category */}
+      <div className="mb-4">
+        <button
+          onClick={() => toggleCategory("supplements")}
+          className="w-full flex justify-between items-center p-2 hover:bg-gray-100 rounded"
+        >
+          <span className="font-medium">
+            ➕ Supplements ({groupedFoods.supplements.length})
+          </span>
+        </button>
+        {expandedCategories.includes("supplements") && (
+          <div className="mt-2 space-y-1">
+            {groupedFoods.supplements
+              .slice(0, visibleCounts.supplements)
+              .map((food) => (
+                <div
+                  key={food.id}
+                  className="group flex items-center p-2 hover:bg-blue-50 cursor-pointer rounded text-sm"
+                >
+                  {food.is_custom && (
+                    <input
+                      type="checkbox"
+                      className="opacity-0 group-hover:opacity-100 checked:opacity-100 mr-2"
+                      checked={selectedFoodIds.includes(food.id)}
+                      onChange={() => toggleFoodSelection(food.id)}
+                      onClick={(e) => e.stopPropagation()}
+                    />
+                  )}
+                  <div onClick={() => onFoodClick(food)}>
+                    <div className="font-medium">{food.name}</div>
+                    <div className="text-xs text-gray-600">
+                      {food.protein_per_100g}g P | {food.carbs_per_100g}g C |{" "}
+                      {food.fat_per_100g}g F | {food.calories_per_100g} cal
+                    </div>
+                    {food.default_serving_g && (
+                      <div className="text-xs text-gray-400">
+                        Default: {Math.round(food.default_serving_g)}g
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            {groupedFoods.supplements.length > visibleCounts.supplements && (
+              <button
+                onClick={() => loadMore("supplements")}
+                className="w-full text-blue-600 hover:text-blue-800 text-sm py-2"
+              >
+                Load More (
+                {groupedFoods.supplements.length - visibleCounts.supplements}{" "}
+                more)
+              </button>
+            )}
+            {groupedFoods.supplements.length <= visibleCounts.supplements &&
+              groupedFoods.supplements.length > 15 && (
+                <button
+                  onClick={() => showLess("supplements")}
                   className="w-full text-blue-600 hover:text-blue-800 text-sm py-2"
                 >
                   Show Less

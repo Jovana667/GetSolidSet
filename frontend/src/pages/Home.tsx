@@ -37,8 +37,11 @@ function Home() {
   };
 
   const addFoodToMeal = (food: any) => {
-    console.log(`Adding ${food.name} to ${selectedMeal}`);
-    const foodWithServing = { ...food, serving: 1 }; // Default serving size to 1
+    console.log("food object:", food);
+    const foodWithServing = {
+      ...food,
+      quantity_g: food.default_serving_g ?? 100,
+    };
     setMealFoods({
       ...mealFoods,
       [selectedMeal]: [
@@ -46,30 +49,20 @@ function Home() {
         foodWithServing,
       ],
     });
-    console.log("Updated mealFoods:", mealFoods);
   };
 
   const updateFoodServing = (
     mealType: string,
     foodIndex: number,
-    newServing: string,
+    newValue: string,
   ) => {
-    // Copy the entire mealFoods object
     const updatedMealFoods = { ...mealFoods };
-
-    // Copy the specific meal's array
     const updatedMeal = [...mealFoods[mealType as keyof typeof mealFoods]];
-
-    // Update the specific food at foodIndex
     updatedMeal[foodIndex] = {
       ...updatedMeal[foodIndex],
-      serving: parseFloat(newServing) || 0,
+      quantity_g: parseFloat(newValue) || 0,
     };
-
-    // Update the meal in the mealFoods object
     updatedMealFoods[mealType as keyof typeof mealFoods] = updatedMeal;
-
-    // Set the new state
     setMealFoods(updatedMealFoods);
   };
 
@@ -87,7 +80,7 @@ function Home() {
   const calculateMealTotal = useMemo(() => {
     return (mealType: string, metric: string) => {
       return mealFoods[mealType].reduce((total, food) => {
-        return total + food[`${metric}_per_100g`] * food.serving;
+        return total + food[`${metric}_per_100g`] * (food.quantity_g / 100);
       }, 0);
     };
   }, [mealFoods]);
@@ -115,19 +108,19 @@ function Home() {
     const transformedFoods = {
       breakfast: mealFoods.breakfast.map((food) => ({
         food_id: food.id,
-        quantity_g: food.serving * 100,
+        quantity_g: food.quantity_g,
       })),
       lunch: mealFoods.lunch.map((food) => ({
         food_id: food.id,
-        quantity_g: food.serving * 100,
+        quantity_g: food.quantity_g,
       })),
       dinner: mealFoods.dinner.map((food) => ({
         food_id: food.id,
-        quantity_g: food.serving * 100,
+        quantity_g: food.quantity_g,
       })),
       snack: mealFoods.snack.map((food) => ({
         food_id: food.id,
-        quantity_g: food.serving * 100,
+        quantity_g: food.quantity_g,
       })),
     };
 
@@ -186,7 +179,6 @@ function Home() {
       <div className="flex-1 pt-8 px-8">
         <div className="max-w-7xl mx-auto">
           <Navbar />
-
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Left side - Meal Planner (2/3 width) */}
             <div className="lg:col-span-2 order-2 lg:order-1 bg-white rounded-lg shadow p-6">
@@ -204,6 +196,7 @@ function Home() {
                   </button>
                 )}
               </div>
+
               {(selectedClient || clientName) && (
                 <div className="flex items-center gap-2 mb-4">
                   <p className="text-blue-600 font-medium">
@@ -223,8 +216,9 @@ function Home() {
                   )}
                 </div>
               )}
+
               {/* Meal Name Input */}
-              <div className="mb-4">
+              <div className="mb-6">
                 <input
                   type="text"
                   placeholder="Enter meal plan name (e.g., Summer Cut Week 1)"
@@ -234,324 +228,121 @@ function Home() {
                 />
               </div>
 
-              {/* Placeholder for meal structure */}
+              {/* Meal sections */}
               <div className="space-y-6">
-                <div>
-                  <h3 className="font-semibold text-lg mb-2">
-                    Breakfast:{" "}
-                    {calculateMealTotal("breakfast", "calories").toFixed(1)}{" "}
-                    cal, {calculateMealTotal("breakfast", "protein").toFixed(1)}
-                    g protein,{" "}
-                    {calculateMealTotal("breakfast", "carbs").toFixed(1)}g
-                    carbs, {calculateMealTotal("breakfast", "fat").toFixed(1)}g
-                    fats
-                  </h3>
-                  <div
-                    className={`border-2 border-dashed rounded p-4 cursor-pointer ${
-                      selectedMeal === "breakfast"
-                        ? "border-blue-500 bg-blue-50"
-                        : "border-gray-300 text-gray-400"
-                    }`}
-                    onClick={() => setSelectedMeal("breakfast")}
-                  >
-                    {mealFoods.breakfast.length === 0 ? (
-                      <p className="text-gray-400">Drop foods here</p>
-                    ) : (
-                      mealFoods.breakfast.map((food: any, index: number) => (
-                        <div
-                          key={`${food.id}-${index}`}
-                          className="text-sm mb-1 text-gray-800 flex justify-between items-start"
-                        >
-                          <div className="flex-1">
-                            <div className="font-medium">{food.name}</div>
-                            <input
-                              type="number"
-                              value={food.serving}
-                              onChange={(e) =>
-                                updateFoodServing(
-                                  "breakfast",
-                                  index,
-                                  e.target.value,
-                                )
-                              }
-                              className="w-20 px-2 py-1 border rounded"
-                            />
-                            <p>
-                              Calories:{" "}
-                              {(food.calories_per_100g * food.serving).toFixed(
-                                1,
-                              )}
-                            </p>
-                            <p>
-                              Protein:{" "}
-                              {(food.protein_per_100g * food.serving).toFixed(
-                                1,
-                              )}
-                              g
-                            </p>
-                            <p>
-                              Carbs:{" "}
-                              {(food.carbs_per_100g * food.serving).toFixed(1)}g
-                            </p>
-                            <p>
-                              Fats:{" "}
-                              {(food.fat_per_100g * food.serving).toFixed(1)}g
-                            </p>
-                          </div>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              removeFoodFromMeal("breakfast", index);
-                            }}
-                            className="text-red-500 hover:text-red-700 ml-2"
-                          >
-                            ✕
-                          </button>
-                        </div>
-                      ))
-                    )}
-                  </div>
-                </div>
-                <div>
-                  <h3 className="font-semibold text-lg mb-2">
-                    Lunch: {calculateMealTotal("lunch", "calories").toFixed(1)}{" "}
-                    cal, {calculateMealTotal("lunch", "protein").toFixed(1)}g
-                    protein, {calculateMealTotal("lunch", "carbs").toFixed(1)}g
-                    carbs, {calculateMealTotal("lunch", "fat").toFixed(1)}g fats
-                  </h3>
-                  <div
-                    className={`border-2 border-dashed rounded p-4 cursor-pointer ${
-                      selectedMeal === "lunch"
-                        ? "border-blue-500 bg-blue-50"
-                        : "border-gray-300 text-gray-400"
-                    }`}
-                    onClick={() => setSelectedMeal("lunch")}
-                  >
-                    {mealFoods.lunch.length === 0 ? (
-                      <p className="text-gray-400">Drop foods here</p>
-                    ) : (
-                      mealFoods.lunch.map((food: any, index: number) => (
-                        <div
-                          key={`${food.id}-${index}`}
-                          className="text-sm mb-1 text-gray-800 flex justify-between items-start"
-                        >
-                          <div className="flex-1">
-                            <div className="font-medium">{food.name}</div>
-                            <input
-                              type="number"
-                              value={food.serving}
-                              onChange={(e) =>
-                                updateFoodServing(
-                                  "lunch",
-                                  index,
-                                  e.target.value,
-                                )
-                              }
-                              className="w-20 px-2 py-1 border rounded"
-                            />
-                            <p>
-                              Calories:{" "}
-                              {(food.calories_per_100g * food.serving).toFixed(
-                                1,
-                              )}
-                            </p>
-                            <p>
-                              Protein:{" "}
-                              {(food.protein_per_100g * food.serving).toFixed(
-                                1,
-                              )}
-                              g
-                            </p>
-                            <p>
-                              Carbs:{" "}
-                              {(food.carbs_per_100g * food.serving).toFixed(1)}g
-                            </p>
-                            <p>
-                              Fats:{" "}
-                              {(food.fat_per_100g * food.serving).toFixed(1)}g
-                            </p>
-                          </div>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              removeFoodFromMeal("lunch", index);
-                            }}
-                            className="text-red-500 hover:text-red-700 ml-2"
-                          >
-                            ✕
-                          </button>
-                        </div>
-                      ))
-                    )}
-                  </div>
-                </div>
-
-                <div>
-                  <h3 className="font-semibold text-lg mb-2">
-                    Dinner:{" "}
-                    {calculateMealTotal("dinner", "calories").toFixed(1)} cal,{" "}
-                    {calculateMealTotal("dinner", "protein").toFixed(1)}g
-                    protein, {calculateMealTotal("dinner", "carbs").toFixed(1)}g
-                    carbs, {calculateMealTotal("dinner", "fat").toFixed(1)}g
-                    fats
-                  </h3>
-                  <div
-                    className={`border-2 border-dashed rounded p-4 cursor-pointer ${
-                      selectedMeal === "dinner"
-                        ? "border-blue-500 bg-blue-50"
-                        : "border-gray-300 text-gray-400"
-                    }`}
-                    onClick={() => setSelectedMeal("dinner")}
-                  >
-                    {mealFoods.dinner.length === 0 ? (
-                      <p className="text-gray-400">Drop foods here</p>
-                    ) : (
-                      mealFoods.dinner.map((food: any, index: number) => (
-                        <div
-                          key={`${food.id}-${index}`}
-                          className="text-sm mb-1 text-gray-800 flex justify-between items-start"
-                        >
-                          <div className="flex-1">
-                            <div className="font-medium">{food.name}</div>
-                            <input
-                              type="number"
-                              value={food.serving}
-                              onChange={(e) =>
-                                updateFoodServing(
-                                  "dinner",
-                                  index,
-                                  e.target.value,
-                                )
-                              }
-                              className="w-20 px-2 py-1 border rounded"
-                            />
-                            <p>
-                              Calories:{" "}
-                              {(food.calories_per_100g * food.serving).toFixed(
-                                1,
-                              )}
-                            </p>
-                            <p>
-                              Protein:{" "}
-                              {(food.protein_per_100g * food.serving).toFixed(
-                                1,
-                              )}
-                              g
-                            </p>
-                            <p>
-                              Carbs:{" "}
-                              {(food.carbs_per_100g * food.serving).toFixed(1)}g
-                            </p>
-                            <p>
-                              Fats:{" "}
-                              {(food.fat_per_100g * food.serving).toFixed(1)}g
-                            </p>
-                          </div>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              removeFoodFromMeal("dinner", index);
-                            }}
-                            className="text-red-500 hover:text-red-700 ml-2"
-                          >
-                            ✕
-                          </button>
-                        </div>
-                      ))
-                    )}
-                  </div>
-                </div>
-
-                <div>
-                  <h3 className="font-semibold text-lg mb-2">
-                    Snack: {calculateMealTotal("snack", "calories").toFixed(1)}{" "}
-                    cal, {calculateMealTotal("snack", "protein").toFixed(1)}g
-                    protein, {calculateMealTotal("snack", "carbs").toFixed(1)}g
-                    carbs, {calculateMealTotal("snack", "fat").toFixed(1)}g fats
-                  </h3>
-                  <div
-                    className={`border-2 border-dashed rounded p-4 cursor-pointer ${
-                      selectedMeal === "snack"
-                        ? "border-blue-500 bg-blue-50"
-                        : "border-gray-300 text-gray-400"
-                    }`}
-                    onClick={() => setSelectedMeal("snack")}
-                  >
-                    {mealFoods.snack.length === 0 ? (
-                      <p className="text-gray-400">Drop foods here</p>
-                    ) : (
-                      mealFoods.snack.map((food: any, index: number) => (
-                        <div
-                          key={`${food.id}-${index}`}
-                          className="text-sm mb-1 text-gray-800 flex justify-between items-start"
-                        >
-                          <div className="flex-1">
-                            <div className="font-medium">{food.name}</div>
-                            <input
-                              type="number"
-                              value={food.serving}
-                              onChange={(e) =>
-                                updateFoodServing(
-                                  "snack",
-                                  index,
-                                  e.target.value,
-                                )
-                              }
-                              className="w-20 px-2 py-1 border rounded"
-                            />
-                            <p>
-                              Calories:{" "}
-                              {(food.calories_per_100g * food.serving).toFixed(
-                                1,
-                              )}
-                            </p>
-                            <p>
-                              Protein:{" "}
-                              {(food.protein_per_100g * food.serving).toFixed(
-                                1,
-                              )}
-                              g
-                            </p>
-                            <p>
-                              Carbs:{" "}
-                              {(food.carbs_per_100g * food.serving).toFixed(1)}g
-                            </p>
-                            <p>
-                              Fats:{" "}
-                              {(food.fat_per_100g * food.serving).toFixed(1)}g
-                            </p>
-                          </div>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              removeFoodFromMeal("snack", index);
-                            }}
-                            className="text-red-500 hover:text-red-700 ml-2"
-                          >
-                            ✕
-                          </button>
-                        </div>
-                      ))
-                    )}
-                  </div>
-                </div>
+                {(["breakfast", "lunch", "dinner", "snack"] as const).map(
+                  (mealType) => (
+                    <div key={mealType}>
+                      <h3 className="font-semibold text-base text-gray-900 mb-2">
+                        {mealType.charAt(0).toUpperCase() + mealType.slice(1)}:{" "}
+                        <span className="font-medium text-gray-600 text-sm">
+                          {calculateMealTotal(mealType, "calories").toFixed(0)}{" "}
+                          cal ·{" "}
+                          {calculateMealTotal(mealType, "protein").toFixed(1)}g
+                          protein ·{" "}
+                          {calculateMealTotal(mealType, "carbs").toFixed(1)}g
+                          carbs ·{" "}
+                          {calculateMealTotal(mealType, "fat").toFixed(1)}g fats
+                        </span>
+                      </h3>
+                      <div
+                        className={`border-2 border-dashed rounded-lg p-3 min-h-[72px] cursor-pointer transition-colors ${
+                          selectedMeal === mealType
+                            ? "border-blue-400 bg-blue-50/50"
+                            : "border-gray-200 hover:border-gray-300"
+                        }`}
+                        onClick={() => setSelectedMeal(mealType)}
+                      >
+                        {mealFoods[mealType].length === 0 ? (
+                          <p className="text-gray-300 text-sm text-center pt-3">
+                            Click to select, then add foods from the panel
+                          </p>
+                        ) : (
+                          mealFoods[mealType].map(
+                            (food: any, index: number) => (
+                              <div
+                                key={`${food.id}-${index}`}
+                                className="bg-white border border-gray-200 rounded-lg p-3 mb-2 flex justify-between items-start"
+                              >
+                                <div className="flex-1">
+                                  <div className="font-medium text-sm text-gray-900 mb-2">
+                                    {food.name}
+                                  </div>{" "}
+                                  <div className="flex items-center gap-1 mb-2">
+                                    <input
+                                      type="number"
+                                      value={Math.round(food.quantity_g)}
+                                      onChange={(e) =>
+                                        updateFoodServing(
+                                          mealType,
+                                          index,
+                                          e.target.value,
+                                        )
+                                      }
+                                      onClick={(e) => e.stopPropagation()}
+                                      className="w-20 px-2 py-1 border border-gray-300 rounded text-sm text-right focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                      min="0"
+                                    />
+                                    <span className="text-sm text-gray-500">
+                                      g
+                                    </span>
+                                  </div>
+                                  <div className="text-xs text-gray-500">
+                                    {(
+                                      food.calories_per_100g *
+                                      (food.quantity_g / 100)
+                                    ).toFixed(1)}{" "}
+                                    cal ·{" "}
+                                    {(
+                                      food.protein_per_100g *
+                                      (food.quantity_g / 100)
+                                    ).toFixed(1)}
+                                    g protein ·{" "}
+                                    {(
+                                      food.carbs_per_100g *
+                                      (food.quantity_g / 100)
+                                    ).toFixed(1)}
+                                    g carbs ·{" "}
+                                    {(
+                                      food.fat_per_100g *
+                                      (food.quantity_g / 100)
+                                    ).toFixed(1)}
+                                    g fats
+                                  </div>
+                                </div>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    removeFoodFromMeal(mealType, index);
+                                  }}
+                                  className="text-gray-300 hover:text-red-400 ml-3 text-lg leading-none"
+                                >
+                                  ✕
+                                </button>
+                              </div>
+                            ),
+                          )
+                        )}
+                      </div>
+                    </div>
+                  ),
+                )}
               </div>
-              <div style={{ display: "flex", justifyContent: "space-between" }}>
+
+              {/* Footer row */}
+              <div className="flex justify-between items-center mt-6 pt-4 border-t border-gray-100">
                 <button
                   onClick={handleSaveMeal}
-                  className="mt-6 bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700"
+                  className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700"
                 >
                   Save Meal
                 </button>
-                {/* Grand Total */}
-                <div className="mt-6 pt-6 ">
-                  <h3 className="font-semibold text-lg">
-                    Calories: {calculateGrandTotal("calories").toFixed(1)} cal,
-                    Protein: {calculateGrandTotal("protein").toFixed(1)}g,
-                    Carbs: {calculateGrandTotal("carbs").toFixed(1)}g, Fats:{" "}
-                    {calculateGrandTotal("fat").toFixed(1)}g
-                  </h3>
-                </div>
+                <p className="text-sm text-gray-500">
+                  Total: {calculateGrandTotal("calories").toFixed(0)} cal ·{" "}
+                  {calculateGrandTotal("protein").toFixed(1)}g P ·{" "}
+                  {calculateGrandTotal("carbs").toFixed(1)}g C ·{" "}
+                  {calculateGrandTotal("fat").toFixed(1)}g F
+                </p>
               </div>
             </div>
 
@@ -561,11 +352,11 @@ function Home() {
         </div>
       </div>
       <Footer />
+
       {selectClientModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 max-w-sm w-full mx-4">
             <h3 className="text-lg font-semibold mb-4">Select Client</h3>
-
             <div className="space-y-1 mb-4">
               {clients.map((client: any) => (
                 <div
@@ -580,7 +371,6 @@ function Home() {
                 </div>
               ))}
             </div>
-
             <div className="flex justify-end">
               <button
                 className="px-4 py-2 text-gray-600 hover:text-gray-800"
