@@ -87,23 +87,24 @@ export const getFoods = async (req: Request, res: Response) => {
       conditions.length > 0 ? "WHERE " + conditions.join(" AND ") : "";
 
     const foodsQuery = `
-      SELECT 
-        id,
-        name,
-        category,
-        protein_per_100g,
-        fat_per_100g,
-        carbs_per_100g,
-        calories_per_100g,
-        created_at,
-        updated_at,
-        is_custom,
-        created_by
-      FROM foods
-      ${whereClause}
-      ORDER BY is_custom DESC, name ASC
-      LIMIT $${paramIndex++} OFFSET $${paramIndex++}
-    `;
+  SELECT 
+    id,
+    name,
+    category,
+    protein_per_100g,
+    fat_per_100g,
+    carbs_per_100g,
+    calories_per_100g,
+    default_serving_g,
+    created_at,
+    updated_at,
+    is_custom,
+    created_by
+  FROM foods
+  ${whereClause}
+  ORDER BY is_custom DESC, name ASC
+  LIMIT $${paramIndex++} OFFSET $${paramIndex++}
+`;
 
     params.push(pageSize, offset);
 
@@ -146,22 +147,23 @@ export const getFoodById = async (req: Request, res: Response) => {
 
     const userId = req.user!.id;
     const query = `
-      SELECT 
-        id,
-        name,
-        category,
-        protein_per_100g,
-        fat_per_100g,
-        carbs_per_100g,
-        calories_per_100g,
-        created_at,
-        updated_at,
-        is_custom,
-        created_by
-      FROM foods
-      WHERE id = $1
-        AND (created_by IS NULL OR created_by = $2)
-    `;
+  SELECT 
+    id,
+    name,
+    category,
+    protein_per_100g,
+    fat_per_100g,
+    carbs_per_100g,
+    calories_per_100g,
+    default_serving_g,
+    created_at,
+    updated_at,
+    is_custom,
+    created_by
+  FROM foods
+  WHERE id = $1
+    AND (created_by IS NULL OR created_by = $2)
+`;
 
     const result = await pool.query(query, [id, userId]);
 

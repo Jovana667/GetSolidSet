@@ -465,7 +465,7 @@ WHERE id = $1 AND (
           name: row.name,
           category: row.category,
           meal_food_id: row.meal_food_id,
-          serving: row.quantity_g / 100, // Convert back to serving units
+          quantity_g: row.quantity_g, // was: serving: row.quantity_g / 100
           protein_per_100g: parseFloat(row.protein_per_100g),
           fat_per_100g: parseFloat(row.fat_per_100g),
           carbs_per_100g: parseFloat(row.carbs_per_100g),
@@ -540,20 +540,15 @@ export const updateMealPlan = async (req: Request, res: Response) => {
 export const addFoodToMeal = async (req: Request, res: Response) => {
   try {
     const mealId = parseInt(req.params.mealId);
-    const { food_id, servings } = req.body;
+    const { food_id, quantity_g } = req.body;
 
     const query = `
-INSERT INTO meal_foods (meal_id, food_id, servings, quantity_g)
-VALUES ($1, $2, $3, $4)
+      INSERT INTO meal_foods (meal_id, food_id, quantity_g)
+      VALUES ($1, $2, $3)
       RETURNING *
     `;
 
-    const result = await pool.query(query, [
-      mealId,
-      food_id,
-      servings,
-      servings * 100,
-    ]);
+    const result = await pool.query(query, [mealId, food_id, quantity_g]);
 
     res.status(201).json(result.rows[0]);
   } catch (error) {
@@ -566,17 +561,17 @@ export const updateFoodServing = async (req: Request, res: Response) => {
   try {
     const mealId = parseInt(req.params.mealId);
     const mealFoodId = parseInt(req.params.mealFoodId);
-    const servings = parseFloat(req.body.servings);
+    const quantity_g = parseFloat(req.body.quantity_g);
 
     const query = `
-UPDATE meal_foods
-SET servings = $1::numeric, quantity_g = ($1::numeric * 100)::integer
-WHERE id = $2
-  AND meal_id = $3
-RETURNING *
+      UPDATE meal_foods
+      SET quantity_g = $1
+      WHERE id = $2
+        AND meal_id = $3
+      RETURNING *
     `;
 
-    const result = await pool.query(query, [servings, mealFoodId, mealId]);
+    const result = await pool.query(query, [quantity_g, mealFoodId, mealId]);
 
     if (result.rows.length === 0) {
       return res
@@ -753,4 +748,3 @@ ORDER BY mp.created_at DESC
     res.status(500).json({ error: "Failed to retrieve assigned meals" });
   }
 };
-
