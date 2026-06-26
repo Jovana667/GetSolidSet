@@ -14,7 +14,10 @@ const PORT = process.env.PORT || 3001; // Uses PORT from .env, or 3001 as fallba
 
 // Middleware - these run on EVERY request
 app.use(helmet()); // Adds security headers to responses
-app.use(cors()); // Allows requests from your frontend
+app.use(cors({
+  origin: process.env.ALLOWED_ORIGINS?.split(",") || "http://localhost:5173",
+  credentials: true,
+}));
 app.use(express.json()); // Lets you read JSON from request body
 
 // Routes - defines what URLs your service responds to

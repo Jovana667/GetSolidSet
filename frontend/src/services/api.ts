@@ -6,6 +6,7 @@ const authApi = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
+    withCredentials: true,
 });
 
 export const mealApi = axios.create({
@@ -13,6 +14,7 @@ export const mealApi = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
+    withCredentials: true,
 });
 
 const foodApi = axios.create({
@@ -20,6 +22,7 @@ const foodApi = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
+    withCredentials: true,
 });
 
 const userApi = axios.create({
@@ -27,6 +30,7 @@ const userApi = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
+    withCredentials: true,
 });
 
 // Interceptor to automatically add token to requests

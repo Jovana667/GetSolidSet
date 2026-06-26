@@ -17,6 +17,8 @@ import {
   deleteClientNote,
 } from "../controllers/userControllers";
 import { verifyToken } from "../middleware/auth";
+import { validateAddClient, validateNutritionGoal } from "../middleware/validation";
+
 
 const router = Router();
 
@@ -26,11 +28,11 @@ router.put("/profile", verifyToken, updateProfile);
 router.delete("/profile", verifyToken, deleteProfile);
 
 // Nutrition goals
-router.put("/nutrition-goals", verifyToken, createNutritionGoal);
+router.put("/nutrition-goals", verifyToken, validateNutritionGoal, createNutritionGoal);
 router.get("/nutrition-goals", verifyToken, getNutritionGoalByUserId);
 
 // Trainer client management
-router.post("/clients", verifyToken, addClient);
+router.post("/clients", verifyToken, validateAddClient, addClient);
 router.get("/clients", verifyToken, getClients);
 router.delete("/clients/:trainerClientId", verifyToken, removeClient);
 router.put("/clients/:trainerClientId/link", verifyToken, linkClient);

@@ -18,7 +18,10 @@ const app: Express = express();
 const PORT = process.env.PORT || 3003;
 
 app.use(helmet());  
-app.use(cors());
+app.use(cors({
+  origin: process.env.ALLOWED_ORIGINS?.split(",") || "http://localhost:5173",
+  credentials: true,
+}));
 app.use(express.json());
 
 // Meal routes
