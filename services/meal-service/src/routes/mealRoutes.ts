@@ -12,6 +12,8 @@ import {
   removeFoodFromMeal,
   getAssignedMeals
 } from "../controllers/mealController";
+import { validateCreateMeal, validateUpdateMeal } from "../middleware/validation";
+
 
 import {
   generateShareLink,
@@ -37,10 +39,10 @@ router.get("/plans/client/:trainerClientId", verifyToken, getClientMeals);
 router.get("/plans/:id", verifyToken, getMealPlanById);
 
 // Create a new meal plan
-router.post("/", verifyToken, createMeal);
+router.post("/", verifyToken, validateCreateMeal, createMeal);
 
 // Update meal plan name
-router.put("/plans/:id", verifyToken, updateMealPlan);
+router.put("/plans/:id", verifyToken, validateUpdateMeal, updateMealPlan);
 
 // Delete a meal plan
 router.delete("/plans/:id", verifyToken, deleteMealPlan);

@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { register, login } from '../controllers/authController';
 import { requestReset, verifyReset, completeReset } from '../controllers/resetController';
+import { validateRegister, validateLogin } from "../middleware/validation";
 import rateLimit from "express-rate-limit";
 
 const router = Router();
@@ -13,8 +14,8 @@ const authLimiter = rateLimit({
   legacyHeaders: false,
 });
 
-router.post('/register', authLimiter, register);
-router.post('/login', authLimiter, login);
+router.post('/register', authLimiter, validateRegister, register);
+router.post('/login', authLimiter, validateLogin, login);
 
 // Password reset routes
 router.post('/forgot-password', authLimiter, requestReset);
