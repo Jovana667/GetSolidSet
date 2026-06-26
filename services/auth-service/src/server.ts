@@ -3,6 +3,7 @@ import dotenv from "dotenv"; // Loads .env file
 // Load environment variables FIRST before any other imports that use them
 dotenv.config();
 
+import helmet from "helmet"; // Security middleware
 import express, { Express } from "express"; // Gets the web framework
 import cors from "cors"; // Allows frontend to talk to backend
 import authRoutes from "./routes/authRoutes"; // Gets your login/register routes
@@ -12,6 +13,7 @@ const app: Express = express(); // Creates your web server
 const PORT = process.env.PORT || 3001; // Uses PORT from .env, or 3001 as fallback
 
 // Middleware - these run on EVERY request
+app.use(helmet()); // Adds security headers to responses
 app.use(cors()); // Allows requests from your frontend
 app.use(express.json()); // Lets you read JSON from request body
 

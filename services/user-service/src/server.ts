@@ -8,6 +8,7 @@ dotenv.config();
 // NOW import pool (which needs DATABASE_URL from .env)
 import pool from "./utils/db";
 import userRoutes from "./routes/userRoutes";
+import helmet from "helmet";
 
 // Debug - see what's loaded
 console.log('NODE_ENV:', process.env.NODE_ENV);
@@ -17,6 +18,7 @@ console.log('DATABASE_URL:', process.env.DATABASE_URL);
 const app: Express = express();
 const PORT = process.env.PORT || 3004;
 
+app.use(helmet());  
 app.use(cors());
 app.use(express.json());
 

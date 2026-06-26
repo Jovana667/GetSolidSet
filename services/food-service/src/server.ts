@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 // Load environment variables FIRST before any other imports that use them
 dotenv.config();
 
+import helmet from "helmet"; // Security middleware
 import express, { Express } from "express";
 import cors from "cors";
 import foodRoutes from "./routes/foodRoutes";
@@ -11,6 +12,7 @@ import pool from "./utils/db";
 const app: Express = express();
 const PORT = process.env.PORT || 3002;
 
+app.use(helmet());  
 app.use(cors());
 app.use(express.json());
 

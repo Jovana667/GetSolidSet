@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 // Load environment variables FIRST
 dotenv.config();
 
+import helmet from "helmet"; // Security middleware
 import express, { Express } from "express";
 import cors from "cors";
 import mealRoutes from "./routes/mealRoutes";
@@ -16,6 +17,7 @@ pool.query("SELECT current_database()").then(result => {
 const app: Express = express();
 const PORT = process.env.PORT || 3003;
 
+app.use(helmet());  
 app.use(cors());
 app.use(express.json());
 
