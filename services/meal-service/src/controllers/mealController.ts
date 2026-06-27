@@ -445,12 +445,12 @@ WHERE id = $1 AND (
     const mealsResult = await pool.query(mealsQuery, [mealPlanId]);
 
     // Group foods by meal type
-    const groupedMeals = {
-      breakfast: { meal_id: null, foods: [] },
-      lunch: { meal_id: null, foods: [] },
-      dinner: { meal_id: null, foods: [] },
-      snack: { meal_id: null, foods: [] },
-    };
+const groupedMeals: { [key: string]: { meal_id: number | null; foods: any[] } } = {
+  breakfast: { meal_id: null, foods: [] },
+  lunch: { meal_id: null, foods: [] },
+  dinner: { meal_id: null, foods: [] },
+  snack: { meal_id: null, foods: [] },
+};
 
     mealsResult.rows.forEach((row: any) => {
       groupedMeals[row.meal_type].meal_id = row.meal_id;
