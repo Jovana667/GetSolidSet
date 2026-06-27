@@ -25,8 +25,8 @@ export const validateCustomFood = [
     .withMessage("Name must be under 255 characters")
     .escape(),
   body("category")
-    .isIn(["protein", "carbs", "fats"])
-    .withMessage("Category must be protein, carbs or fats"),
+    .isIn(["protein", "carbs", "fats", "vegetables", "fruits", "supplements"])
+    .withMessage("Invalid category"),
   body("protein_per_100g")
     .isFloat({ min: 0, max: 200 })
     .withMessage("Protein must be between 0 and 200"),
