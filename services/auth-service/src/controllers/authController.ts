@@ -127,6 +127,53 @@ export const login = async (req: Request, res: Response) => {
   }
 };
 
+export const refreshToken = async (req: Request, res: Response) => {
+  try {
+    const { refreshToken } = req.body;
+
+    if (!refreshToken) {
+      return res.status(401).json({ error: "Refresh token required" });
+    }
+
+    const result = await pool.query(
+      "SELECT * FROM refresh_tokens WHERE token = $1 AND expires_at > NOW()",
+      [refreshToken]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(401).json({ error: "Invalid or expired refresh token" });
+    }
+
+    const storedToken = result.rows[0];
+
+    const userResult = await pool.query(
+      "SELECT id, email, username, role FROM users WHERE id = $1",
+      [storedToken.user_id]
+    );
+
+    if (userResult.rows.length === 0) {
+      return res.status(401).json({ error: "User not found" });
+    }
+
+    const user = userResult.rows[0];
+
+    const payload: JWTPayload = {
+      id: user.id,
+      email: user.email,
+      role: user.role,
+    };
+
+    const accessToken = jwt.sign(payload, process.env.JWT_SECRET || "your-secret-key-change-this", {
+      expiresIn: "1h",
+    });
+
+    res.status(200).json({ token: accessToken });
+  } catch (error: any) {
+    console.error("Refresh token error:", error);
+    res.status(500).json({ error: "Failed to refresh token" });
+  }
+};
+
 export const logout = async (req: Request, res: Response) => {
   try {
     const { refreshToken } = req.body;
