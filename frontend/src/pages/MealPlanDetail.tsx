@@ -24,7 +24,9 @@ function MealPlanDetail() {
   const [activeMealSlot, setActiveMealSlot] = useState<string | null>(null);
   const [foodToDelete, setFoodToDelete] = useState<any | null>(null);
   const [isDeleteFoodModalOpen, setIsDeleteFoodModalOpen] = useState(false);
-  const [selectedMealFoodId, setSelectedMealFoodId] = useState<number | null>(null);
+  const [selectedMealFoodId, setSelectedMealFoodId] = useState<number | null>(
+    null,
+  );
   const [servingInput, setServingInput] = useState<number>(100);
   const [formData, setFormData] = useState({ name: "" });
 
@@ -55,7 +57,10 @@ function MealPlanDetail() {
     }
     try {
       const mealId = mealPlan.meals[activeMealSlot].meal_id;
-      await addFoodToMealApi(mealId, { food_id: food.id, quantity_g: food.default_serving_g ?? 100 });
+      await addFoodToMealApi(mealId, {
+        food_id: food.id,
+        quantity_g: food.default_serving_g ?? 100,
+      });
       fetchMealPlan();
     } catch (error) {
       console.error("Failed to add food to meal:", error);
@@ -74,7 +79,9 @@ function MealPlanDetail() {
       await axios.put(
         `http://localhost:3003/api/meals/plans/${id}`,
         { name: formData.name },
-        { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } },
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        },
       );
       setMealPlan((prev: any) => ({ ...prev, name: formData.name }));
       setIsEditing(false);
@@ -101,7 +108,10 @@ function MealPlanDetail() {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
       if (role === "trainer" && clientId) {
-        navigate(`/clients/${clientId}?trainerClientId=${mealPlan.trainer_client_id}`, { replace: true });
+        navigate(
+          `/clients/${clientId}?trainerClientId=${mealPlan.trainer_client_id}`,
+          { replace: true },
+        );
       } else {
         navigate("/meals", { replace: true });
       }
@@ -126,27 +136,30 @@ function MealPlanDetail() {
     }
   };
 
-const handleUpdateServing = async () => {
-  try {
-    const mealId = mealPlan.meals[activeMealSlot].meal_id;
-    const grams = parseFloat(String(servingInput));
-    if (isNaN(grams) || grams <= 0) {
-      alert("Please enter a valid amount in grams");
-      return;
+  const handleUpdateServing = async () => {
+    try {
+      const mealId = mealPlan.meals[activeMealSlot].meal_id;
+      const grams = parseFloat(String(servingInput));
+      if (isNaN(grams) || grams <= 0) {
+        alert("Please enter a valid amount in grams");
+        return;
+      }
+      await updateFoodServing(mealId, selectedMealFoodId, grams);
+      setSelectedMealFoodId(null);
+      fetchMealPlan();
+    } catch (error) {
+      console.error("Update failed:", error);
+      alert("Failed to update serving");
     }
-    await updateFoodServing(mealId, selectedMealFoodId, grams);
-    setSelectedMealFoodId(null);
-    fetchMealPlan();
-  } catch (error) {
-    console.error("Update failed:", error);
-    alert("Failed to update serving");
-  }
-};
+  };
 
   const fetchMealPlan = async () => {
     try {
       const token = localStorage.getItem("token");
-      if (!token) { navigate("/login"); return; }
+      if (!token) {
+        navigate("/login");
+        return;
+      }
       const response = await axios.get(
         `http://localhost:3003/api/meals/plans/${id}`,
         { headers: { Authorization: `Bearer ${token}` } },
@@ -176,7 +189,6 @@ const handleUpdateServing = async () => {
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2 order-2 lg:order-1 bg-white rounded-lg shadow p-6">
-
               {/* Header — clean, just title and ... menu */}
               <div className="flex justify-between items-center mb-1">
                 {isEditing ? (
@@ -188,7 +200,9 @@ const handleUpdateServing = async () => {
                     autoFocus
                   />
                 ) : (
-                  <h1 className="text-2xl font-bold text-gray-900">{mealPlan.name}</h1>
+                  <h1 className="text-2xl font-bold text-gray-900">
+                    {mealPlan.name}
+                  </h1>
                 )}
 
                 {/* ... dropdown menu only */}
@@ -197,9 +211,17 @@ const handleUpdateServing = async () => {
                     onClick={() => setDropdownMenu(!dropdownMenu)}
                     className="p-2 rounded hover:bg-gray-100 text-gray-500"
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                      viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                      strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
                       <circle cx="12" cy="12" r="1" />
                       <circle cx="19" cy="12" r="1" />
                       <circle cx="5" cy="12" r="1" />
@@ -208,22 +230,29 @@ const handleUpdateServing = async () => {
 
                   {dropdownMenu && (
                     <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
-                      <button
-                        onClick={() => {
-                          setIsEditing(true);
-                          setFormData({ name: mealPlan.name });
-                          setDropdownMenu(false);
-                        }}
-                        className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => { deleteItem(); setDropdownMenu(false); }}
-                        className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-50"
-                      >
-                        Delete
-                      </button>
+                      {mealPlan.is_owner && (
+                        <>
+                          <button
+                            onClick={() => {
+                              setIsEditing(true);
+                              setFormData({ name: mealPlan.name });
+                              setDropdownMenu(false);
+                            }}
+                            className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => {
+                              deleteItem();
+                              setDropdownMenu(false);
+                            }}
+                            className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-50"
+                          >
+                            Delete
+                          </button>
+                        </>
+                      )}
                       <button
                         onClick={async () => {
                           try {
@@ -232,7 +261,9 @@ const handleUpdateServing = async () => {
                             await navigator.clipboard.writeText(url);
                             alert("Share link copied to clipboard!");
                           } catch {
-                            alert("Failed to generate share link. Please try again.");
+                            alert(
+                              "Failed to generate share link. Please try again.",
+                            );
                           }
                           setDropdownMenu(false);
                         }}
@@ -247,7 +278,9 @@ const handleUpdateServing = async () => {
                             const url = `${window.location.origin}/share/${token}?print=true`;
                             window.open(url, "_blank");
                           } catch {
-                            alert("Failed to generate share link. Please try again.");
+                            alert(
+                              "Failed to generate share link. Please try again.",
+                            );
                           }
                           setDropdownMenu(false);
                         }}
@@ -265,23 +298,25 @@ const handleUpdateServing = async () => {
               </p>
 
               {/* Meal slots */}
-              {(["breakfast", "lunch", "dinner", "snack"] as const).map((mealType) => (
-                <MealSlot
-                  key={mealType}
-                  mealType={mealType}
-                  foods={mealPlan.meals[mealType].foods}
-                  isEditing={isEditing}
-                  activeMealSlot={activeMealSlot}
-                  setActiveMealSlot={setActiveMealSlot}
-                  selectedMealFoodId={selectedMealFoodId}
-                  setSelectedMealFoodId={setSelectedMealFoodId}
-                  servingInput={servingInput}
-                  setServingInput={setServingInput}
-                  handleUpdateServing={handleUpdateServing}
-                  setFoodToDelete={setFoodToDelete}
-                  setIsDeleteFoodModalOpen={setIsDeleteFoodModalOpen}
-                />
-              ))}
+              {(["breakfast", "lunch", "dinner", "snack"] as const).map(
+                (mealType) => (
+                  <MealSlot
+                    key={mealType}
+                    mealType={mealType}
+                    foods={mealPlan.meals[mealType].foods}
+                    isEditing={isEditing}
+                    activeMealSlot={activeMealSlot}
+                    setActiveMealSlot={setActiveMealSlot}
+                    selectedMealFoodId={selectedMealFoodId}
+                    setSelectedMealFoodId={setSelectedMealFoodId}
+                    servingInput={servingInput}
+                    setServingInput={setServingInput}
+                    handleUpdateServing={handleUpdateServing}
+                    setFoodToDelete={setFoodToDelete}
+                    setIsDeleteFoodModalOpen={setIsDeleteFoodModalOpen}
+                  />
+                ),
+              )}
 
               {/* Bottom row — total normally, save/cancel when editing */}
               <div className="flex justify-between items-center mt-6 pt-4 border-t border-gray-200">
@@ -330,7 +365,8 @@ const handleUpdateServing = async () => {
           <div className="bg-white rounded-lg p-6 max-w-sm w-full mx-4">
             <h3 className="text-lg font-semibold mb-2">Remove Food</h3>
             <p className="text-gray-600 mb-6">
-              Are you sure you want to remove {foodToDelete?.name} from this meal?
+              Are you sure you want to remove {foodToDelete?.name} from this
+              meal?
             </p>
             <div className="flex justify-end gap-3">
               <button
