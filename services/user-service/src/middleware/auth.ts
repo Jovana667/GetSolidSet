@@ -38,7 +38,7 @@ export const verifyToken = (
     // STEP 2: Verify the token
     const decoded = jwt.verify(
       token,
-      process.env.JWT_SECRET || "your-secret-key-change-this"
+      process.env.JWT_SECRET || "07ff4fbc2824f0012ce884728bb80a17e841cef5609785bea226adf6ab2cb50250defc6c2d8dfba8601b99ce4525d3f7d4a25d1526a34bd86f672d74d06d06aa"
     ) as JWTPayload;
 
     // STEP 3: Attach user info to request object
