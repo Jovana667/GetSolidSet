@@ -4,24 +4,27 @@ export interface JWTPayload {
   role: string;
 }
 
+export interface MealFoodItem {
+  food_id: number;
+  servings?: number;
+  quantity_g?: number;
+}
+
+export interface MealFoods {
+  [key: string]: MealFoodItem[] | undefined;
+  breakfast?: MealFoodItem[];
+  lunch?: MealFoodItem[];
+  dinner?: MealFoodItem[];
+  snack?: MealFoodItem[];
+}
+
 export interface CreateMealRequest {
   name: string;
   meal_type?: string;
   meal_date?: string;
   is_template?: boolean;
   trainer_client_id?: number | null;
-  foods: {
-    breakfast?: MealFoodItem[];
-    lunch?: MealFoodItem[];
-    dinner?: MealFoodItem[];
-    snack?: MealFoodItem[];
-  };
-}
-
-export interface MealFoodItem {
-  food_id: number;
-  servings?: number;
-  quantity_g?: number;
+  foods: MealFoods;
 }
 
 export interface Food {
