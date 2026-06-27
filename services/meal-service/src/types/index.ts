@@ -1,6 +1,7 @@
 export interface JWTPayload {
   id: number;
   email: string;
+  role: string;
 }
 
 export interface CreateMealRequest {
@@ -8,7 +9,13 @@ export interface CreateMealRequest {
   meal_type?: string;
   meal_date?: string;
   is_template?: boolean;
-  foods: MealFoodItem[];
+  trainer_client_id?: number | null;
+  foods: {
+    breakfast?: MealFoodItem[];
+    lunch?: MealFoodItem[];
+    dinner?: MealFoodItem[];
+    snack?: MealFoodItem[];
+  };
 }
 
 export interface MealFoodItem {
