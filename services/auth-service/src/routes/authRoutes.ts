@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router, RequestHandler } from "express";
 import { register, login, refreshToken, logout } from "../controllers/authController";
 import { requestReset, verifyReset, completeReset } from '../controllers/resetController';
 import { validateRegister, validateLogin } from "../middleware/validation";
@@ -14,8 +14,8 @@ const authLimiter = rateLimit({
   legacyHeaders: false,
 });
 
-router.post('/register', authLimiter, validateRegister, register);
-router.post('/login', authLimiter, validateLogin, login);
+router.post('/register', authLimiter, ...(validateRegister as RequestHandler[]), register);
+router.post('/login', authLimiter, ...(validateLogin as RequestHandler[]), login);
 router.post("/refresh", refreshToken);
 router.post("/logout", logout);
 
