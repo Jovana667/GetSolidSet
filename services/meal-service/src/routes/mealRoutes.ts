@@ -1,4 +1,4 @@
-import { Router } from "express";
+import { Router, RequestHandler } from "express";
 import {
   createMeal,
   getMeals,
@@ -39,10 +39,10 @@ router.get("/plans/client/:trainerClientId", verifyToken, getClientMeals);
 router.get("/plans/:id", verifyToken, getMealPlanById);
 
 // Create a new meal plan
-router.post("/", verifyToken, validateCreateMeal, createMeal);
+router.post("/", verifyToken, ...(validateCreateMeal as RequestHandler[]), createMeal);
 
 // Update meal plan name
-router.put("/plans/:id", verifyToken, validateUpdateMeal, updateMealPlan);
+router.put("/plans/:id", verifyToken, ...(validateUpdateMeal as RequestHandler[]), updateMealPlan);
 
 // Delete a meal plan
 router.delete("/plans/:id", verifyToken, deleteMealPlan);
