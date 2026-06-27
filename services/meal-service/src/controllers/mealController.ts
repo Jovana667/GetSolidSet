@@ -477,6 +477,7 @@ WHERE id = $1 AND (
 
     res.status(200).json({
       ...mealPlan,
+      is_owner: mealPlan.user_id === userId,
       meals: groupedMeals,
     });
   } catch (error) {
