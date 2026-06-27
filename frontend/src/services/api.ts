@@ -44,30 +44,59 @@ const addTokenInterceptor = (apiInstance: any) => {
   });
 };
 
-const addResponseInterceptor = (apiInstance: any) => {
+// Add refresh token function
+const refreshAccessToken = async () => {
+  const refreshToken = localStorage.getItem("refreshToken");
+  if (!refreshToken) throw new Error("No refresh token");
+  
+  const response = await axios.post(
+    `${import.meta.env.VITE_AUTH_API_URL}/refresh`,
+    { refreshToken }
+  );
+  
+  localStorage.setItem("token", response.data.token);
+  return response.data.token;
+};
+
+// Add response interceptor to handle token expiry
+const addRefreshInterceptor = (apiInstance: any) => {
   apiInstance.interceptors.response.use(
     (response: any) => response,
-    (error: any) => {
-      if (error.response?.status === 401) {
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
-        localStorage.removeItem("role");
-        window.location.href = "/login";
+    async (error: any) => {
+      const originalRequest = error.config;
+      
+      if (error.response?.status === 401 && !originalRequest._retry) {
+        originalRequest._retry = true;
+        
+        try {
+          const newToken = await refreshAccessToken();
+          originalRequest.headers.Authorization = `Bearer ${newToken}`;
+          return apiInstance(originalRequest);
+        } catch (refreshError) {
+          // Refresh failed — log user out
+          localStorage.removeItem("token");
+          localStorage.removeItem("refreshToken");
+          localStorage.removeItem("role");
+          localStorage.removeItem("user");
+          window.location.href = "/login";
+          return Promise.reject(refreshError);
+        }
       }
       return Promise.reject(error);
-    },
+    }
   );
 };
+
+// Apply to all instances
+addRefreshInterceptor(userApi);
+addRefreshInterceptor(mealApi);
+addRefreshInterceptor(foodApi);
 
 // Apply interceptor to all instances that need authentication
 addTokenInterceptor(userApi);
 addTokenInterceptor(mealApi);
 addTokenInterceptor(foodApi);
-// authApi doesn't need it (login/register don't require tokens)
 
-addResponseInterceptor(userApi);
-addResponseInterceptor(mealApi);
-addResponseInterceptor(foodApi);
 
 // Authentication
 export const login = async (email: string, password: string) => {
@@ -116,6 +145,11 @@ export const resetPassword = async (email: string, newPassword: string) => {
     email,
     newPassword,
   });
+  return response.data;
+};
+
+export const logoutUser = async (refreshToken: string) => {
+  const response = await authApi.post("/logout", { refreshToken });
   return response.data;
 };
 
@@ -223,27 +257,8 @@ export const getMeals = async () => {
 };
 
 export const createMeal = async (mealData: any) => {
-  const token = localStorage.getItem("token");
-
-  if (!token) {
-    throw new Error("No authentication token found. Please log in again.");
-  }
-
-  try {
-    const response = await mealApi.post("/meals", mealData, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    return response.data;
-  } catch (error: any) {
-    if (error.response?.status === 401) {
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
-      throw new Error("Session expired. Please log in again.");
-    }
-    throw error;
-  }
+  const response = await mealApi.post("/meals", mealData);
+  return response.data;
 };
 
 export const getMealById = async (mealId: number) => {

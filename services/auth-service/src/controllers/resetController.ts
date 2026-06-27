@@ -13,15 +13,22 @@ export const requestReset = async (req: Request, res: Response) => {
     if (!email || !validateEmail(email)) {
       return res.status(400).json({ message: "Invalid email address" });
     }
+
     const user = await pool.query("SELECT * FROM users WHERE email = $1", [
       email,
     ]);
+
     if (user.rows.length === 0) {
       return res.status(404).json({ message: "User not found" });
     }
+
     const otp = crypto.randomInt(100000, 999999).toString();
     const otpExpiry = new Date(Date.now() + 10 * 60 * 1000);
 
+    // Clean up all expired OTPs across all users
+    await pool.query("DELETE FROM password_reset_otps WHERE expires_at < NOW()");
+
+    // Delete any existing OTP for this specific email
     await pool.query("DELETE FROM password_reset_otps WHERE email = $1", [
       email,
     ]);
@@ -37,6 +44,7 @@ export const requestReset = async (req: Request, res: Response) => {
       subject: "Password Reset OTP",
       text: message,
     });
+
     res.status(200).json({ success: true, message: "OTP sent successfully" });
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });
