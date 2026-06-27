@@ -50,7 +50,7 @@ export const updateProfile = async (req: Request, res: Response) => {
         [userId],
       );
       const isMatch = await bcrypt.compare(
-        current_password,
+        current_password || "",
         passwordCheck.rows[0].password_hash,
       );
       if (!isMatch) {
