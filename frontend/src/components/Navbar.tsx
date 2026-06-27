@@ -1,18 +1,24 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { logoutUser } from "../services/api";
 
 function Navbar() {
   const { isLoggedIn, setIsLoggedIn, role, setRole } = useAuth();
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("role");
-    localStorage.removeItem("user");
-    setIsLoggedIn(false);
-    setRole(null);
-    navigate("/");
-  };
+const handleLogout = async () => {
+  const refreshToken = localStorage.getItem("refreshToken");
+  if (refreshToken) {
+    await logoutUser(refreshToken);
+  }
+  localStorage.removeItem("token");
+  localStorage.removeItem("refreshToken");
+  localStorage.removeItem("role");
+  localStorage.removeItem("user");
+  setIsLoggedIn(false);
+  setRole(null);
+  navigate("/");
+};
 
   return (
     <header className="flex justify-between items-center mb-8">

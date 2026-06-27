@@ -29,8 +29,9 @@ function Login() {
 
       if (response.token) {
         localStorage.setItem("token", response.token);
-        localStorage.setItem("user", JSON.stringify(response.user));
+        localStorage.setItem("refreshToken", response.refreshToken);
         localStorage.setItem("role", response.user.role);
+        localStorage.setItem("user", JSON.stringify(response.user));
         setIsLoggedIn(true);
         setRole(response.user.role);
         navigate("/");

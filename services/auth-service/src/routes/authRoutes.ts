@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { register, login } from '../controllers/authController';
+import { register, login, refreshToken, logout } from "../controllers/authController";
 import { requestReset, verifyReset, completeReset } from '../controllers/resetController';
 import { validateRegister, validateLogin } from "../middleware/validation";
 import rateLimit from "express-rate-limit";
@@ -16,6 +16,8 @@ const authLimiter = rateLimit({
 
 router.post('/register', authLimiter, validateRegister, register);
 router.post('/login', authLimiter, validateLogin, login);
+router.post("/refresh", refreshToken);
+router.post("/logout", logout);
 
 // Password reset routes
 router.post('/forgot-password', authLimiter, requestReset);

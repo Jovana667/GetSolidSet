@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import pool from "../utils/db";
+import crypto from "crypto";
 import { RegisterRequest, LoginRequest, JWTPayload } from "../types";
 import { validateEmail, validatePassword } from "../utils/validation";
 
@@ -64,7 +65,6 @@ export const login = async (req: Request, res: Response) => {
   try {
     const { email, password }: LoginRequest = req.body;
 
-    // Validate input
     if (!email || !password) {
       return res.status(400).json({ error: "Email and password are required" });
     }
@@ -73,9 +73,8 @@ export const login = async (req: Request, res: Response) => {
       return res.status(400).json({ error: "Invalid email format" });
     }
 
-    // Find user by email
     const result = await pool.query(
-      "SELECT id, email, name, role, password_hash FROM users WHERE email = $1",
+      "SELECT id, email, username, role, password_hash FROM users WHERE email = $1",
       [email]
     );
 
@@ -85,39 +84,121 @@ export const login = async (req: Request, res: Response) => {
 
     const user = result.rows[0];
 
-    // Compare passwords
     const isPasswordValid = await bcrypt.compare(password, user.password_hash);
 
     if (!isPasswordValid) {
       return res.status(401).json({ error: "Invalid credentials" });
     }
 
-    // Generate JWT token with 7-day expiration
+    // Generate access token — short lived
     const payload: JWTPayload = {
       id: user.id,
       email: user.email,
       role: user.role,
     };
 
-    const token = jwt.sign(
+    const accessToken = jwt.sign(
       payload,
       process.env.JWT_SECRET || "your-secret-key-change-this",
-      { expiresIn: "7d" }
+      { expiresIn: "15m" }
     );
 
-    // Return token and user info (without password)
+    // Generate refresh token — long lived random string
+    const refreshToken = crypto.randomBytes(64).toString("hex");
+    const refreshExpiry = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
+
+    // Store refresh token in database
+    await pool.query(
+      "INSERT INTO refresh_tokens (user_id, token, expires_at) VALUES ($1, $2, $3)",
+      [user.id, refreshToken, refreshExpiry]
+    );
+
     res.status(200).json({
       message: "Login successful",
-      token,
+      token: accessToken,
+      refreshToken,
       user: {
         id: user.id,
         email: user.email,
-        name: user.name,
+        username: user.username,
         role: user.role,
       },
     });
   } catch (error) {
     console.error("Login error:", error);
     res.status(500).json({ error: "Login failed" });
+  }
+};
+
+export const refreshToken = async (req: Request, res: Response) => {
+  try {
+    const { refreshToken } = req.body;
+
+    if (!refreshToken) {
+      return res.status(401).json({ error: "Refresh token required" });
+    }
+
+    // Find refresh token in database
+    const result = await pool.query(
+      "SELECT * FROM refresh_tokens WHERE token = $1 AND expires_at > NOW()",
+      [refreshToken]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(401).json({ error: "Invalid or expired refresh token" });
+    }
+
+    const storedToken = result.rows[0];
+
+    // Get user details
+    const userResult = await pool.query(
+      "SELECT id, email, username, role FROM users WHERE id = $1",
+      [storedToken.user_id]
+    );
+
+    if (userResult.rows.length === 0) {
+      return res.status(401).json({ error: "User not found" });
+    }
+
+    const user = userResult.rows[0];
+
+    // Generate new access token
+    const payload: JWTPayload = {
+      id: user.id,
+      email: user.email,
+      role: user.role,
+    };
+
+    const accessToken = jwt.sign(
+      payload,
+      process.env.JWT_SECRET || "your-secret-key-change-this",
+      { expiresIn: "15m" }
+    );
+
+    res.status(200).json({
+      token: accessToken,
+    });
+  } catch (error) {
+    console.error("Refresh token error:", error);
+    res.status(500).json({ error: "Failed to refresh token" });
+  }
+};
+
+export const logout = async (req: Request, res: Response) => {
+  try {
+    const { refreshToken } = req.body;
+
+    if (refreshToken) {
+      // Delete refresh token from database
+      await pool.query(
+        "DELETE FROM refresh_tokens WHERE token = $1",
+        [refreshToken]
+      );
+    }
+
+    res.status(200).json({ message: "Logged out successfully" });
+  } catch (error) {
+    console.error("Logout error:", error);
+    res.status(500).json({ error: "Logout failed" });
   }
 };
