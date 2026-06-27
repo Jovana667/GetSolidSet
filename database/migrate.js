@@ -5,6 +5,9 @@ require('dotenv').config({ path: path.join(__dirname, '../services/auth-service/
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false
+  }
 });
 
 async function migrate() {
