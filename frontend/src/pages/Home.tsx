@@ -16,7 +16,7 @@ function Home() {
     dinner: [],
     snack: [],
   });
-
+  const [foodDrawerOpen, setFoodDrawerOpen] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
   const clientId = searchParams.get("clientId");
   const clientName = searchParams.get("clientName");
@@ -181,7 +181,7 @@ function Home() {
           <Navbar />
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Left side - Meal Planner (2/3 width) */}
-            <div className="lg:col-span-2 order-2 lg:order-1 bg-white rounded-lg shadow p-6">
+            <div className="lg:col-span-2 order-1 lg:order-1 bg-white rounded-lg shadow p-6">
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-2xl font-semibold">Meal Planner</h2>
                 {role === "trainer" && (
@@ -346,12 +346,54 @@ function Home() {
               </div>
             </div>
 
-            {/* Right side - Food Sidebar (1/3 width) */}
-            <FoodPanel onFoodClick={addFoodToMeal} />
+            {/* Right side - Food panel — hidden on mobile */}
+            <div className="hidden lg:block lg:order-2">
+              <FoodPanel onFoodClick={addFoodToMeal} />
+            </div>
           </div>
         </div>
       </div>
       <Footer />
+
+      {/* Mobile floating Add Food button */}
+      <button
+        className="lg:hidden fixed bottom-6 right-6 bg-blue-600 text-white rounded-full px-5 py-3 shadow-lg z-40 flex items-center gap-2"
+        onClick={() => setFoodDrawerOpen(true)}
+      >
+        <span className="text-xl font-light">+</span>
+        <span className="font-medium">Add Food</span>
+      </button>
+
+      {/* Mobile food drawer */}
+      {foodDrawerOpen && (
+        <div className="lg:hidden fixed inset-0 z-50 flex flex-col justify-end">
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-black bg-opacity-50"
+            onClick={() => setFoodDrawerOpen(false)}
+          />
+          {/* Drawer */}
+          <div className="relative bg-white rounded-t-2xl max-h-[80vh] overflow-y-auto">
+            <div className="flex justify-between items-center p-4 border-b border-gray-200 sticky top-0 bg-white">
+              <h2 className="font-semibold text-gray-900">Add Food</h2>
+              <button
+                onClick={() => setFoodDrawerOpen(false)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="p-4">
+              <FoodPanel
+                onFoodClick={(food) => {
+                  addFoodToMeal(food);
+                  setFoodDrawerOpen(false);
+                }}
+              />
+            </div>
+          </div>
+        </div>
+      )}
 
       {selectClientModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">

@@ -21,6 +21,7 @@ function MealPlanDetail() {
   const [error, setError] = useState("");
   const [dropdownMenu, setDropdownMenu] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [foodDrawerOpen, setFoodDrawerOpen] = useState(false);
   const [activeMealSlot, setActiveMealSlot] = useState<string | null>(null);
   const [foodToDelete, setFoodToDelete] = useState<any | null>(null);
   const [isDeleteFoodModalOpen, setIsDeleteFoodModalOpen] = useState(false);
@@ -181,15 +182,15 @@ function MealPlanDetail() {
   if (error) return <div className="p-8 text-red-600">{error}</div>;
   if (!mealPlan) return <div className="p-8">Meal plan not found</div>;
 
-  return (
+ return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <div className="flex-1 pt-8 px-8">
         <div className="max-w-7xl mx-auto">
           <Navbar />
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2 order-2 lg:order-1 bg-white rounded-lg shadow p-6">
-              {/* Header — clean, just title and ... menu */}
+            <div className="lg:col-span-2 lg:order-1 bg-white rounded-lg shadow p-6">
+              {/* Header */}
               <div className="flex justify-between items-center mb-1">
                 {isEditing ? (
                   <input
@@ -200,28 +201,15 @@ function MealPlanDetail() {
                     autoFocus
                   />
                 ) : (
-                  <h1 className="text-2xl font-bold text-gray-900">
-                    {mealPlan.name}
-                  </h1>
+                  <h1 className="text-2xl font-bold text-gray-900">{mealPlan.name}</h1>
                 )}
 
-                {/* ... dropdown menu only */}
                 <div className="relative">
                   <button
                     onClick={() => setDropdownMenu(!dropdownMenu)}
                     className="p-2 rounded hover:bg-gray-100 text-gray-500"
                   >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <circle cx="12" cy="12" r="1" />
                       <circle cx="19" cy="12" r="1" />
                       <circle cx="5" cy="12" r="1" />
@@ -233,20 +221,13 @@ function MealPlanDetail() {
                       {mealPlan.is_owner && (
                         <>
                           <button
-                            onClick={() => {
-                              setIsEditing(true);
-                              setFormData({ name: mealPlan.name });
-                              setDropdownMenu(false);
-                            }}
+                            onClick={() => { setIsEditing(true); setFormData({ name: mealPlan.name }); setDropdownMenu(false); }}
                             className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
                           >
                             Edit
                           </button>
                           <button
-                            onClick={() => {
-                              deleteItem();
-                              setDropdownMenu(false);
-                            }}
+                            onClick={() => { deleteItem(); setDropdownMenu(false); }}
                             className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-50"
                           >
                             Delete
@@ -260,11 +241,7 @@ function MealPlanDetail() {
                             const url = `${window.location.origin}/share/${token}`;
                             await navigator.clipboard.writeText(url);
                             alert("Share link copied to clipboard!");
-                          } catch {
-                            alert(
-                              "Failed to generate share link. Please try again.",
-                            );
-                          }
+                          } catch { alert("Failed to generate share link. Please try again."); }
                           setDropdownMenu(false);
                         }}
                         className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
@@ -277,11 +254,7 @@ function MealPlanDetail() {
                             const token = await generateShareLink(Number(id));
                             const url = `${window.location.origin}/share/${token}?print=true`;
                             window.open(url, "_blank");
-                          } catch {
-                            alert(
-                              "Failed to generate share link. Please try again.",
-                            );
-                          }
+                          } catch { alert("Failed to generate share link. Please try again."); }
                           setDropdownMenu(false);
                         }}
                         className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
@@ -298,36 +271,31 @@ function MealPlanDetail() {
               </p>
 
               {/* Meal slots */}
-              {(["breakfast", "lunch", "dinner", "snack"] as const).map(
-                (mealType) => (
-                  <MealSlot
-                    key={mealType}
-                    mealType={mealType}
-                    foods={mealPlan.meals[mealType].foods}
-                    isEditing={isEditing}
-                    activeMealSlot={activeMealSlot}
-                    setActiveMealSlot={setActiveMealSlot}
-                    selectedMealFoodId={selectedMealFoodId}
-                    setSelectedMealFoodId={setSelectedMealFoodId}
-                    servingInput={servingInput}
-                    setServingInput={setServingInput}
-                    handleUpdateServing={handleUpdateServing}
-                    setFoodToDelete={setFoodToDelete}
-                    setIsDeleteFoodModalOpen={setIsDeleteFoodModalOpen}
-                  />
-                ),
-              )}
+              {(["breakfast", "lunch", "dinner", "snack"] as const).map((mealType) => (
+                <MealSlot
+                  key={mealType}
+                  mealType={mealType}
+                  foods={mealPlan.meals[mealType].foods}
+                  isEditing={isEditing}
+                  activeMealSlot={activeMealSlot}
+                  setActiveMealSlot={setActiveMealSlot}
+                  selectedMealFoodId={selectedMealFoodId}
+                  setSelectedMealFoodId={setSelectedMealFoodId}
+                  servingInput={servingInput}
+                  setServingInput={setServingInput}
+                  handleUpdateServing={handleUpdateServing}
+                  setFoodToDelete={setFoodToDelete}
+                  setIsDeleteFoodModalOpen={setIsDeleteFoodModalOpen}
+                />
+              ))}
 
-              {/* Bottom row — total normally, save/cancel when editing */}
+              {/* Bottom row */}
               <div className="flex justify-between items-center mt-6 pt-4 border-t border-gray-200">
                 {isEditing ? (
                   <>
                     <button
                       className="px-4 py-2 text-sm text-gray-500 hover:text-gray-700"
-                      onClick={() => {
-                        setIsEditing(false);
-                        setFormData({ name: mealPlan.name });
-                      }}
+                      onClick={() => { setIsEditing(false); setFormData({ name: mealPlan.name }); }}
                     >
                       Cancel
                     </button>
@@ -353,20 +321,53 @@ function MealPlanDetail() {
               </div>
             </div>
 
-            {/* Right side - Food panel */}
-            <FoodPanel onFoodClick={addFoodToMeal} />
+            {/* Right side - Food panel — desktop only */}
+            <div className="hidden lg:block lg:order-2">
+              <FoodPanel onFoodClick={addFoodToMeal} />
+            </div>
+          </div>  {/* ← closes grid */}
+        </div>  {/* ← closes max-w-7xl */}
+      </div>  {/* ← closes flex-1 */}
+
+      {/* Mobile floating Add Food button — outside grid */}
+      {isEditing && (
+        <button
+          className="lg:hidden fixed bottom-6 right-6 bg-blue-600 text-white rounded-full px-5 py-3 shadow-lg z-40 flex items-center gap-2"
+          onClick={() => setFoodDrawerOpen(true)}
+        >
+          <span className="text-xl font-light">+</span>
+          <span className="font-medium">Add Food</span>
+        </button>
+      )}
+
+      {/* Mobile food drawer — outside grid */}
+      {foodDrawerOpen && (
+        <div className="lg:hidden fixed inset-0 z-50 flex flex-col justify-end">
+          <div
+            className="absolute inset-0 bg-black bg-opacity-50"
+            onClick={() => setFoodDrawerOpen(false)}
+          />
+          <div className="relative bg-white rounded-t-2xl max-h-[80vh] overflow-y-auto">
+            <div className="flex justify-between items-center p-4 border-b border-gray-200 sticky top-0 bg-white">
+              <h2 className="font-semibold text-gray-900">Add Food</h2>
+              <button onClick={() => setFoodDrawerOpen(false)} className="text-gray-500 hover:text-gray-700">✕</button>
+            </div>
+            <div className="p-4">
+              <FoodPanel onFoodClick={(food) => { addFoodToMeal(food); setFoodDrawerOpen(false); }} />
+            </div>
           </div>
         </div>
-      </div>
+      )}
+
       <Footer />
 
+      {/* Delete food modal */}
       {isDeleteFoodModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 max-w-sm w-full mx-4">
             <h3 className="text-lg font-semibold mb-2">Remove Food</h3>
             <p className="text-gray-600 mb-6">
-              Are you sure you want to remove {foodToDelete?.name} from this
-              meal?
+              Are you sure you want to remove {foodToDelete?.name} from this meal?
             </p>
             <div className="flex justify-end gap-3">
               <button
