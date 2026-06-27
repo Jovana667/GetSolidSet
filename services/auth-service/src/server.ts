@@ -10,6 +10,7 @@ import authRoutes from "./routes/authRoutes"; // Gets your login/register routes
 import pool from "./utils/db";
 
 const app: Express = express(); // Creates your web server
+app.set('trust proxy', 1);
 const PORT = process.env.PORT || 3001; // Uses PORT from .env, or 3001 as fallback
 
 // Middleware - these run on EVERY request
