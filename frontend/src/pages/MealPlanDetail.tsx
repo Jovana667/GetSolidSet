@@ -78,7 +78,7 @@ function MealPlanDetail() {
     setLoading(true);
     try {
       await axios.put(
-        `${import.meta.env.VITE_MEAL_API_URL}/plans/${id}`,
+        `${import.meta.env.VITE_MEAL_API_URL}/meals/plans/${id}`,
         { name: formData.name },
         {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
@@ -105,7 +105,7 @@ function MealPlanDetail() {
     if (!confirm("Are you sure you want to delete?")) return;
     setLoading(true);
     try {
-      await axios.delete(`${import.meta.env.VITE_MEAL_API_URL}/plans/${id}`, {
+      await axios.delete(`${import.meta.env.VITE_MEAL_API_URL}/meals/plans/${id}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
       if (role === "trainer" && clientId) {
@@ -162,7 +162,7 @@ function MealPlanDetail() {
         return;
       }
       const response = await axios.get(
-        `${import.meta.env.VITE_MEAL_API_URL}/plans/${id}`,
+        `${import.meta.env.VITE_MEAL_API_URL}/meals/plans/${id}`,
         { headers: { Authorization: `Bearer ${token}` } },
       );
       setMealPlan(response.data);
