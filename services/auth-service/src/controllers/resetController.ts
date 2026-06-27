@@ -46,7 +46,7 @@ export const requestReset = async (req: Request, res: Response) => {
     });
 
     res.status(200).json({ success: true, message: "OTP sent successfully" });
-  } catch (error) {
+  } catch (error: any) {
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
@@ -81,7 +81,7 @@ export const verifyReset = async (req: Request, res: Response) => {
     res
       .status(200)
       .json({ success: true, message: "OTP verified successfully" });
-  } catch (error) {
+  } catch (error: any) {
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
@@ -127,7 +127,7 @@ export const completeReset = async (req: Request, res: Response) => {
     res
       .status(200)
       .json({ success: true, message: "Password reset successfully" });
-  } catch (error) {
+  } catch (error: any) {
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
