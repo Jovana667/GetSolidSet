@@ -46,8 +46,8 @@ function ResetPassword() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-      <div className="max-w-md w-full bg-white rounded-lg shadow-md p-8">
+<div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
+  <div className="max-w-md w-full bg-white rounded-lg shadow-md p-8">
         <h2 className="text-2xl font-bold text-center mb-2">
           Set New Password
         </h2>
@@ -175,7 +175,6 @@ function ResetPassword() {
           </button>
         </div>
       </div>
-      <Footer />
     </div>
   );
 }
