@@ -108,7 +108,6 @@ function Navbar() {
           )}
         </button>
       </div>
-
       {/* Mobile dropdown menu */}
       {mobileMenuOpen && (
         <div className="md:hidden mt-4 bg-white border border-gray-200 rounded-lg shadow-lg py-2">
@@ -157,22 +156,24 @@ function Navbar() {
               Log Out
             </button>
           ) : (
-            <div className="px-4 pt-2 pb-1 space-y-2">
+            <>
               <Link
                 to="/login"
                 onClick={() => setMobileMenuOpen(false)}
-                className="block text-center text-blue-600 hover:text-blue-800 font-medium py-2"
+                className="block px-4 py-3 text-blue-600 hover:text-blue-800 font-medium hover:bg-gray-50"
               >
                 Login
               </Link>
-              <Link
-                to="/register"
-                onClick={() => setMobileMenuOpen(false)}
-                className="block text-center bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 font-medium"
-              >
-                Sign Up
-              </Link>
-            </div>
+              <div className="px-4 py-2">
+                <Link
+                  to="/register"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="block text-center bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 font-medium"
+                >
+                  Sign Up
+                </Link>
+              </div>
+            </>
           )}
         </div>
       )}
