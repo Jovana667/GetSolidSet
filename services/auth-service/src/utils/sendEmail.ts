@@ -15,10 +15,16 @@ const transporter = nodemailer.createTransport({
 });
 
 export const sendEmail = async ({ to, subject, text }: SendEmailOptions) => {
-  await transporter.sendMail({
-    from: `"Macrology" <${process.env.EMAIL_USER}>`,
-    to,
-    subject,
-    text,
-  });
+  try {
+    await transporter.sendMail({
+      from: `"Macrology" <${process.env.EMAIL_USER}>`,
+      to,
+      subject,
+      text,
+    });
+    console.log(`✅ Email sent to ${to}`);
+  } catch (error) {
+    console.error("❌ sendEmail failed:", error);
+    throw error; // re-throw so the controller's catch block handles it
+  }
 };
