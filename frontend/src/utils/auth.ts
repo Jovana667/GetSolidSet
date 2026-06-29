@@ -49,17 +49,16 @@ export const AuthUtils = {
   },
 
   // Auto-redirect if token expires
-  initAuthCheck(): void {
-    // Check every minute if token is still valid
-    setInterval(() => {
-      if (
-        !this.isAuthenticated() &&
-        window.location.pathname !== "/login" &&
-        window.location.pathname !== "/register"
-      ) {
-        alert("Your session has expired. Please log in again.");
-        this.logout();
-      }
-    }, 60000); // 1 minute
-  },
-};
+initAuthCheck(): void {
+  const publicRoutes = ["/login", "/register", "/reset-password"];
+  
+  setInterval(() => {
+    if (
+      !this.isAuthenticated() &&
+      !publicRoutes.includes(window.location.pathname)
+    ) {
+      alert("Your session has expired. Please log in again.");
+      this.logout();
+    }
+  }, 60000);
+},
