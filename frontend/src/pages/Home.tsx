@@ -24,7 +24,7 @@ function Home() {
   const [selectClientModal, setSelectClientModal] = useState(false);
   const [selectedClient, setSelectedClient] = useState<any>(null);
   const navigate = useNavigate();
-  const { role } = useAuth();
+const { role, isLoggedIn } = useAuth();
   const [clients, setClients] = useState<any[]>([]);
 
   const fetchClients = async () => {
@@ -176,7 +176,7 @@ function Home() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
-      <div className="flex-1 pt-8 px-8">
+      <div className="flex-1 pt-4 px-4 sm:px-8">
         <div className="max-w-7xl mx-auto">
           <Navbar />
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -267,7 +267,7 @@ function Home() {
                                 <div className="flex-1">
                                   <div className="font-medium text-sm text-gray-900 mb-2">
                                     {food.name}
-                                  </div>{" "}
+                                  </div>
                                   <div className="flex items-center gap-1 mb-2">
                                     <input
                                       type="number"
@@ -346,33 +346,48 @@ function Home() {
               </div>
             </div>
 
-            {/* Right side - Food panel — hidden on mobile */}
+            {/* Right side - Food panel */}
             <div className="hidden lg:block lg:order-2">
-              <FoodPanel onFoodClick={addFoodToMeal} />
+              {isLoggedIn ? (
+                <FoodPanel onFoodClick={addFoodToMeal} />
+              ) : (
+                <div className="bg-white rounded-lg shadow p-6 flex flex-col items-center justify-center text-center h-full min-h-[300px]">
+                  <p className="text-gray-500 text-sm mb-4">
+                    Sign in to access the food database and start building meal
+                    plans.
+                  </p>
+                  <a
+                    href="/register"
+                    className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-sm font-medium"
+                  >
+                    Get started
+                  </a>
+                </div>
+              )}
             </div>
           </div>
         </div>
       </div>
       <Footer />
 
-      {/* Mobile floating Add Food button */}
-      <button
-        className="lg:hidden fixed bottom-6 right-6 bg-blue-600 text-white rounded-full px-5 py-3 shadow-lg z-40 flex items-center gap-2"
-        onClick={() => setFoodDrawerOpen(true)}
-      >
-        <span className="text-xl font-light">+</span>
-        <span className="font-medium">Add Food</span>
-      </button>
+      {/* Mobile floating Add Food button — logged in only */}
+      {isLoggedIn && (
+        <button
+          className="lg:hidden fixed bottom-6 right-6 bg-blue-600 text-white rounded-full px-5 py-3 shadow-lg z-40 flex items-center gap-2"
+          onClick={() => setFoodDrawerOpen(true)}
+        >
+          <span className="text-xl font-light">+</span>
+          <span className="font-medium">Add Food</span>
+        </button>
+      )}
 
-      {/* Mobile food drawer */}
-      {foodDrawerOpen && (
+      {/* Mobile food drawer — logged in only */}
+      {isLoggedIn && foodDrawerOpen && (
         <div className="lg:hidden fixed inset-0 z-50 flex flex-col justify-end">
-          {/* Backdrop */}
           <div
             className="absolute inset-0 bg-black bg-opacity-50"
             onClick={() => setFoodDrawerOpen(false)}
           />
-          {/* Drawer */}
           <div className="relative bg-white rounded-t-2xl max-h-[80vh] overflow-y-auto">
             <div className="flex justify-between items-center p-4 border-b border-gray-200 sticky top-0 bg-white">
               <h2 className="font-semibold text-gray-900">Add Food</h2>

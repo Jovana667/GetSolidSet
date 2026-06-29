@@ -64,21 +64,29 @@ const addRefreshInterceptor = (apiInstance: any) => {
     (response: any) => response,
     async (error: any) => {
       const originalRequest = error.config;
-      
+
       if (error.response?.status === 401 && !originalRequest._retry) {
         originalRequest._retry = true;
-        
+
         try {
           const newToken = await refreshAccessToken();
           originalRequest.headers.Authorization = `Bearer ${newToken}`;
           return apiInstance(originalRequest);
         } catch (refreshError) {
-          // Refresh failed — log user out
           localStorage.removeItem("token");
           localStorage.removeItem("refreshToken");
           localStorage.removeItem("role");
           localStorage.removeItem("user");
-          window.location.href = "/login";
+
+          // Only redirect to login if on a protected page
+          const publicPaths = ["/", "/login", "/register", "/reset-password", "/privacy", "/terms"];
+          const isPublic = publicPaths.includes(window.location.pathname) ||
+            window.location.pathname.startsWith("/share/");
+
+          if (!isPublic) {
+            window.location.href = "/login";
+          }
+
           return Promise.reject(refreshError);
         }
       }

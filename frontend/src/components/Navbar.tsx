@@ -109,74 +109,71 @@ function Navbar() {
         </button>
       </div>
       {/* Mobile dropdown menu */}
-      {mobileMenuOpen && (
-        <div className="md:hidden mt-4 bg-white border border-gray-200 rounded-lg shadow-lg py-2">
+     {mobileMenuOpen && (
+  <div className="md:hidden mt-4 bg-white border border-gray-200 rounded-lg shadow-lg py-2">
+    <Link
+      to="/"
+      onClick={() => setMobileMenuOpen(false)}
+      className="block px-4 py-3 text-blue-600 hover:text-blue-800 font-medium hover:bg-gray-50 text-center"
+    >
+      Home
+    </Link>
+    {isLoggedIn && (
+      <Link
+        to="/profile"
+        onClick={() => setMobileMenuOpen(false)}
+        className="block px-4 py-3 text-blue-600 hover:text-blue-800 font-medium hover:bg-gray-50 text-center"
+      >
+        Profile
+      </Link>
+    )}
+    {role === "trainer" && (
+      <Link
+        to="/clients"
+        onClick={() => setMobileMenuOpen(false)}
+        className="block px-4 py-3 text-blue-600 hover:text-blue-800 font-medium hover:bg-gray-50 text-center"
+      >
+        Clients
+      </Link>
+    )}
+    {isLoggedIn && (
+      <Link
+        to="/meals"
+        onClick={() => setMobileMenuOpen(false)}
+        className="block px-4 py-3 text-blue-600 hover:text-blue-800 font-medium hover:bg-gray-50 text-center"
+      >
+        Saved Meals
+      </Link>
+    )}
+    {isLoggedIn ? (
+      <button
+        onClick={() => { handleLogout(); setMobileMenuOpen(false); }}
+        className="block w-full px-4 py-3 text-red-600 hover:bg-gray-50 font-medium text-center"
+      >
+        Log Out
+      </button>
+    ) : (
+      <>
+        <Link
+          to="/login"
+          onClick={() => setMobileMenuOpen(false)}
+          className="block px-4 py-3 text-blue-600 hover:text-blue-800 font-medium hover:bg-gray-50 text-center"
+        >
+          Login
+        </Link>
+        <div className="px-4 py-2">
           <Link
-            to="/"
+            to="/register"
             onClick={() => setMobileMenuOpen(false)}
-            className="block px-4 py-3 text-blue-600 hover:text-blue-800 font-medium hover:bg-gray-50"
+            className="block text-center bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 font-medium"
           >
-            Home
+            Sign Up
           </Link>
-          {isLoggedIn && (
-            <Link
-              to="/profile"
-              onClick={() => setMobileMenuOpen(false)}
-              className="block px-4 py-3 text-blue-600 hover:text-blue-800 font-medium hover:bg-gray-50"
-            >
-              Profile
-            </Link>
-          )}
-          {role === "trainer" && (
-            <Link
-              to="/clients"
-              onClick={() => setMobileMenuOpen(false)}
-              className="block px-4 py-3 text-blue-600 hover:text-blue-800 font-medium hover:bg-gray-50"
-            >
-              Clients
-            </Link>
-          )}
-          {isLoggedIn && (
-            <Link
-              to="/meals"
-              onClick={() => setMobileMenuOpen(false)}
-              className="block px-4 py-3 text-blue-600 hover:text-blue-800 font-medium hover:bg-gray-50"
-            >
-              Saved Meals
-            </Link>
-          )}
-          {isLoggedIn ? (
-            <button
-              onClick={() => {
-                handleLogout();
-                setMobileMenuOpen(false);
-              }}
-              className="block w-full text-left px-4 py-3 text-red-600 hover:bg-gray-50 font-medium"
-            >
-              Log Out
-            </button>
-          ) : (
-            <>
-              <Link
-                to="/login"
-                onClick={() => setMobileMenuOpen(false)}
-                className="block px-4 py-3 text-blue-600 hover:text-blue-800 font-medium hover:bg-gray-50"
-              >
-                Login
-              </Link>
-              <div className="px-4 py-2">
-                <Link
-                  to="/register"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="block text-center bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 font-medium"
-                >
-                  Sign Up
-                </Link>
-              </div>
-            </>
-          )}
         </div>
-      )}
+      </>
+    )}
+  </div>
+)}
     </header>
   );
 }
