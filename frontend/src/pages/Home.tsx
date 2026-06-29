@@ -330,18 +330,18 @@ function Home() {
               </div>
 
               {/* Footer row */}
-              <div className="flex justify-between items-center mt-6 pt-4 border-t border-gray-100">
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mt-6 pt-4 border-t border-gray-100 gap-3">
                 <button
                   onClick={handleSaveMeal}
-                  className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700"
+                  className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 text-sm font-medium w-full sm:w-auto"
                 >
                   Save Meal
                 </button>
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-gray-500 text-center sm:text-right">
                   Total: {calculateGrandTotal("calories").toFixed(0)} cal ·{" "}
-                  {calculateGrandTotal("protein").toFixed(1)}g P ·{" "}
-                  {calculateGrandTotal("carbs").toFixed(1)}g C ·{" "}
-                  {calculateGrandTotal("fat").toFixed(1)}g F
+                  {calculateGrandTotal("protein").toFixed(1)}g protein ·{" "}
+                  {calculateGrandTotal("carbs").toFixed(1)}g carbs ·{" "}
+                  {calculateGrandTotal("fat").toFixed(1)}g fats
                 </p>
               </div>
             </div>
