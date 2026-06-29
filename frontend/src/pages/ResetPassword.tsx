@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { resetPassword } from "../services/api";
-import Footer from "../components/Footer";
 
 function ResetPassword() {
   const [searchParams] = useSearchParams();
