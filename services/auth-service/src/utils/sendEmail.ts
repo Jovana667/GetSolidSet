@@ -7,7 +7,9 @@ interface SendEmailOptions {
 }
 
 const transporter = nodemailer.createTransport({
-  service: "gmail",
+  host: "smtp.gmail.com",
+  port: 587,
+  secure: false, // STARTTLS
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
@@ -25,6 +27,6 @@ export const sendEmail = async ({ to, subject, text }: SendEmailOptions) => {
     console.log(`✅ Email sent to ${to}`);
   } catch (error) {
     console.error("❌ sendEmail failed:", error);
-    throw error; // re-throw so the controller's catch block handles it
+    throw error;
   }
 };
