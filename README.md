@@ -1,110 +1,158 @@
 # Macrology
 
-A meal prep and macro tracking application with AI-powered meal suggestions.
+A full-stack fitness coaching platform for personal trainers to build, manage, and share meal plans with clients.
+
+## Overview
+
+Macrology is built for the trainer-client workflow — trainers create structured meal plans, assign them to clients, track body composition measurements, and share plans via a clean mobile-friendly link. Clients can view their assigned plans without needing to log in.
 
 ## Tech Stack
 
-- **Backend**: Node.js, TypeScript, Express, PostgreSQL
-- **Frontend**: React, TypeScript, TailwindCSS
-- **AI**: OpenAI/Anthropic API for chatbot
-- **Cloud**: AWS (planned)
+- **Frontend:** React, TypeScript, Tailwind CSS — deployed on Vercel
+- **Backend:** Node.js, TypeScript, Express, PostgreSQL — deployed on Render
+- **Architecture:** Microservices (auth, food, meal, user, chatbot)
+- **Auth:** JWT with refresh tokens, OTP-based password reset via Gmail
+- **Email:** Nodemailer (Gmail SMTP)
+
+## Features
+
+- Trainer and client account roles
+- Meal plan builder with breakfast, lunch, dinner, and snack sections
+- Food database with categories (protein, carbs, fats, vegetables, fruits, supplements)
+- Custom food creation
+- Macro calculations per food, per meal, and daily totals
+- Client management — add, link, and view clients
+- Skinfold measurement tracking
+- Client notes and journal
+- Shareable meal plan links (no client login required)
+- PDF-ready meal plan view
+- OTP-based forgot password flow
+- Mobile responsive with food drawer for small screens
 
 ## Architecture
+services/
 
-Microservices architecture with separate services for:
+auth-service/     → JWT auth, registration, password reset (port 3001)
 
-- Authentication
-- Food Database
-- Meal Management
-- User Profiles
-- AI Chatbot
+food-service/     → Food database, custom foods (port 3002)
 
----
+meal-service/     → Meal plans, sharing, assignment (port 3003)
 
-## 🚀 Getting Started
+user-service/     → Profiles, clients, skinfolds, notes (port 3004)
+
+chatbot-service/  → AI meal suggestions
+
+frontend/           → React app
+
+database/           → Migrations and seed data
+
+## Getting Started
 
 ### Prerequisites
 
 - Node.js v18+
 - PostgreSQL 14+
-- npm or yarn
+- npm
 
 ### Database Setup
-
-**1. Install PostgreSQL and create database:**
 
 ```bash
 # Create database
 createdb macrology_dev
 
-# Or using psql:
-psql -U postgres
-CREATE DATABASE macrology_dev;
-```
-
-**2. Set up environment variables:**
-
-Create `.env` files in each service folder (`services/auth-service/.env`, etc.):
-
-```env
-DATABASE_URL=postgresql://postgres:your_password@localhost:5432/macrology_dev
-PORT=3001  # 3002 for food-service, 3003 for meal-service, etc.
-NODE_ENV=development
-```
-
-**3. Run migrations:**
-
-```bash
+# Run migrations
 cd database
 npm install
 node migrate.js
-```
 
-**4. Seed database with food data:**
-
-```bash
+# Seed food data
 cd database/seeds
 node seed.js
 ```
 
-To add your own foods:
+### Environment Variables
 
-1. Export Excel to CSV with columns: `name,category,protein_per_100g,carbs_per_100g,fat_per_100g,calories_per_100g`
-2. Save as `database/seeds/foods.csv`
-3. Run: `node csv-to-json.js` to convert to JSON
-4. Run: `node seed.js` to insert into database
+Create a `.env` in each service folder:
+Auth service (port 3001)
+DATABASE_URL=postgresql://postgres:your_password@localhost:5432/macrology_dev
 
----
+PORT=3001
 
-## 📦 Development
+JWT_SECRET=your_jwt_secret
+
+REFRESH_TOKEN_SECRET=your_refresh_secret
+
+EMAIL_USER=your_gmail@gmail.com
+
+EMAIL_PASS=your_gmail_app_password
+
+ALLOWED_ORIGINS=http://localhost:5173
+Food service (port 3002)
+DATABASE_URL=...
+
+PORT=3002
+Meal service (port 3003)
+DATABASE_URL=...
+
+PORT=3003
+User service (port 3004)
+DATABASE_URL=...
+
+PORT=3004
+
+> **Note:** `EMAIL_PASS` must be a Gmail App Password (16 characters), not your regular Gmail password. Generate one at Google Account → Security → 2-Step Verification → App Passwords.
+
+### Frontend
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Create `frontend/.env`:
+VITE_AUTH_API_URL=http://localhost:3001/api/auth
+
+VITE_MEAL_API_URL=http://localhost:3003
+
+VITE_FOOD_API_URL=http://localhost:3002
+
+VITE_USER_API_URL=http://localhost:3004
 
 ### Running Services
 
-**Auth Service:**
-
 ```bash
-cd services/auth-service
-npm install
-npm run dev
+# Each service in its own terminal
+cd services/auth-service && npm run dev
+cd services/food-service && npm run dev
+cd services/meal-service && npm run dev
+cd services/user-service && npm run dev
 ```
 
-**Food Service:**
+## Adding Custom Foods
 
-```bash
-cd services/food-service
-npm install
-npm run dev
+Edit `database/seeds/foods.json` directly — each entry follows this shape:
+
+```json
+{
+  "name": "Chicken breast",
+  "category": "protein",
+  "protein_per_100g": 31,
+  "carbs_per_100g": 0,
+  "fat_per_100g": 3.6,
+  "calories_per_100g": 165,
+  "default_serving_g": 150
+}
 ```
 
-### Available Scripts
+Then re-run `node seed.js` — existing custom foods are preserved.
 
-- `npm run dev` - Start development server with auto-reload
-- `npm run build` - Build TypeScript to JavaScript
-- `npm start` - Run production build
-- `npm test` - Run tests
+## Deployment
 
----
+- **Frontend:** Vercel (auto-deploys from main)
+- **Backend:** Render (Starter plan — always-on, outbound SMTP enabled)
+- **Database:** Render PostgreSQL
 
 ## Status
 
-🚧 In active development
+🚀 Pilot launch — actively in use and development
