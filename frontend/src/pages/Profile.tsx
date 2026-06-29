@@ -5,6 +5,7 @@ import {
   getUserProfile,
   updateUserProfile,
   deleteUserProfile,
+  changePassword,
 } from "../services/api";
 import { useNavigate } from "react-router-dom";
 import Footer from "../components/Footer";
@@ -15,6 +16,15 @@ function Profile() {
 
   const [profile, setProfile] = useState<any>(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [passwordModalOpen, setPasswordModalOpen] = useState(false);
+  const [passwordForm, setPasswordForm] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
+  const [passwordError, setPasswordError] = useState("");
+  const [passwordLoading, setPasswordLoading] = useState(false);
+  const [passwordSuccess, setPasswordSuccess] = useState(false);
   const [profileDeleted, setProfileDeleted] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [formData, setFormData] = useState({ name: "", email: "" });
@@ -186,98 +196,17 @@ function Profile() {
 
               {!isEditing && (
                 <div>
-                  <button className="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                    Reset Password
+                  <button
+                    onClick={() => setPasswordModalOpen(true)}
+                    className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                  >
+                    Change password
                   </button>
                 </div>
               )}
             </div>
           </div>
 
-          {/* Nutrition Goals
-        <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-2xl font-semibold mb-6">Nutrition Goals</h2>
-          <form className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label
-                  htmlFor="calories"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
-                  Target Calories
-                </label>
-                <input
-                  type="number"
-                  id="calories"
-                  className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="2000"
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor="protein"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
-                  Target Protein (g)
-                </label>
-                <input
-                  type="number"
-                  id="protein"
-                  className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="150"
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor="carbs"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
-                  Target Carbs (g)
-                </label>
-                <input
-                  type="number"
-                  id="carbs"
-                  className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="200"
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor="fats"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
-                  Target Fats (g)
-                </label>
-                <input
-                  type="number"
-                  id="fats"
-                  className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="65"
-                />
-              </div>
-            </div>
-            <div>
-              <label
-                htmlFor="restrictions"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
-                Dietary Restrictions
-              </label>
-              <textarea
-                id="restrictions"
-                rows={3}
-                className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="e.g., Vegetarian, Gluten-free, Dairy-free"
-              />
-            </div>
-            <button
-              type="submit"
-              className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 font-medium"
-            >
-              Save Goals
-            </button>
-          </form>
-        </div> */}
           {/* Danger Zone */}
           <div className="bg-white rounded-lg shadow p-6 mt-6 border border-red-100">
             <div className="flex justify-between items-start">
@@ -316,6 +245,126 @@ function Profile() {
               >
                 Delete Account
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {passwordModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-sm w-full mx-4">
+            <h3 className="text-lg font-semibold mb-4">Change Password</h3>
+
+            {passwordSuccess ? (
+              <p className="text-green-600 text-sm mb-4">
+                Password changed successfully.
+              </p>
+            ) : (
+              <div className="space-y-3">
+                {passwordError && (
+                  <p className="text-red-500 text-sm">{passwordError}</p>
+                )}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Current password
+                  </label>
+                  <input
+                    type="password"
+                    value={passwordForm.currentPassword}
+                    onChange={(e) =>
+                      setPasswordForm({
+                        ...passwordForm,
+                        currentPassword: e.target.value,
+                      })
+                    }
+                    className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="••••••••"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    New password
+                  </label>
+                  <input
+                    type="password"
+                    value={passwordForm.newPassword}
+                    onChange={(e) =>
+                      setPasswordForm({
+                        ...passwordForm,
+                        newPassword: e.target.value,
+                      })
+                    }
+                    className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Min 8 chars, 1 number, 1 special character"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Confirm new password
+                  </label>
+                  <input
+                    type="password"
+                    value={passwordForm.confirmPassword}
+                    onChange={(e) =>
+                      setPasswordForm({
+                        ...passwordForm,
+                        confirmPassword: e.target.value,
+                      })
+                    }
+                    className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="••••••••"
+                  />
+                </div>
+              </div>
+            )}
+
+            <div className="flex justify-end gap-3 mt-4">
+              <button
+                onClick={() => {
+                  setPasswordModalOpen(false);
+                  setPasswordError("");
+                  setPasswordSuccess(false);
+                  setPasswordForm({
+                    currentPassword: "",
+                    newPassword: "",
+                    confirmPassword: "",
+                  });
+                }}
+                className="px-4 py-2 text-gray-600 hover:text-gray-800 text-sm"
+              >
+                {passwordSuccess ? "Close" : "Cancel"}
+              </button>
+              {!passwordSuccess && (
+                <button
+                  disabled={passwordLoading}
+                  onClick={async () => {
+                    setPasswordError("");
+                    if (
+                      passwordForm.newPassword !== passwordForm.confirmPassword
+                    ) {
+                      setPasswordError("Passwords do not match");
+                      return;
+                    }
+                    setPasswordLoading(true);
+                    try {
+                      await changePassword(
+                        passwordForm.currentPassword,
+                        passwordForm.newPassword,
+                      );
+                      setPasswordSuccess(true);
+                    } catch (err: any) {
+                      setPasswordError(
+                        err.response?.data?.error ||
+                          "Failed to change password",
+                      );
+                    } finally {
+                      setPasswordLoading(false);
+                    }
+                  }}
+                  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm disabled:opacity-60"
+                >
+                  {passwordLoading ? "Saving..." : "Save"}
+                </button>
+              )}
             </div>
           </div>
         </div>

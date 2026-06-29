@@ -191,3 +191,49 @@ export const logout = async (req: Request, res: Response) => {
     res.status(500).json({ error: "Logout failed" });
   }
 };
+
+export const changePassword = async (req: Request, res: Response) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    const userId = (req as any).user?.id;
+
+    if (!userId) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ error: "Both fields are required" });
+    }
+
+    if (!validatePassword(newPassword)) {
+      return res.status(400).json({
+        error: "Password must be at least 8 characters and include a number and special character",
+      });
+    }
+
+    const result = await pool.query(
+      "SELECT password_hash FROM users WHERE id = $1",
+      [userId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    const isValid = await bcrypt.compare(currentPassword, result.rows[0].password_hash);
+    if (!isValid) {
+      return res.status(400).json({ error: "Current password is incorrect" });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    await pool.query("UPDATE users SET password_hash = $1 WHERE id = $2", [
+      hashedPassword,
+      userId,
+    ]);
+
+    res.status(200).json({ success: true, message: "Password changed successfully" });
+  } catch (error: any) {
+    console.error("changePassword error:", error);
+    res.status(500).json({ error: "Failed to change password" });
+  }
+};
