@@ -39,18 +39,19 @@ export const AuthUtils = {
     }
     return true;
   },
+  
+initAuthCheck(): void {
+  const publicRoutes = ["/", "/login", "/register", "/reset-password", "/privacy", "/terms"];
 
-  initAuthCheck(): void {
-    const publicRoutes = ["/login", "/register", "/reset-password"];
-
-    setInterval(() => {
-      if (
-        !this.isAuthenticated() &&
-        !publicRoutes.includes(window.location.pathname)
-      ) {
-        alert("Your session has expired. Please log in again.");
-        this.logout();
-      }
-    }, 60000);
-  },
+  setInterval(() => {
+    if (
+      !this.isAuthenticated() &&
+      !publicRoutes.includes(window.location.pathname) &&
+      !window.location.pathname.startsWith("/share/")
+    ) {
+      alert("Your session has expired. Please log in again.");
+      this.logout();
+    }
+  }, 60000);
+},
 };
