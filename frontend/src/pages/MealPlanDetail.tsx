@@ -19,6 +19,7 @@ function MealPlanDetail() {
   const [mealPlan, setMealPlan] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [shareUrl, setShareUrl] = useState<string | null>(null);
   const [dropdownMenu, setDropdownMenu] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [foodDrawerOpen, setFoodDrawerOpen] = useState(false);
@@ -264,7 +265,7 @@ function MealPlanDetail() {
                               await navigator.clipboard.writeText(url);
                               alert("Share link copied to clipboard!");
                             } catch {
-                              prompt("Copy this share link:", url);
+                              setShareUrl(url);
                             }
                           } catch {
                             alert(
@@ -429,6 +430,42 @@ function MealPlanDetail() {
                 onClick={handleDeleteFoodFromMeal}
               >
                 Remove
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {shareUrl && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 px-4">
+          <div className="bg-white rounded-lg p-6 w-full max-w-sm">
+            <h3 className="text-lg font-semibold mb-2">Share Meal Plan</h3>
+            <p className="text-sm text-gray-500 mb-3">
+              Copy this link to share with your client:
+            </p>
+            <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded px-3 py-2 mb-4">
+              <span className="text-sm text-gray-700 truncate flex-1">
+                {shareUrl}
+              </span>
+            </div>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setShareUrl(null)}
+                className="px-4 py-2 text-gray-600 hover:text-gray-800 text-sm"
+              >
+                Close
+              </button>
+              <button
+                onClick={async () => {
+                  try {
+                    await navigator.clipboard.writeText(shareUrl);
+                    alert("Copied!");
+                  } catch {
+                    // If still failing, select the text manually
+                  }
+                }}
+                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm font-medium"
+              >
+                Copy Link
               </button>
             </div>
           </div>

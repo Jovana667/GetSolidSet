@@ -15,9 +15,6 @@ function SharedMealPlan() {
       try {
         const data = await getSharedMealPlan(token!);
         setMealPlan(data);
-        if (window.location.search.includes("print=true")) {
-          setTimeout(() => window.print(), 500);
-        }
       } catch (err) {
         setError("This link is invalid or has been revoked.");
       } finally {
