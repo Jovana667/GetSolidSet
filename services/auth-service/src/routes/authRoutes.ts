@@ -1,5 +1,5 @@
 import { Router, RequestHandler } from "express";
-import { register, login, refreshToken, logout } from "../controllers/authController";
+import { register, login, refreshToken, logout, changePassword } from '../controllers/authController';
 import { requestReset, verifyReset, completeReset } from '../controllers/resetController';
 import { validateRegister, validateLogin } from "../middleware/validation";
 import rateLimit from "express-rate-limit";
@@ -18,6 +18,7 @@ router.post('/register', authLimiter, ...(validateRegister as RequestHandler[]),
 router.post('/login', authLimiter, ...(validateLogin as RequestHandler[]), login);
 router.post("/refresh", refreshToken);
 router.post("/logout", logout);
+router.post("/change-password", changePassword);
 
 // Password reset routes
 router.post('/forgot-password', authLimiter, requestReset);

@@ -91,11 +91,14 @@ const addRefreshInterceptor = (apiInstance: any) => {
 addRefreshInterceptor(userApi);
 addRefreshInterceptor(mealApi);
 addRefreshInterceptor(foodApi);
+addRefreshInterceptor(authApi);
+
 
 // Apply interceptor to all instances that need authentication
 addTokenInterceptor(userApi);
 addTokenInterceptor(mealApi);
 addTokenInterceptor(foodApi);
+addTokenInterceptor(authApi);
 
 
 // Authentication
@@ -145,6 +148,11 @@ export const resetPassword = async (email: string, newPassword: string) => {
     email,
     newPassword,
   });
+  return response.data;
+};
+
+export const changePassword = async (currentPassword: string, newPassword: string) => {
+  const response = await authApi.post("/change-password", { currentPassword, newPassword });
   return response.data;
 };
 
