@@ -73,6 +73,9 @@ export const getFoods = async (req: Request, res: Response) => {
     conditions.push(`(created_by IS NULL OR created_by = $${paramIndex++})`);
     params.push(userId);
 
+    // 🌟 ADDED FOR SOFT DELETE: Filter out hidden/deleted foods globally
+    conditions.push(`is_active = true`);
+
     if (category) {
       conditions.push(`category = $${paramIndex++}`);
       params.push(category);
@@ -163,6 +166,7 @@ export const getFoodById = async (req: Request, res: Response) => {
   FROM foods
   WHERE id = $1
     AND (created_by IS NULL OR created_by = $2)
+    AND is_active = true -- 🌟 ADDED FOR SOFT DELETE: Block lookup of deleted items
 `;
 
     const result = await pool.query(query, [id, userId]);
@@ -284,12 +288,16 @@ export const deleteCustomFood = async (req: Request, res: Response) => {
   try {
     const userId = req.user!.id;
     const id = parseInt(req.params.id);
-    const query = `DELETE FROM foods
-WHERE id = $1
-  AND created_by = $2
-  AND is_custom = true
-RETURNING *
-`;
+    
+    // CHANGED: Swapped DELETE query for an UPDATE query
+    const query = `
+      UPDATE foods
+      SET is_active = false
+      WHERE id = $1
+        AND created_by = $2
+        AND is_custom = true
+      RETURNING *
+    `;
 
     const result = await pool.query(query, [id, userId]);
 

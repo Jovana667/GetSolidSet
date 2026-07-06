@@ -20,6 +20,7 @@ CREATE TABLE IF NOT EXISTS foods (
     fat_per_100g DECIMAL(10, 2) NOT NULL,
     calories_per_100g DECIMAL(10, 2) NOT NULL,
     is_custom BOOLEAN NOT NULL DEFAULT FALSE,
+    is_active BOOLEAN NOT NULL DEFAULT true,
     created_by INTEGER REFERENCES users(id) ON DELETE CASCADE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -53,7 +54,6 @@ CREATE TABLE IF NOT EXISTS meals (
 );
 
 
-
 -- meal_foods junction table
 CREATE TABLE IF NOT EXISTS meal_foods (
     id SERIAL PRIMARY KEY,
@@ -64,7 +64,50 @@ CREATE TABLE IF NOT EXISTS meal_foods (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE client_notes (
+    id SERIAL PRIMARY KEY,
+    trainer_client_id INTEGER NOT NULL,
+    note TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (trainer_client_id) REFERENCES trainer_clients(id) ON DELETE CASCADE
+);
+
+CREATE TABLE meal_plan_shares (
+    id SERIAL PRIMARY KEY,
+    meal_plan_id INTEGER NOT NULL,
+    token VARCHAR(255) NOT NULL, 
+    created_by INTEGER,          
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    expires_at TIMESTAMP,        
+    CONSTRAINT unique_meal_plan_share UNIQUE (meal_plan_id),
+    FOREIGN KEY (meal_plan_id) REFERENCES meal_plans(id) ON DELETE CASCADE
+);
+
+CREATE TABLE skin_fold (
+    id SERIAL PRIMARY KEY,
+    trainer_client_id INTEGER NOT NULL,
+    week_number INTEGER NOT NULL,
+    weight_kg FLOAT,
+    triceps FLOAT,
+    biceps FLOAT,
+    chest FLOAT,
+    subscapular FLOAT,
+    midaxillary FLOAT,
+    suprailiac FLOAT,
+    abdominal FLOAT,
+    thigh FLOAT,
+    hamstring FLOAT,
+    notes TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (trainer_client_id) REFERENCES trainer_clients(id) ON DELETE CASCADE
+);
+
+
 -- Create indexes for performance
 CREATE INDEX idx_foods_name ON foods(name);
 CREATE INDEX idx_foods_category ON foods(category);
 CREATE INDEX idx_users_email ON users(email);
+CREATE INDEX IF NOT EXISTS idx_meal_plan_shares_token ON meal_plan_shares(token);
+CREATE INDEX IF NOT EXISTS idx_meal_plan_shares_plan  ON meal_plan_shares(meal_plan_id);
