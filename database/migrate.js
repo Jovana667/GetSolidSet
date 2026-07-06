@@ -3,11 +3,13 @@ const fs = require('fs');
 const path = require('path');
 require('dotenv').config({ path: path.join(__dirname, '../services/auth-service/.env') });
 
+// Smart check: Does our active database string contain 'localhost' or '127.0.0.1'?
+const isLocalhost = process.env.DATABASE_URL.includes('localhost') || process.env.DATABASE_URL.includes('127.0.0.1');
+
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: {
-    rejectUnauthorized: false
-  }
+  // DYNAMIC SSL: Turn it completely OFF for local, turn it ON for cloud deployment
+  ssl: isLocalhost ? false : { rejectUnauthorized: false }
 });
 
 async function migrate() {
