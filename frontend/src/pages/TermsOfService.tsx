@@ -12,7 +12,7 @@ function TermsOfService() {
               Terms of Service
             </h1>
             <p className="text-gray-500 mb-10 text-sm">
-              Last updated: April 2026
+              Last updated: July 2026
             </p>
 
             <div className="space-y-8">
@@ -21,9 +21,9 @@ function TermsOfService() {
                   1. Acceptance of Terms
                 </h2>
                 <p className="text-gray-700 leading-relaxed">
-                  By creating an account and using Macrology you agree to these
-                  Terms of Service. If you do not agree, please do not use the
-                  application.
+                  By creating an account and using Get Solid Set you agree to
+                  these Terms of Service. If you do not agree, please do not
+                  use the application.
                 </p>
               </section>
 
@@ -32,9 +32,9 @@ function TermsOfService() {
                   2. Description of Service
                 </h2>
                 <p className="text-gray-700 leading-relaxed">
-                  Macrology is a nutrition tracking application that allows
-                  users to log meals, track macronutrients and manage food data.
-                  The service is currently in pilot phase.
+                  Get Solid Set is a nutrition tracking application that
+                  allows users to log meals, track macronutrients and manage
+                  food data. The service is currently in pilot phase.
                 </p>
               </section>
 
@@ -50,7 +50,7 @@ function TermsOfService() {
                   </li>
                   <li>You must not share your account with others.</li>
                   <li>
-                    You must be at least 13 years of age to use Macrology.
+                    You must be at least 13 years of age to use Get Solid Set.
                   </li>
                 </ul>
               </section>
@@ -61,7 +61,7 @@ function TermsOfService() {
                 </h2>
                 <p className="text-gray-700 mb-3">You agree not to:</p>
                 <ul className="list-disc list-inside space-y-2 text-gray-700">
-                  <li>Use Macrology for any unlawful purpose.</li>
+                  <li>Use Get Solid Set for any unlawful purpose.</li>
                   <li>
                     Attempt to gain unauthorised access to any part of the
                     service.
@@ -79,7 +79,7 @@ function TermsOfService() {
                   5. Nutritional Disclaimer
                 </h2>
                 <p className="text-gray-700 leading-relaxed">
-                  Macrology provides nutritional information for general
+                  Get Solid Set provides nutritional information for general
                   tracking purposes only. This information is approximate and
                   should not be used as a substitute for professional dietary or
                   medical advice. Always consult a qualified healthcare
@@ -92,9 +92,10 @@ function TermsOfService() {
                   6. Intellectual Property
                 </h2>
                 <p className="text-gray-700 leading-relaxed">
-                  All content, design and code within Macrology is the property
-                  of Macrology. You may not copy, reproduce or distribute any
-                  part of the service without written permission.
+                  All content, design and code within Get Solid Set is the
+                  property of Get Solid Set. You may not copy, reproduce or
+                  distribute any part of the service without written
+                  permission.
                 </p>
               </section>
 
@@ -104,7 +105,7 @@ function TermsOfService() {
                 </h2>
                 <p className="text-gray-700 leading-relaxed">
                   You retain ownership of the meal plans and food data you
-                  create in Macrology. By using the service you grant us a
+                  create in Get Solid Set. By using the service you grant us a
                   limited licence to store and display your content solely for
                   the purpose of providing the service.
                 </p>
@@ -126,10 +127,10 @@ function TermsOfService() {
                   9. Limitation of Liability
                 </h2>
                 <p className="text-gray-700 leading-relaxed">
-                  Macrology is provided "as is" without warranties of any kind.
-                  We are not liable for any loss or damage arising from your use
-                  of the service, including but not limited to data loss or
-                  inaccurate nutritional information.
+                  Get Solid Set is provided "as is" without warranties of any
+                  kind. We are not liable for any loss or damage arising from
+                  your use of the service, including but not limited to data
+                  loss or inaccurate nutritional information.
                 </p>
               </section>
 
@@ -139,7 +140,7 @@ function TermsOfService() {
                 </h2>
                 <p className="text-gray-700 leading-relaxed">
                   We may update these Terms of Service from time to time.
-                  Continued use of Macrology after changes constitutes
+                  Continued use of Get Solid Set after changes constitutes
                   acceptance of the new terms.
                 </p>
               </section>
@@ -161,7 +162,7 @@ function TermsOfService() {
                 <p className="text-gray-700 mb-2">
                   For any questions regarding these terms, contact us at:
                 </p>
-                <p className="text-gray-700">📧 [your email here]</p>
+                <p className="text-gray-700">📧 getsolidset@gmail.com</p>
               </section>
             </div>
           </div>

@@ -30,7 +30,7 @@ function Navbar() {
           to="/"
           className="text-3xl font-bold text-gray-900 hover:text-gray-700"
         >
-          Macrology
+          Get Solid Set
         </Link>
 
         {/* Desktop links — hidden on mobile */}
