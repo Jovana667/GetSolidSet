@@ -12,7 +12,7 @@ function PrivacyPolicy() {
               Privacy Policy
             </h1>
             <p className="text-gray-500 mb-10 text-sm">
-              Last updated: April 2026
+              Last updated: July 2026
             </p>
 
             <div className="space-y-8">
@@ -21,9 +21,10 @@ function PrivacyPolicy() {
                   1. Introduction
                 </h2>
                 <p className="text-gray-700 leading-relaxed">
-                  Macrology ("we", "us", "our") is committed to protecting your
-                  personal information. This Privacy Policy explains how we
-                  collect, use and store your data when you use our application.
+                  Get Solid Set ("we", "us", "our") is committed to protecting
+                  your personal information. This Privacy Policy explains how
+                  we collect, use and store your data when you use our
+                  application.
                 </p>
               </section>
 
@@ -32,7 +33,7 @@ function PrivacyPolicy() {
                   2. What We Collect
                 </h2>
                 <p className="text-gray-700 mb-3">
-                  When you use Macrology we collect:
+                  When you use Get Solid Set we collect:
                 </p>
                 <ul className="list-disc list-inside space-y-2 text-gray-700 mb-4">
                   <li>
@@ -56,7 +57,7 @@ function PrivacyPolicy() {
                   We use your data solely to:
                 </p>
                 <ul className="list-disc list-inside space-y-2 text-gray-700 mb-4">
-                  <li>Provide and operate the Macrology service.</li>
+                  <li>Provide and operate the Get Solid Set service.</li>
                   <li>Allow you to log in and access your meal plans.</li>
                   <li>
                     Store your nutrition tracking data so you can access it
@@ -115,7 +116,7 @@ function PrivacyPolicy() {
                   7. Third Party Services
                 </h2>
                 <p className="text-gray-700 leading-relaxed">
-                  Macrology does not currently use third party analytics,
+                  Get Solid Set does not currently use third party analytics,
                   advertising or tracking services.
                 </p>
               </section>
@@ -125,8 +126,8 @@ function PrivacyPolicy() {
                   8. Children's Privacy
                 </h2>
                 <p className="text-gray-700 leading-relaxed">
-                  Macrology is not intended for users under the age of 13. We do
-                  not knowingly collect data from children.
+                  Get Solid Set is not intended for users under the age of 13.
+                  We do not knowingly collect data from children.
                 </p>
               </section>
 
@@ -149,7 +150,7 @@ function PrivacyPolicy() {
                   If you have any questions about this Privacy Policy or your
                   data, please contact us at:
                 </p>
-                <p className="text-gray-700">📧 [your email here]</p>
+                <p className="text-gray-700">📧 getsolidset@gmail.com</p>
               </section>
             </div>
           </div>
