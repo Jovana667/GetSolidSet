@@ -1,4 +1,4 @@
-# Get Solid Set
+# Get Solid Set 
 
 A full-stack fitness coaching platform for personal trainers to build, manage, and share meal plans with clients.
 
