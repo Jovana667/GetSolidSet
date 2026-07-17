@@ -1,5 +1,5 @@
 const { Pool } = require('pg');
-const fs = require('fs');
+const fs = require('fs'); 
 const path = require('path');
 require('dotenv').config({ path: path.join(__dirname, '../services/auth-service/.env') });
 
