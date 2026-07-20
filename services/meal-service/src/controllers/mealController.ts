@@ -95,19 +95,17 @@ export const createMeal = async (req: Request, res: Response) => {
     await client.query("BEGIN");
 
     // STEP 5: Insert meal record
-    const insertMealQuery = `
-  INSERT INTO meal_plans (user_id, name, is_template, meal_date, trainer_client_id)
-  VALUES ($1, $2, $3, $4, $5)
-  RETURNING id, user_id, name, is_template, meal_date, created_at, updated_at
-`;
+const insertMealQuery = `
+    INSERT INTO meals (meal_plan_id, user_id, meal_type)
+    VALUES ($1, $2, $3)
+    RETURNING id
+  `;
 
-    const mealResult = await client.query(insertMealQuery, [
-      userId,
-      name,
-      is_template || false,
-      meal_date || new Date().toISOString().split("T")[0],
-      trainer_client_id || null,
-    ]);
+  const mealResult = await client.query(insertMealQuery, [
+    mealPlanId,
+    userId,
+    mealType,
+  ]);
     const mealPlan = mealResult.rows[0];
     const mealPlanId = mealPlan.id;
 
