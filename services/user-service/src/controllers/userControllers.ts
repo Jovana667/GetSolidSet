@@ -335,19 +335,20 @@ export const createSkinFold = async (req: Request, res: Response) => {
     const { trainerClientId } = req.params;
     const { week_number, ...fields } = req.body;
 
-    const allowedColumns = [
-      "weight_kg",
-      "triceps",
-      "biceps",
-      "chest",
-      "subscapular",
-      "midaxillary",
-      "suprailiac",
-      "abdominal",
-      "thigh",
-      "hamstring",
-      "notes",
-    ];
+const allowedColumns = [
+  "weight_kg",
+  "triceps",
+  "biceps",
+  "chest",
+  "subscapular",
+  "midaxillary",
+  "suprailiac",
+  "abdominal",
+  "thigh",
+  "hamstring",
+  "notes",
+  "measurement_date",
+];
 
     const setClauses = Object.keys(fields)
       .filter((key) => allowedColumns.includes(key))
@@ -381,21 +382,21 @@ export const createSkinFold = async (req: Request, res: Response) => {
 export const updateSkinFold = async (req: Request, res: Response) => {
   try {
     const { trainerClientId, id } = req.params;
-    const allowedColumns = [
-      "week_number",
-      "weight_kg",
-      "triceps",
-      "biceps",
-      "chest",
-      "subscapular",
-      "midaxillary",
-      "suprailiac",
-      "abdominal",
-      "thigh",
-      "hamstring",
-      "notes",
-    ];
-
+const allowedColumns = [
+  "week_number",
+  "weight_kg",
+  "triceps",
+  "biceps",
+  "chest",
+  "subscapular",
+  "midaxillary",
+  "suprailiac",
+  "abdominal",
+  "thigh",
+  "hamstring",
+  "notes",
+  "measurement_date",
+];
     const fields = [];
     const values = [];
     let idx = 1;

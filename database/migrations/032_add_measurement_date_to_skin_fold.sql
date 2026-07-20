@@ -1,0 +1,1 @@
+ALTER TABLE skin_fold ADD COLUMN measurement_date DATE;
