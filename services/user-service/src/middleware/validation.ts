@@ -14,6 +14,7 @@ export const handleValidationErrors = (req: Request, res: Response, next: NextFu
 
 export const validateAddClient = [
   body("email")
+    .optional({ checkFalsy: true })
     .isEmail()
     .normalizeEmail()
     .withMessage("Valid email is required"),
