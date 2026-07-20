@@ -19,7 +19,7 @@ const transporter = nodemailer.createTransport({
 export const sendEmail = async ({ to, subject, text }: SendEmailOptions) => {
   try {
     await transporter.sendMail({
-      from: `"Macrology" <${process.env.EMAIL_USER}>`,
+      from: `"Get Solid Set" <${process.env.EMAIL_USER}>`,
       to,
       subject,
       text,
