@@ -215,6 +215,7 @@ function Login() {
                       Cancel
                     </button>
                     <button
+                      disabled={resetLoading}
                       onClick={async () => {
                         setResetLoading(true);
                         try {
@@ -226,7 +227,7 @@ function Login() {
                           setResetLoading(false);
                         }
                       }}
-                      className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm"
+                      className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm disabled:opacity-60 disabled:cursor-not-allowed"
                     >
                       {resetLoading ? "Sending..." : "Send OTP"}
                     </button>
