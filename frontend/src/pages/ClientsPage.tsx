@@ -12,6 +12,7 @@ function ClientsPage() {
   const [clientEmail, setClientEmail] = useState("");
   const [clientName, setClientName] = useState("");
   const [clientToRemove, setClientToRemove] = useState<any>(null);
+  const [isRemoving, setIsRemoving] = useState(false);
   const [clientSelectMode, setClientSelectMode] = useState<"none" | "remove">(
     "none",
   );
@@ -61,6 +62,8 @@ function ClientsPage() {
   };
 
   const handleRemoveClient = async () => {
+    if (isRemoving) return; // guard against double-fire
+    setIsRemoving(true);
     try {
       await removeClient(clientToRemove.trainer_client_id);
       const data = await getClients();
@@ -70,10 +73,14 @@ function ClientsPage() {
     } catch (error) {
       console.error("Error removing client:", error);
       setError("Failed to remove client. Please try again later.");
+    } finally {
+      setIsRemoving(false);
     }
   };
 
   const handleBulkRemoveClients = async () => {
+    if (isRemoving) return;
+    setIsRemoving(true);
     try {
       await Promise.all(
         clientBulkRemove.map((client) =>
@@ -88,6 +95,8 @@ function ClientsPage() {
     } catch (error) {
       console.error("Error removing clients:", error);
       setError("Failed to remove clients. Please try again later.");
+    } finally {
+      setIsRemoving(false);
     }
   };
 
@@ -301,14 +310,15 @@ function ClientsPage() {
                 Cancel
               </button>
               <button
-                className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+                className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={isRemoving}
                 onClick={
                   clientBulkRemove.length > 0
                     ? handleBulkRemoveClients
                     : handleRemoveClient
                 }
               >
-                Remove
+                {isRemoving ? "Removing..." : "Remove"}
               </button>
             </div>
           </div>
