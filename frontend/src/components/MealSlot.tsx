@@ -14,11 +14,19 @@ interface MealSlotProps {
 }
 
 function MealSlot({
-  mealType, foods, isEditing, activeMealSlot, setActiveMealSlot,
-  selectedMealFoodId, setSelectedMealFoodId, servingInput, setServingInput,
-  handleUpdateServing, setFoodToDelete, setIsDeleteFoodModalOpen,
+  mealType,
+  foods,
+  isEditing,
+  activeMealSlot,
+  setActiveMealSlot,
+  selectedMealFoodId,
+  setSelectedMealFoodId,
+  servingInput,
+  setServingInput,
+  handleUpdateServing,
+  setFoodToDelete,
+  setIsDeleteFoodModalOpen,
 }: MealSlotProps) {
-
   const calculateMealTotal = (metric: string) => {
     return foods.reduce((total: number, food: any) => {
       return total + food[`${metric}_per_100g`] * (food.quantity_g / 100);
@@ -56,7 +64,9 @@ function MealSlot({
                 e.stopPropagation();
                 if (isEditing && activeMealSlot === mealType) {
                   setSelectedMealFoodId(
-                    selectedMealFoodId === food.meal_food_id ? null : food.meal_food_id
+                    selectedMealFoodId === food.meal_food_id
+                      ? null
+                      : food.meal_food_id,
                   );
                   setServingInput(food.quantity_g);
                 }
@@ -68,28 +78,41 @@ function MealSlot({
                 </div>
 
                 {/* Gram input — shown when this food is selected in edit mode */}
-                {isEditing && activeMealSlot === mealType && selectedMealFoodId === food.meal_food_id ? (
+                {isEditing &&
+                activeMealSlot === mealType &&
+                selectedMealFoodId === food.meal_food_id ? (
                   <div className="mb-2">
                     <div className="flex items-center gap-1 mb-1">
-<input
-  type="number"
-  className="w-20 px-2 py-1 border border-gray-300 rounded text-sm text-right focus:outline-none focus:ring-2 focus:ring-blue-500"
-  value={servingInput}
-  onChange={(e) => setServingInput(e.target.value as any)}
-  onClick={(e) => e.stopPropagation()}
-  min="0"
-  autoFocus
-/>
+                      <input
+                        type="number"
+                        className="w-20 px-2 py-1 border border-gray-300 rounded text-sm text-right focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        value={servingInput}
+                        onChange={(e) =>
+                          setServingInput(
+                            e.target.value === "" ? 0 : Number(e.target.value),
+                          )
+                        }
+                        onFocus={(e) => e.target.select()}
+                        onClick={(e) => e.stopPropagation()}
+                        min="0"
+                        autoFocus
+                      />
                       <span className="text-sm text-gray-500">g</span>
                       <button
                         className="ml-2 text-sm text-blue-600 hover:text-blue-800 font-medium"
-                        onClick={(e) => { e.stopPropagation(); handleUpdateServing(); }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleUpdateServing();
+                        }}
                       >
                         Save
                       </button>
                       <button
                         className="text-sm text-gray-400 hover:text-gray-600"
-                        onClick={(e) => { e.stopPropagation(); setSelectedMealFoodId(null); }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedMealFoodId(null);
+                        }}
                       >
                         Cancel
                       </button>
@@ -102,10 +125,16 @@ function MealSlot({
                 )}
 
                 <div className="text-xs text-gray-500">
-                  {(food.calories_per_100g * (food.quantity_g / 100)).toFixed(1)} cal ·{" "}
-                  {(food.protein_per_100g * (food.quantity_g / 100)).toFixed(1)}g protein ·{" "}
-                  {(food.carbs_per_100g * (food.quantity_g / 100)).toFixed(1)}g carbs ·{" "}
-                  {(food.fat_per_100g * (food.quantity_g / 100)).toFixed(1)}g fats
+                  {(food.calories_per_100g * (food.quantity_g / 100)).toFixed(
+                    1,
+                  )}{" "}
+                  cal ·{" "}
+                  {(food.protein_per_100g * (food.quantity_g / 100)).toFixed(1)}
+                  g protein ·{" "}
+                  {(food.carbs_per_100g * (food.quantity_g / 100)).toFixed(1)}g
+                  carbs ·{" "}
+                  {(food.fat_per_100g * (food.quantity_g / 100)).toFixed(1)}g
+                  fats
                 </div>
               </div>
 
