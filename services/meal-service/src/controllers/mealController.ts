@@ -94,19 +94,21 @@ export const createMeal = async (req: Request, res: Response) => {
     // This ensures all-or-nothing: either everything succeeds or nothing is saved
     await client.query("BEGIN");
 
-    // STEP 5: Insert meal record
-const insertMealQuery = `
-    INSERT INTO meals (meal_plan_id, user_id, meal_type)
-    VALUES ($1, $2, $3)
-    RETURNING id
-  `;
+    // STEP 5: Insert meal plan record
+    const insertMealPlanQuery = `
+  INSERT INTO meal_plans (user_id, name, is_template, meal_date, trainer_client_id)
+  VALUES ($1, $2, $3, $4, $5)
+  RETURNING id, user_id, name, is_template, meal_date, created_at, updated_at
+`;
 
-  const mealResult = await client.query(insertMealQuery, [
-    mealPlanId,
-    userId,
-    mealType,
-  ]);
-    const mealPlan = mealResult.rows[0];
+    const mealPlanResult = await client.query(insertMealPlanQuery, [
+      userId,
+      name,
+      is_template || false,
+      meal_date || new Date().toISOString().split("T")[0],
+      trainer_client_id || null,
+    ]);
+    const mealPlan = mealPlanResult.rows[0];
     const mealPlanId = mealPlan.id;
 
     // STEP 6: Insert the four meal records and their foods
@@ -116,8 +118,8 @@ const insertMealQuery = `
     for (const mealType of mealTypes) {
       // Insert meal record
       const insertMealQuery = `
-    INSERT INTO meals (meal_plan_id, user_id, meal_type, meal_date)
-    VALUES ($1, $2, $3, $4)
+    INSERT INTO meals (meal_plan_id, user_id, meal_type)
+    VALUES ($1, $2, $3)
     RETURNING id
   `;
 
@@ -125,7 +127,6 @@ const insertMealQuery = `
         mealPlanId,
         userId,
         mealType,
-        meal_date || new Date().toISOString().split("T")[0],
       ]);
 
       const mealId = mealResult.rows[0].id;
