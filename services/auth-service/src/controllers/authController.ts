@@ -96,11 +96,11 @@ export const login = async (req: Request, res: Response) => {
       role: user.role,
     };
 
-    const accessToken = jwt.sign(
-      payload,
-      process.env.JWT_SECRET || "your-secret-key-change-this",
-      { expiresIn: "1h" },
-    );
+const accessToken = jwt.sign(
+  payload,
+  process.env.JWT_SECRET || "your-secret-key-change-this",
+  { expiresIn: "30d" },
+);
 
     const refreshToken = crypto.randomBytes(64).toString("hex");
     const refreshExpiry = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
@@ -163,9 +163,9 @@ export const refreshToken = async (req: Request, res: Response) => {
       role: user.role,
     };
 
-    const accessToken = jwt.sign(payload, process.env.JWT_SECRET || "your-secret-key-change-this", {
-      expiresIn: "1h",
-    });
+const accessToken = jwt.sign(payload, process.env.JWT_SECRET || "your-secret-key-change-this", {
+  expiresIn: "30d",
+});
 
     res.status(200).json({ token: accessToken });
   } catch (error: any) {
