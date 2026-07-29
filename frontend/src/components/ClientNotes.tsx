@@ -62,7 +62,7 @@ const ClientNotes: React.FC<ClientNotesProps> = ({ trainerClientId }) => {
           onChange={(e) => setNewNote(e.target.value)}
           placeholder="Add a note..."
           rows={3}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none text-sm"
+          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
         />
         <div className="flex justify-end mt-2">
           <button

@@ -85,7 +85,7 @@ function MealSlot({
                     <div className="flex items-center gap-1 mb-1">
                       <input
                         type="number"
-                        className="w-20 px-2 py-1 border border-gray-300 rounded text-sm text-right focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-20 px-2 py-1 border border-gray-300 rounded text-right focus:outline-none focus:ring-2 focus:ring-blue-500"
                         value={servingInput}
                         onChange={(e) =>
                           setServingInput(
