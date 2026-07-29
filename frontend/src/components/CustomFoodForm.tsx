@@ -33,7 +33,14 @@ function CustomFoodForm({
     setLoading(true);
     setError("");
     try {
-      await createCustomFood(formData);
+      const payload = {
+        ...formData,
+        protein_per_100g: formData.protein_per_100g || 0,
+        fat_per_100g: formData.fat_per_100g || 0,
+        carbs_per_100g: formData.carbs_per_100g || 0,
+        calories_per_100g: formData.calories_per_100g || 0,
+      };
+      await createCustomFood(payload);
       setFormData({
         name: "",
         category: "",
@@ -103,10 +110,12 @@ function CustomFoodForm({
               type="number"
               className={inputClass}
               value={formData.protein_per_100g}
+              onFocus={(e) => e.target.select()}
               onChange={(e) =>
                 setFormData({
                   ...formData,
-                  protein_per_100g: parseFloat(e.target.value),
+                  protein_per_100g:
+                    e.target.value === "" ? 0 : parseFloat(e.target.value) || 0,
                 })
               }
             />
@@ -117,10 +126,12 @@ function CustomFoodForm({
               type="number"
               className={inputClass}
               value={formData.fat_per_100g}
+              onFocus={(e) => e.target.select()}
               onChange={(e) =>
                 setFormData({
                   ...formData,
-                  fat_per_100g: parseFloat(e.target.value),
+                  fat_per_100g:
+                    e.target.value === "" ? 0 : parseFloat(e.target.value) || 0,
                 })
               }
             />
@@ -131,10 +142,12 @@ function CustomFoodForm({
               type="number"
               className={inputClass}
               value={formData.carbs_per_100g}
+              onFocus={(e) => e.target.select()}
               onChange={(e) =>
                 setFormData({
                   ...formData,
-                  carbs_per_100g: parseFloat(e.target.value),
+                  carbs_per_100g:
+                    e.target.value === "" ? 0 : parseFloat(e.target.value) || 0,
                 })
               }
             />
@@ -145,10 +158,12 @@ function CustomFoodForm({
               type="number"
               className={inputClass}
               value={formData.calories_per_100g}
+              onFocus={(e) => e.target.select()}
               onChange={(e) =>
                 setFormData({
                   ...formData,
-                  calories_per_100g: parseFloat(e.target.value),
+                  calories_per_100g:
+                    e.target.value === "" ? 0 : parseFloat(e.target.value) || 0,
                 })
               }
             />

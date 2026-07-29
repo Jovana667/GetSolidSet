@@ -60,7 +60,7 @@ function Home() {
     const updatedMeal = [...mealFoods[mealType as keyof typeof mealFoods]];
     updatedMeal[foodIndex] = {
       ...updatedMeal[foodIndex],
-      quantity_g: parseFloat(newValue) || 0,
+      quantity_g: newValue === "" ? 0 : parseFloat(newValue) || 0,
     };
     updatedMealFoods[mealType as keyof typeof mealFoods] = updatedMeal;
     setMealFoods(updatedMealFoods);
@@ -279,6 +279,7 @@ function Home() {
                                           e.target.value,
                                         )
                                       }
+                                      onFocus={(e) => e.target.select()}
                                       onClick={(e) => e.stopPropagation()}
                                       className="w-20 px-2 py-1 border border-gray-300 rounded text-right focus:outline-none focus:ring-2 focus:ring-blue-500"
                                       min="0"
