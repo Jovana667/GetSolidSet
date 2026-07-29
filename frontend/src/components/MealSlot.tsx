@@ -62,9 +62,11 @@ function MealSlot({
               className="bg-white border border-gray-200 rounded-lg p-3 flex justify-between items-start"
               onClick={(e) => {
                 e.stopPropagation();
-                if (isEditing && activeMealSlot === mealType) {
+                if (isEditing) {
+                  setActiveMealSlot(mealType);
                   setSelectedMealFoodId(
-                    selectedMealFoodId === food.meal_food_id
+                    activeMealSlot === mealType &&
+                      selectedMealFoodId === food.meal_food_id
                       ? null
                       : food.meal_food_id,
                   );
