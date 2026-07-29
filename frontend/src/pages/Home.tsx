@@ -24,7 +24,7 @@ function Home() {
   const [selectClientModal, setSelectClientModal] = useState(false);
   const [selectedClient, setSelectedClient] = useState<any>(null);
   const navigate = useNavigate();
-const { role, isLoggedIn } = useAuth();
+  const { role, isLoggedIn } = useAuth();
   const [clients, setClients] = useState<any[]>([]);
 
   const fetchClients = async () => {
@@ -280,7 +280,7 @@ const { role, isLoggedIn } = useAuth();
                                         )
                                       }
                                       onClick={(e) => e.stopPropagation()}
-                                      className="w-20 px-2 py-1 border border-gray-300 rounded text-sm text-right focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                      className="w-20 px-2 py-1 border border-gray-300 rounded text-right focus:outline-none focus:ring-2 focus:ring-blue-500"
                                       min="0"
                                     />
                                     <span className="text-sm text-gray-500">

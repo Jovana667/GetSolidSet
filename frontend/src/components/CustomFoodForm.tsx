@@ -51,14 +51,21 @@ function CustomFoodForm({
     }
   };
 
-  const inputClass = "w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500";
+  const inputClass =
+    "w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500";
   const labelClass = "block text-sm font-medium text-gray-700 mb-1";
 
   return (
     <div className="border border-gray-200 rounded-lg p-4 mb-6 bg-gray-50">
-      <h3 className="text-sm font-semibold text-gray-900 mb-4">Add Custom Food</h3>
-      <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
-
+      <h3 className="text-sm font-semibold text-gray-900 mb-4">
+        Add Custom Food
+      </h3>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          handleSubmit();
+        }}
+      >
         <div className="mb-3">
           <label className={labelClass}>Name</label>
           <input
@@ -75,7 +82,9 @@ function CustomFoodForm({
           <select
             className={inputClass}
             value={formData.category}
-            onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+            onChange={(e) =>
+              setFormData({ ...formData, category: e.target.value })
+            }
           >
             <option value="">Select a category</option>
             <option value="protein">Protein</option>
@@ -94,7 +103,12 @@ function CustomFoodForm({
               type="number"
               className={inputClass}
               value={formData.protein_per_100g}
-              onChange={(e) => setFormData({ ...formData, protein_per_100g: parseFloat(e.target.value) })}
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  protein_per_100g: parseFloat(e.target.value),
+                })
+              }
             />
           </div>
           <div>
@@ -103,7 +117,12 @@ function CustomFoodForm({
               type="number"
               className={inputClass}
               value={formData.fat_per_100g}
-              onChange={(e) => setFormData({ ...formData, fat_per_100g: parseFloat(e.target.value) })}
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  fat_per_100g: parseFloat(e.target.value),
+                })
+              }
             />
           </div>
           <div>
@@ -112,7 +131,12 @@ function CustomFoodForm({
               type="number"
               className={inputClass}
               value={formData.carbs_per_100g}
-              onChange={(e) => setFormData({ ...formData, carbs_per_100g: parseFloat(e.target.value) })}
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  carbs_per_100g: parseFloat(e.target.value),
+                })
+              }
             />
           </div>
           <div>
@@ -121,7 +145,12 @@ function CustomFoodForm({
               type="number"
               className={inputClass}
               value={formData.calories_per_100g}
-              onChange={(e) => setFormData({ ...formData, calories_per_100g: parseFloat(e.target.value) })}
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  calories_per_100g: parseFloat(e.target.value),
+                })
+              }
             />
           </div>
         </div>

@@ -34,10 +34,11 @@ export const verifyToken = (
 
     const token = authHeader.substring(7);
 
-    const decoded = jwt.verify(
-      token,
-      process.env.JWT_SECRET || "your-secret-key-change-this",
-    ) as JWTPayload;
+    if (!process.env.JWT_SECRET) {
+      throw new Error("JWT_SECRET is not set");
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET) as JWTPayload;
 
     req.user = decoded;
     next();
@@ -288,7 +289,7 @@ export const deleteCustomFood = async (req: Request, res: Response) => {
   try {
     const userId = req.user!.id;
     const id = parseInt(req.params.id);
-    
+
     // CHANGED: Swapped DELETE query for an UPDATE query
     const query = `
       UPDATE foods
