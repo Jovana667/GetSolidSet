@@ -36,13 +36,17 @@ export const verifyToken = (
     // Extract just the token part (remove "Bearer " prefix)
     // "Bearer token123" → "token123"
     const token = authHeader.substring(7); // Skip first 7 characters ("Bearer ")
-    // Alternative: const token = authHeader.split(' ')[1];
+
+    // Fail loudly if JWT_SECRET isn't set, rather than silently using an insecure fallback
+    if (!process.env.JWT_SECRET) {
+      throw new Error("JWT_SECRET is not set");
+    }
 
     // STEP 2: Verify the token
     // This checks: 1) Signature is valid, 2) Token hasn't expired
     const decoded = jwt.verify(
       token,
-      process.env.JWT_SECRET || "your-secret-key-change-this"
+      process.env.JWT_SECRET
     ) as JWTPayload;
 
     // STEP 3: Attach user info to request object
