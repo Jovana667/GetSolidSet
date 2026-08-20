@@ -35,10 +35,15 @@ export const verifyToken = (
     // Extract just the token part (remove "Bearer " prefix)
     const token = authHeader.substring(7);
 
+    // Fail loudly if JWT_SECRET isn't set, rather than silently using an insecure fallback
+    if (!process.env.JWT_SECRET) {
+      throw new Error("JWT_SECRET is not set");
+    }
+
     // STEP 2: Verify the token
     const decoded = jwt.verify(
       token,
-      process.env.JWT_SECRET || "07ff4fbc2824f0012ce884728bb80a17e841cef5609785bea226adf6ab2cb50250defc6c2d8dfba8601b99ce4525d3f7d4a25d1526a34bd86f672d74d06d06aa"
+      process.env.JWT_SECRET
     ) as JWTPayload;
 
     // STEP 3: Attach user info to request object
@@ -61,4 +66,3 @@ export const verifyToken = (
     return res.status(401).json({ error: "Authentication failed" });
   }
 };
- 

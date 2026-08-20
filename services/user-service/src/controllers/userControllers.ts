@@ -36,12 +36,7 @@ export const updateProfile = async (req: Request, res: Response) => {
     if (!userId) {
       return res.status(401).json({ error: "User not authenticated" });
     }
-    const {
-      name,
-      email,
-      current_password,
-      new_password,
-    }: UpdateProfileRequest = req.body;
+    const { name, email, current_password, new_password}: UpdateProfileRequest = req.body;
 
     // Validate current password if new_password is provided
     if (new_password) {
