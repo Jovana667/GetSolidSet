@@ -23,7 +23,7 @@ export const createMeal = async (req: Request, res: Response) => {
       foods,
       trainer_client_id,
     }: CreateMealRequest = req.body;
-    const userId = req.user?.id; // Set by auth middleware
+    const userId = req.user!.id; // Set by auth middleware
 
     // STEP 2: Validate request data
     if (!name || !name.trim()) {
