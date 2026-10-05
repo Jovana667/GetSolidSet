@@ -1,60 +1,6 @@
 // Express, JWT, custom types, and the database connection pool
-import { Request, Response, NextFunction } from "express";
-import jwt from "jsonwebtoken";
-import { JWTPayload } from "../types";
+import { Request, Response } from "express";
 import pool from "../utils/db";
-
-// Adds the authenticated user to the Express Request type
-declare global {
-  namespace Express {
-    interface Request {
-      user?: JWTPayload;
-    }
-  }
-}
-
-// Controller function: verifies the JWT token on incoming requests before allowing access to protected routes
-export const verifyToken = (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
-  try {
-    const authHeader = req.headers.authorization;
-
-    if (!authHeader) {
-      return res.status(401).json({ error: "No token provided" });
-    }
-
-    if (!authHeader.startsWith("Bearer ")) {
-      return res
-        .status(401)
-        .json({ error: "Invalid token format. Use: Bearer <token>" });
-    }
-
-    const token = authHeader.substring(7);
-
-    if (!process.env.JWT_SECRET) {
-      throw new Error("JWT_SECRET is not set");
-    }
-
-    const decoded = jwt.verify(token, process.env.JWT_SECRET) as JWTPayload;
-
-    req.user = decoded;
-    next();
-  } catch (error) {
-    console.error("Auth middleware error:", error);
-
-    if (error instanceof jwt.JsonWebTokenError) {
-      return res.status(401).json({ error: "Invalid token" });
-    }
-    if (error instanceof jwt.TokenExpiredError) {
-      return res.status(401).json({ error: "Token expired" });
-    }
-
-    return res.status(401).json({ error: "Authentication failed" });
-  }
-};
 
 // Controller function: retrieves a paginated, filterable list of foods visible to the authenticated user
 export const getFoods = async (req: Request, res: Response) => {

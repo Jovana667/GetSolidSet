@@ -5,11 +5,11 @@ import {
   getFoodById,
   searchFoods,
   createCustomFood,
-  verifyToken,
   updateCustomFood,
   deleteCustomFood,
 } from "../controllers/foodControllers";
 import { validateCustomFood } from "../middleware/validation";
+import { verifyToken } from "../middleware/auth";
 
 
 // Router instance that groups all food-related routes together
