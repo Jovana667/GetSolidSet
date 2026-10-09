@@ -533,8 +533,34 @@ export const updateMealPlan = async (req: Request, res: Response) => {
 
 export const addFoodToMeal = async (req: Request, res: Response) => {
   try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(401).json({ error: "User not authenticated" });
+    }
+
     const mealId = parseInt(req.params.mealId);
     const { food_id, quantity_g } = req.body;
+
+        if (isNaN(mealId) || !food_id || !(quantity_g > 0)) {
+      return res.status(400).json({ error: "Valid meal ID, food ID and quantity are required"});
+    }
+    
+    const mealCheck = await pool.query(
+      `SELECT id FROM meals WHERE id = $1 AND user_id = $2`,
+      [mealId, userId],
+    );
+    if (mealCheck.rows.length === 0) {
+      return res.status(404).json({ error: "Meal not found" });
+    }
+
+    const foodCheck = await pool.query(
+      `SELECT id FROM foods
+      WHERE id = $1 AND is_active = true AND (created_by IS NULL OR created_by = $2)`,
+      [food_id, userId],
+    );
+    if (foodCheck.rows.length === 0) {
+      return res.status(404).json({ error: "Food not found" });
+    }
 
     const query = `
       INSERT INTO meal_foods (meal_id, food_id, quantity_g)
