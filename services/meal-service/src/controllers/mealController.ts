@@ -483,7 +483,6 @@ const groupedMeals: { [key: string]: { meal_id: number | null; foods: any[] } } 
 };
 
 export const updateMealPlan = async (req: Request, res: Response) => {
-  const client = await pool.connect();
 
   try {
     const { id } = req.params;
@@ -505,7 +504,7 @@ export const updateMealPlan = async (req: Request, res: Response) => {
       FROM meal_plans 
       WHERE id = $1 AND user_id = $2
     `;
-    const checkResult = await client.query(checkQuery, [id, userId]);
+    const checkResult = await pool.query(checkQuery, [id, userId]);
 
     if (checkResult.rows.length === 0) {
       return res.status(404).json({
@@ -520,7 +519,7 @@ export const updateMealPlan = async (req: Request, res: Response) => {
       WHERE id = $2 AND user_id = $3
       RETURNING id, user_id, name, is_template, meal_date, created_at, updated_at
     `;
-    const updateResult = await client.query(updateQuery, [name, id, userId]);
+    const updateResult = await pool.query(updateQuery, [name, id, userId]);
 
     res.status(200).json({
       message: "Meal plan updated successfully",
@@ -529,9 +528,7 @@ export const updateMealPlan = async (req: Request, res: Response) => {
   } catch (error) {
     console.error("Update meal plan error:", error);
     res.status(500).json({ error: "Failed to update meal plan" });
-  } finally {
-    client.release();
-  }
+  } 
 };
 
 export const addFoodToMeal = async (req: Request, res: Response) => {
@@ -745,3 +742,4 @@ ORDER BY mp.created_at DESC
     res.status(500).json({ error: "Failed to retrieve assigned meals" });
   }
 };
+
