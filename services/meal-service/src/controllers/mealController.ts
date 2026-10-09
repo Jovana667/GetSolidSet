@@ -544,7 +544,7 @@ export const addFoodToMeal = async (req: Request, res: Response) => {
         if (isNaN(mealId) || !food_id || !(quantity_g > 0)) {
       return res.status(400).json({ error: "Valid meal ID, food ID and quantity are required"});
     }
-    
+
     const mealCheck = await pool.query(
       `SELECT id FROM meals WHERE id = $1 AND user_id = $2`,
       [mealId, userId],
@@ -579,9 +579,27 @@ export const addFoodToMeal = async (req: Request, res: Response) => {
 
 export const updateFoodServing = async (req: Request, res: Response) => {
   try {
+
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(401).json({ error: "User not authenticated" });
+    }
+
     const mealId = parseInt(req.params.mealId);
     const mealFoodId = parseInt(req.params.mealFoodId);
     const quantity_g = parseFloat(req.body.quantity_g);
+
+    if (isNaN(mealId) || isNaN(mealFoodId) || !(quantity_g > 0)) {
+      return res.status(400).json({ error: "Valid meal ID, meal food ID and quantity are required" });
+    }
+
+    const mealCheck = await pool.query(
+      `SELECT id FROM meals WHERE id = $1 AND user_id = $2`,
+      [mealId, userId],
+    );
+    if (mealCheck.rows.length === 0) {
+      return res.status(404).json({ error: "Meal not found" });
+    }
 
     const query = `
       UPDATE meal_foods
@@ -608,8 +626,23 @@ export const updateFoodServing = async (req: Request, res: Response) => {
 
 export const removeFoodFromMeal = async (req: Request, res: Response) => {
   try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(401).json({ error: "User not authenticated" });
+    }
     const mealId = parseInt(req.params.mealId);
     const mealFoodId = parseInt(req.params.mealFoodId);
+    if (isNaN(mealId) || isNaN(mealFoodId)) {
+      return res.status(400).json({ error: "Valid meal ID and meal food ID are required" });
+    }
+    
+    const mealCheck = await pool.query(
+      `SELECT id FROM meals WHERE id = $1 AND user_id = $2`,
+      [mealId, userId],
+    );
+    if (mealCheck.rows.length === 0) {
+      return res.status(404).json({ error: "Meal not found" });
+    }
 
     const query = `
 DELETE FROM meal_foods  
@@ -634,11 +667,13 @@ RETURNING *
 };
 
 export const deleteMealPlan = async (req: Request, res: Response) => {
-  const client = await pool.connect();
   try {
     const { id } = req.params;
     const { name } = req.body;
     const userId = req.user?.id;
+    if (!userId) {
+      return res.status(401).json({ error: "User not authenticated" });
+    }
 
     // Check if meal plan exists and belongs to user
     const checkQuery = `
@@ -646,7 +681,7 @@ export const deleteMealPlan = async (req: Request, res: Response) => {
       FROM meal_plans 
       WHERE id = $1 AND user_id = $2
     `;
-    const checkResult = await client.query(checkQuery, [id, userId]);
+    const checkResult = await pool.query(checkQuery, [id, userId]);
 
     if (checkResult.rows.length === 0) {
       return res.status(404).json({
@@ -660,7 +695,7 @@ export const deleteMealPlan = async (req: Request, res: Response) => {
       WHERE id = $1 AND user_id = $2
       RETURNING id, user_id, name, is_template, meal_date, created_at, updated_at
     `;
-    const deleteResult = await client.query(deleteQuery, [id, userId]);
+    const deleteResult = await pool.query(deleteQuery, [id, userId]);
 
     res.status(200).json({
       message: "Meal plan deleted successfully",
@@ -669,14 +704,17 @@ export const deleteMealPlan = async (req: Request, res: Response) => {
   } catch (error) {
     console.error("Delete meal plan error:", error);
     res.status(500).json({ error: "Failed to delete meal plan" });
-  } finally {
-    client.release();
   }
 };
 
 // Trainer-only endpoint to get a client's meals
 export const getClientMeals = async (req: Request, res: Response) => {
   try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(401).json({ error: "User not authenticated" });
+    }
+    
     const trainerClientId = req.params.trainerClientId;
 
     if (!trainerClientId || trainerClientId === "null") {
