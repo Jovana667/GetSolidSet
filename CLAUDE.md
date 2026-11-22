@@ -19,7 +19,6 @@ TypeScript, Express, PostgreSQL, React
 
 ## Rules
 - Always verify food ownership before any edit or delete operation
-- No `any` types — TypeScript strict mode
 - Functional React components with hooks only
 - Do NOT refactor code I didn't ask you to touch
 - Ask before making architectural changes
