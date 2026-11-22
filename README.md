@@ -1,156 +1,130 @@
-# Get Solid Set 
+# Get Solid Set
 
 A full-stack fitness coaching platform for personal trainers to build, manage, and share meal plans with clients.
 
+**Live site:** [getsolidset.com](https://getsolidset.com) · **Status:** 🛠️ In active development, preparing for a pilot with personal trainers
+
+<img width="353" height="801" alt="Screenshot 2026-11-23 025108" src="https://github.com/user-attachments/assets/8304cdca-c7f7-425e-bb13-e16cb7a9e917" />
+
+<img width="351" height="781" alt="Screenshot 2026-11-23 024448" src="https://github.com/user-attachments/assets/438cb966-699b-4f21-add2-f4403adcad1a" />
+
 ## Overview
 
-Get Solid Set is built for the trainer-client workflow — trainers create structured meal plans, assign them to clients, track body composition measurements, and share plans via a clean mobile-friendly link. Clients can view their assigned plans without needing to log in.
+Get Solid Set is built around the trainer–client workflow. Trainers create structured meal plans, assign them to clients, track body composition, and share plans through a clean, mobile-friendly link. Clients don't need an account to view a shared plan, so trainers can use the app without having to onboard every client.
 
 ## Tech Stack
 
-* Frontend: React, TypeScript, Tailwind CSS — deployed on Vercel
-* Backend: Node.js, TypeScript, Express, PostgreSQL — deployed on Render
-* Architecture: Microservices (auth, food, meal, user, chatbot)
-* Auth: JWT with refresh tokens, OTP-based password reset via Gmail
-* Email: Nodemailer (Gmail SMTP)
+- **Frontend:** React, TypeScript, Tailwind CSS (deployed on Vercel)
+- **Backend:** Node.js, Express, TypeScript, PostgreSQL (deployed on Render)
+- **Architecture:** Microservices (auth, food, meal, user)
+- **Auth:** JWT access tokens with database-stored refresh tokens, OTP-based password reset
+- **Email:** Nodemailer via Gmail SMTP
 
 ## Features
 
-* Trainer and client account roles
-* Meal plan builder with breakfast, lunch, dinner, and snack sections
-* Food database with categories (protein, carbs, fats, vegetables, fruits, supplements)
-* Custom food creation
-* Macro calculations per food, per meal, and daily totals
-* Client management — add, link, and view clients
-* Skinfold measurement tracking
-* Client notes and journal
-* Shareable meal plan links (no client login required)
-* PDF-ready meal plan view
-* OTP-based forgot password flow
-* Mobile responsive with food drawer for small screens
+- Meal plan builder with macro totals per food, per meal, and per day
+- Food database by category, plus trainer-created custom foods
+- Client management: add, link, and view clients
+- Skinfold measurement tracking and client notes
+- Shareable meal plan links (no client login required)
+- Mobile-first design, including a slide-out food drawer on small screens
+
+## Technical Highlights
+
+- **Microservices with shared JWT auth:** the auth service signs tokens, and each service verifies them independently with its own middleware.
+- **Refresh token flow:** short-lived access tokens are refreshed automatically by the frontend, and refresh tokens are stored in and revoked from the database.
+- **Ownership checks:** users can only read or modify their own clients, meal plans, and custom foods.
+- **Fail-fast configuration:** services refuse to run without a `JWT_SECRET` instead of falling back to an insecure default.
 
 ## Architecture
 
 ```
 services/
-  auth-service/     → JWT auth, registration, password reset (port 3001)
-  food-service/      → Food database, custom foods (port 3002)
-  meal-service/      → Meal plans, sharing, assignment (port 3003)
-  user-service/      → Profiles, clients, skinfolds, notes (port 3004)
-  chatbot-service/   → AI meal suggestions
-frontend/            → React app
-database/             → Migrations and seed data
+  auth-service/     → Registration, login, refresh tokens, password reset  (port 3001)
+  food-service/     → Food database, custom foods                          (port 3002)
+  meal-service/     → Meal plans, sharing, assignment                      (port 3003)
+  user-service/     → Profiles, clients, skinfolds, notes                  (port 3004)
+  chatbot-service/  → Planned: AI meal suggestions (not yet implemented)
+frontend/           → React app
+database/           → Schema, migrations, and seed data
 ```
 
 ## Getting Started
 
 ### Prerequisites
 
-* Node.js v18+
-* PostgreSQL 14+
-* npm
+- Node.js v18+
+- PostgreSQL 14+
+- npm
 
-### Database Setup
+### 1. Environment variables
+
+Create a `.env` file in each service folder. `JWT_SECRET` **must be identical in all four services**, otherwise tokens issued by the auth service will be rejected with `401 Invalid token`.
+
+Generate a secret with:
 
 ```
-# Create database
-createdb getsolidset_dev
-
-# Run migrations
-cd database
-npm install
-node migrate.js
-
-# Seed food data
-cd database/seeds
-node seed.js
+node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
 ```
 
-### Environment Variables
-
-Create a `.env` in each service folder:
-
-**Auth service (port 3001)**
+**auth-service**
 ```
 DATABASE_URL=postgresql://postgres:your_password@localhost:5432/getsolidset_dev
 PORT=3001
 JWT_SECRET=your_jwt_secret
-REFRESH_TOKEN_SECRET=your_refresh_secret
+ALLOWED_ORIGINS=http://localhost:5173
 EMAIL_USER=your_gmail@gmail.com
 EMAIL_PASS=your_gmail_app_password
+```
+
+**food-service**, **meal-service**, **user-service** (same shape, different port)
+```
+DATABASE_URL=postgresql://postgres:your_password@localhost:5432/getsolidset_dev
+PORT=3002   # 3003 for meal-service, 3004 for user-service
+JWT_SECRET=your_jwt_secret
 ALLOWED_ORIGINS=http://localhost:5173
 ```
 
-**Food service (port 3002)**
-```
-DATABASE_URL=...
-PORT=3002
-```
+> `EMAIL_PASS` must be a Gmail [App Password](https://myaccount.google.com/apppasswords), not your regular Gmail password.
 
-**Meal service (port 3003)**
-```
-DATABASE_URL=...
-PORT=3003
-```
-
-**User service (port 3004)**
-```
-DATABASE_URL=...
-PORT=3004
-```
-
-Note: `EMAIL_PASS` must be a Gmail App Password (16 characters), not your regular Gmail password. Generate one at Google Account → Security → 2-Step Verification → App Passwords.
-
-### Frontend
-
-```
-cd frontend
-npm install
-npm run dev
-```
-
-Create `frontend/.env`:
+**frontend** (`frontend/.env`)
 ```
 VITE_AUTH_API_URL=http://localhost:3001/api/auth
-VITE_MEAL_API_URL=http://localhost:3003
-VITE_FOOD_API_URL=http://localhost:3002
-VITE_USER_API_URL=http://localhost:3004
+VITE_FOOD_API_URL=http://localhost:3002/api
+VITE_MEAL_API_URL=http://localhost:3003/api
+VITE_USER_API_URL=http://localhost:3004/api
 ```
 
-### Running Services
+### 2. Database
+
+Migrations and seeds read `DATABASE_URL` from `services/auth-service/.env`, so set that up first.
 
 ```
-# Each service in its own terminal
-cd services/auth-service && npm run dev
-cd services/food-service && npm run dev
-cd services/meal-service && npm run dev
-cd services/user-service && npm run dev
+createdb getsolidset_dev
+
+cd database
+npm install
+node migrate.js          # create tables
+node seeds/seed.js       # load the food database
 ```
 
-## Adding Custom Foods
+To update the food database, edit `database/seeds/foods.json` and re-run `node seeds/seed.js`. Trainer-created custom foods are preserved.
 
-Edit `database/seeds/foods.json` directly — each entry follows this shape:
+### 3. Run the app
+
+Each service and the frontend run in their own terminal:
 
 ```
-{
-  "name": "Chicken breast",
-  "category": "protein",
-  "protein_per_100g": 31,
-  "carbs_per_100g": 0,
-  "fat_per_100g": 3.6,
-  "calories_per_100g": 165,
-  "default_serving_g": 150
-}
+cd services/auth-service && npm install && npm run dev
+cd services/food-service && npm install && npm run dev
+cd services/meal-service && npm install && npm run dev
+cd services/user-service && npm install && npm run dev
+cd frontend && npm install && npm run dev
 ```
 
-Then re-run `node seed.js` — existing custom foods are preserved.
+Then open [http://localhost:5173](http://localhost:5173).
 
 ## Deployment
 
-* Frontend: Vercel (auto-deploys from main)
-* Backend: Render (Starter plan — always-on, outbound SMTP enabled)
-* Database: Render PostgreSQL
-
-## Status
-
-🚀 Pilot launch — actively in use and development
+- **Frontend:** Vercel, auto-deploys from `main`
+- **Backend services and database:** Render
