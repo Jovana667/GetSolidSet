@@ -444,12 +444,14 @@ WHERE id = $1 AND (
     const mealsResult = await pool.query(mealsQuery, [mealPlanId]);
 
     // Group foods by meal type
-const groupedMeals: { [key: string]: { meal_id: number | null; foods: any[] } } = {
-  breakfast: { meal_id: null, foods: [] },
-  lunch: { meal_id: null, foods: [] },
-  dinner: { meal_id: null, foods: [] },
-  snack: { meal_id: null, foods: [] },
-};
+    const groupedMeals: {
+      [key: string]: { meal_id: number | null; foods: any[] };
+    } = {
+      breakfast: { meal_id: null, foods: [] },
+      lunch: { meal_id: null, foods: [] },
+      dinner: { meal_id: null, foods: [] },
+      snack: { meal_id: null, foods: [] },
+    };
 
     mealsResult.rows.forEach((row: any) => {
       groupedMeals[row.meal_type].meal_id = row.meal_id;
@@ -483,7 +485,6 @@ const groupedMeals: { [key: string]: { meal_id: number | null; foods: any[] } } 
 };
 
 export const updateMealPlan = async (req: Request, res: Response) => {
-
   try {
     const { id } = req.params;
     const { name } = req.body;
@@ -528,7 +529,7 @@ export const updateMealPlan = async (req: Request, res: Response) => {
   } catch (error) {
     console.error("Update meal plan error:", error);
     res.status(500).json({ error: "Failed to update meal plan" });
-  } 
+  }
 };
 
 export const addFoodToMeal = async (req: Request, res: Response) => {
@@ -541,8 +542,10 @@ export const addFoodToMeal = async (req: Request, res: Response) => {
     const mealId = parseInt(req.params.mealId);
     const { food_id, quantity_g } = req.body;
 
-        if (isNaN(mealId) || !food_id || !(quantity_g > 0)) {
-      return res.status(400).json({ error: "Valid meal ID, food ID and quantity are required"});
+    if (isNaN(mealId) || !food_id || !(quantity_g > 0)) {
+      return res
+        .status(400)
+        .json({ error: "Valid meal ID, food ID and quantity are required" });
     }
 
     const mealCheck = await pool.query(
@@ -579,7 +582,6 @@ export const addFoodToMeal = async (req: Request, res: Response) => {
 
 export const updateFoodServing = async (req: Request, res: Response) => {
   try {
-
     const userId = req.user?.id;
     if (!userId) {
       return res.status(401).json({ error: "User not authenticated" });
@@ -590,7 +592,11 @@ export const updateFoodServing = async (req: Request, res: Response) => {
     const quantity_g = parseFloat(req.body.quantity_g);
 
     if (isNaN(mealId) || isNaN(mealFoodId) || !(quantity_g > 0)) {
-      return res.status(400).json({ error: "Valid meal ID, meal food ID and quantity are required" });
+      return res
+        .status(400)
+        .json({
+          error: "Valid meal ID, meal food ID and quantity are required",
+        });
     }
 
     const mealCheck = await pool.query(
@@ -633,9 +639,11 @@ export const removeFoodFromMeal = async (req: Request, res: Response) => {
     const mealId = parseInt(req.params.mealId);
     const mealFoodId = parseInt(req.params.mealFoodId);
     if (isNaN(mealId) || isNaN(mealFoodId)) {
-      return res.status(400).json({ error: "Valid meal ID and meal food ID are required" });
+      return res
+        .status(400)
+        .json({ error: "Valid meal ID and meal food ID are required" });
     }
-    
+
     const mealCheck = await pool.query(
       `SELECT id FROM meals WHERE id = $1 AND user_id = $2`,
       [mealId, userId],
@@ -714,7 +722,7 @@ export const getClientMeals = async (req: Request, res: Response) => {
     if (!userId) {
       return res.status(401).json({ error: "User not authenticated" });
     }
-    
+
     const trainerClientId = req.params.trainerClientId;
 
     if (!trainerClientId || trainerClientId === "null") {
@@ -806,4 +814,3 @@ ORDER BY mp.created_at DESC
     res.status(500).json({ error: "Failed to retrieve assigned meals" });
   }
 };
-
