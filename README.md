@@ -4,9 +4,9 @@ A full-stack fitness coaching platform for personal trainers to build, manage, a
 
 **Live site:** [getsolidset.com](https://getsolidset.com) · **Status:** 🛠️ In active development, preparing for a pilot with personal trainers
 
-<img width="353" height="801" alt="Screenshot 2026-11-23 025108" src="https://github.com/user-attachments/assets/8304cdca-c7f7-425e-bb13-e16cb7a9e917" />
+<img width="353" height="786" alt="Screenshot 2026-11-23 025108" src="https://github.com/user-attachments/assets/8304cdca-c7f7-425e-bb13-e16cb7a9e917" />
 
-<img width="351" height="781" alt="Screenshot 2026-11-23 024448" src="https://github.com/user-attachments/assets/438cb966-699b-4f21-add2-f4403adcad1a" />
+<img width="353" height="786" alt="Screenshot 2026-11-23 025306" src="https://github.com/user-attachments/assets/de05242e-383c-4144-9edf-06608bd539d4" />
 
 ## Overview
 
