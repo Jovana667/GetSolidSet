@@ -222,8 +222,7 @@ function ClientsPage() {
                   <h3 className="text-xl font-semibold mb-2">
                     {client.client_name || client.email}
                   </h3>
-                  <p className="text-gray-600 mb-4">{client.email}</p>
-                  {clientSelectMode !== "remove" && (
+<p className="text-gray-600 mb-4">{client.email || client.client_email}</p>                  {clientSelectMode !== "remove" && (
                     <button
                       onClick={() =>
                         navigate(
@@ -265,7 +264,7 @@ function ClientsPage() {
               className="w-full px-3 py-2 border border-gray-300 rounded mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             <p className="text-xs text-gray-400 mb-4">
-              Enter email only if client has a Macrology account
+              Enter email only if client has a GetSolidSet account
             </p>
             {modalError && (
               <p className="text-red-500 text-sm mb-4">{modalError}</p>
